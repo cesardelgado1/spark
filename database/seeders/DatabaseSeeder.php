@@ -1,22 +1,26 @@
 <?php
 
 namespace Database\Seeders;
-use App\Models\Goal;
-use App\Models\Indicator;
-use App\Models\Objective;
-use App\Models\Task;
-use App\Models\Topic;
-use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use App\Models\Usuario;
+
 use Illuminate\Database\Seeder;
+use App\Models\User;
+use App\Models\Topic;
+use App\Models\Goal;
+use App\Models\Objective;
+use App\Models\Indicator;
+use App\Models\Task;
 
-class DatabaseSeeder extends Seeder {
-    public function run(): void {
+class DatabaseSeeder extends Seeder
+{
+    /**
+     * Seed the application's database.
+     */
+    public function run(): void
+    {
         // Create users
-        Usuario::factory()->count(5)->create();
+        User::factory()->count(5)->create();
 
-        // Create topics and their related data
+        // Create topics and related data
         Topic::factory()->count(3)->create()->each(function ($topic) {
             $goals = Goal::factory()->count(2)->create(['t_id' => $topic->t_id]);
 

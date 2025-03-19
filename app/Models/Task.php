@@ -14,10 +14,10 @@ class Task extends Model {
     protected $fillable = ['assigned_by', 'assigned_to', 'assigned_on', 'completed_on'];
 
     public function assigner(): BelongsTo {
-        return $this->belongsTo(Usuario::class, 'assigned_by');
+        return $this->belongsTo(User::class, 'assigned_by');
     }
 
     public function assignee(): BelongsTo {
-        return $this->belongsTo(Usuario::class, 'assigned_to');
+        return $this->belongsTo(User::class, 'assigned_to');
     }
 }

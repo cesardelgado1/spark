@@ -5,16 +5,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
     public function up(): void {
-        Schema::create('usuario', function (Blueprint $table) {
-            $table->id('u_id');
-            $table->string('u_fname');
-            $table->string('u_lname');
-            $table->string('u_email')->unique();
-            $table->timestamp('u_signup_date')->useCurrent();
-            $table->enum('u_type', ['Admin', 'Planner', 'Assignee', 'Contributor']);
-            $table->timestamps();
-        });
-
         Schema::create('topics', function (Blueprint $table) {
             $table->id('t_id');
             $table->integer('t_num')->unique();
@@ -58,8 +48,8 @@ return new class extends Migration {
             $table->unsignedBigInteger('assigned_to');
             $table->timestamp('assigned_on')->useCurrent();
             $table->timestamp('completed_on')->nullable();
-            $table->foreign('assigned_by')->references('u_id')->on('usuario')->onDelete('cascade');
-            $table->foreign('assigned_to')->references('u_id')->on('usuario')->onDelete('cascade');
+            $table->foreign('assigned_by')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('assigned_to')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -70,6 +60,5 @@ return new class extends Migration {
         Schema::dropIfExists('objectives');
         Schema::dropIfExists('goals');
         Schema::dropIfExists('topics');
-        Schema::dropIfExists('users');
     }
 };
