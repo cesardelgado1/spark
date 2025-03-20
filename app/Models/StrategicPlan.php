@@ -8,14 +8,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class AuditLogs extends Model {
+class StrategicPlan extends Model {
     use HasFactory;
 
-    protected $table = 'audit_logs';
-    protected $primaryKey = 'al_id';
-    protected $fillable = ['al_timestamp', 'al_IPAddress', 'al_action', 'al_action_par', 'id'];
+    protected $table = 'strategic_plan';
+    protected $primaryKey = 'sp_id';
+    protected $fillable = ['sp_institution'];
 
-    public function user(): BelongsTo {
-        return $this->belongsTo(User::class, 'id');
+    public function topics(): HasMany {
+        return $this->hasMany(Topic::class, 't_id');
     }
 }

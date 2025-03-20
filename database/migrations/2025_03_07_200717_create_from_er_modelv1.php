@@ -5,10 +5,26 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
     public function up(): void {
+        Schema::create('audit_logs', function (Blueprint $table) {
+            $table->id('al_id');
+            $table->integer('al_IPAddress');
+            $table->text('al_action');
+            $table->text('al_action_par');
+            $table->foreign('id')->references('id')->on('user')->onDelete('cascade');
+            $table->timestamps();
+        });
+
+        Schema::create('strategic_plan', function (Blueprint $table) {
+            $table->id('sp_id');
+            $table->text('sp_institution');
+            $table->timestamps();
+        });
+
         Schema::create('topics', function (Blueprint $table) {
             $table->id('t_id');
             $table->integer('t_num')->unique();
             $table->text('t_text');
+            $table->foreign('sp_id')->references('sp_id')->on('strategic_plan')->onDelete('cascade');
             $table->timestamps();
         });
 
@@ -38,6 +54,7 @@ return new class extends Migration {
             $table->text('i_resp_text')->nullable();
             $table->string('i_resp_file')->nullable();
             $table->unsignedBigInteger('o_id');
+            $table->year('i_FY');
             $table->foreign('o_id')->references('o_id')->on('objectives')->onDelete('cascade');
             $table->timestamps();
         });
@@ -60,5 +77,7 @@ return new class extends Migration {
         Schema::dropIfExists('objectives');
         Schema::dropIfExists('goals');
         Schema::dropIfExists('topics');
+        Schema::dropIfExists('strategic_plan');
+        Schema::dropIfExists('audit_logs');
     }
 };

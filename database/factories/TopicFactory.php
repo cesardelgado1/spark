@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\StrategicPlan;
 use App\Models\Topic;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -12,6 +13,7 @@ class TopicFactory extends Factory {
         return [
             't_num' => $this->faker->unique()->randomNumber(),
             't_text' => $this->faker->sentence(),
+            'sp_id' => StrategicPlan::factory(),
         ];
     }
 }

@@ -16,6 +16,7 @@ class IndicatorFactory extends Factory {
             'i_resp_num' => $this->faker->optional()->randomNumber(),
             'i_resp_text' => $this->faker->optional()->sentence(),
             'i_resp_file' => $this->faker->optional()->word() . '.pdf',
+            'i_FY' => $this->faker->optional()->year(),
             'o_id' => Objective::factory(),
         ];
     }

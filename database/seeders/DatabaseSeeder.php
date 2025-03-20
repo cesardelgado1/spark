@@ -9,6 +9,8 @@ use App\Models\Goal;
 use App\Models\Objective;
 use App\Models\Indicator;
 use App\Models\Task;
+use App\Models\AuditLogs;
+use App\Models\StrategicPlan;
 
 class DatabaseSeeder extends Seeder
 {
