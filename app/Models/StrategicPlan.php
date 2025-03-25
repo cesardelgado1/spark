@@ -16,6 +16,6 @@ class StrategicPlan extends Model {
     protected $fillable = ['sp_institution'];
 
     public function topics(): HasMany {
-        return $this->hasMany(Topic::class, 't_id');
+        return $this->hasMany(Topic::class, 'sp_id');
     }
 }

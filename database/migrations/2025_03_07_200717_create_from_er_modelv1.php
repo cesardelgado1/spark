@@ -10,7 +10,8 @@ return new class extends Migration {
             $table->integer('al_IPAddress');
             $table->text('al_action');
             $table->text('al_action_par');
-            $table->foreign('id')->references('id')->on('user')->onDelete('cascade');
+            $table->unsignedBigInteger('user_id');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();
         });
 
@@ -22,15 +23,16 @@ return new class extends Migration {
 
         Schema::create('topics', function (Blueprint $table) {
             $table->id('t_id');
-            $table->integer('t_num')->unique();
+            $table->integer('t_num');
             $table->text('t_text');
+            $table->unsignedBigInteger('sp_id');
             $table->foreign('sp_id')->references('sp_id')->on('strategic_plan')->onDelete('cascade');
             $table->timestamps();
         });
 
         Schema::create('goals', function (Blueprint $table) {
             $table->id('g_id');
-            $table->integer('g_num')->unique();
+            $table->integer('g_num');
             $table->text('g_text');
             $table->unsignedBigInteger('t_id');
             $table->foreign('t_id')->references('t_id')->on('topics')->onDelete('cascade');
@@ -39,7 +41,7 @@ return new class extends Migration {
 
         Schema::create('objectives', function (Blueprint $table) {
             $table->id('o_id');
-            $table->integer('o_num')->unique();
+            $table->integer('o_num');
             $table->text('o_text');
             $table->unsignedBigInteger('g_id');
             $table->foreign('g_id')->references('g_id')->on('goals')->onDelete('cascade');
@@ -48,7 +50,7 @@ return new class extends Migration {
 
         Schema::create('indicators', function (Blueprint $table) {
             $table->id('i_id');
-            $table->integer('i_num')->unique();
+            $table->integer('i_num');
             $table->text('i_prompt');
             $table->integer('i_resp_num')->nullable();
             $table->text('i_resp_text')->nullable();
@@ -58,21 +60,9 @@ return new class extends Migration {
             $table->foreign('o_id')->references('o_id')->on('objectives')->onDelete('cascade');
             $table->timestamps();
         });
-
-        Schema::create('tasks', function (Blueprint $table) {
-            $table->id('t_id');
-            $table->unsignedBigInteger('assigned_by');
-            $table->unsignedBigInteger('assigned_to');
-            $table->timestamp('assigned_on')->useCurrent();
-            $table->timestamp('completed_on')->nullable();
-            $table->foreign('assigned_by')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('assigned_to')->references('id')->on('users')->onDelete('cascade');
-            $table->timestamps();
-        });
     }
 
     public function down(): void {
-        Schema::dropIfExists('tasks');
         Schema::dropIfExists('indicators');
         Schema::dropIfExists('objectives');
         Schema::dropIfExists('goals');

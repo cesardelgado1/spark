@@ -13,11 +13,11 @@ class AuditLogsFactory extends Factory {
 
     public function definition(): array {
         return [
-            'al_timestamp' => $this->faker->dateTime(),
+            #'al_timestamp' => $this->faker->dateTime(),
             'al_IPAddress' => $this->faker->ipv4(),
             'al_action' => $this->faker->sentence(),
             'al_action_par' => $this->faker->sentence(),
-            'id' => User::factory(),
+            'user_id' => User::factory(),
         ];
     }
 }

@@ -11,7 +11,7 @@ class GoalFactory extends Factory {
 
     public function definition(): array {
         return [
-            'g_num' => $this->faker->unique()->randomNumber(),
+            'g_num' => $this->faker->numberBetween(1, 9999),
             'g_text' => $this->faker->sentence(),
             't_id' => Topic::factory(),
         ];

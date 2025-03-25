@@ -11,7 +11,7 @@ class IndicatorFactory extends Factory {
 
     public function definition(): array {
         return [
-            'i_num' => $this->faker->unique()->randomNumber(),
+            'i_num' => $this->faker->numberBetween(1, 9999),
             'i_prompt' => $this->faker->sentence(),
             'i_resp_num' => $this->faker->optional()->randomNumber(),
             'i_resp_text' => $this->faker->optional()->sentence(),

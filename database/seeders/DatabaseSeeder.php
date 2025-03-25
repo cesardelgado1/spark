@@ -4,38 +4,62 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\User;
+use App\Models\StrategicPlan;
 use App\Models\Topic;
 use App\Models\Goal;
 use App\Models\Objective;
 use App\Models\Indicator;
 use App\Models\Task;
 use App\Models\AuditLogs;
-use App\Models\StrategicPlan;
 
 class DatabaseSeeder extends Seeder
 {
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
-        // Create users
-        User::factory()->count(5)->create();
+        // 1. Create Strategic Plan
+        $strategicPlan = StrategicPlan::factory()->create();
 
-        // Create topics and related data
-        Topic::factory()->count(3)->create()->each(function ($topic) {
-            $goals = Goal::factory()->count(2)->create(['t_id' => $topic->t_id]);
+        // 2. Create Users
+        $users = User::factory()->count(5)->create();
 
-            $goals->each(function ($goal) {
-                $objectives = Objective::factory()->count(2)->create(['g_id' => $goal->g_id]);
-
-                $objectives->each(function ($objective) {
-                    Indicator::factory()->count(3)->create(['o_id' => $objective->o_id]);
-                });
+        // 3. Create Topics with nested Goals, Objectives, and Indicators
+        Topic::factory()
+            ->count(3)
+            ->create(['sp_id' => $strategicPlan->sp_id])
+            ->each(function ($topic) {
+                Goal::factory()
+                    ->count(2)
+                    ->create(['t_id' => $topic->t_id])
+                    ->each(function ($goal) {
+                        Objective::factory()
+                            ->count(2)
+                            ->create(['g_id' => $goal->g_id])
+                            ->each(function ($objective) {
+                                Indicator::factory()->count(3)->create([
+                                    'o_id' => $objective->o_id,
+                                    'i_FY' => now()->year,
+                                ]);
+                            });
+                    });
             });
-        });
 
-        // Create tasks
-        Task::factory()->count(10)->create();
+        // 4. Create Tasks between users
+        Task::factory()->count(10)->create([
+            'assigned_by' => $users[0]->id,
+            'assigned_to' => $users[1]->id,
+        ]);
+
+        // 5. Create Audit Logs for seeded indicators
+        $indicators = Indicator::all();
+        $logUser = $users->first();
+
+        $indicators->each(function ($indicator) use ($logUser) {
+            AuditLogs::factory()->create([
+                'user_id' => $logUser->id,
+                'al_action' => 'Seeded indicator',
+                'al_action_par' => json_encode(['indicator_id' => $indicator->i_id]),
+                'al_IPAddress' => ip2long('127.0.0.1'),
+            ]);
+        });
     }
 }

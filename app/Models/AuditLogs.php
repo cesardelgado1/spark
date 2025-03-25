@@ -13,9 +13,9 @@ class AuditLogs extends Model {
 
     protected $table = 'audit_logs';
     protected $primaryKey = 'al_id';
-    protected $fillable = ['al_timestamp', 'al_IPAddress', 'al_action', 'al_action_par', 'id'];
+    protected $fillable = ['al_IPAddress', 'al_action', 'al_action_par', 'user_id'];
 
     public function user(): BelongsTo {
-        return $this->belongsTo(User::class, 'id');
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

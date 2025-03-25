@@ -11,7 +11,7 @@ class ObjectiveFactory extends Factory {
 
     public function definition(): array {
         return [
-            'o_num' => $this->faker->unique()->randomNumber(),
+            'o_num' => $this->faker->numberBetween(1, 9999),
             'o_text' => $this->faker->sentence(),
             'g_id' => Goal::factory(),
         ];
