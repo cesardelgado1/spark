@@ -2,21 +2,19 @@
 
 namespace Database\Factories;
 
-use App\Models\Indicator;
-use App\Models\Objective;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use App\Models\Objective;
 
-class IndicatorFactory extends Factory {
-    protected $model = Indicator::class;
-
-    public function definition(): array {
+class IndicatorFactory extends Factory
+{
+    public function definition(): array
+    {
         return [
-            'i_num' => $this->faker->numberBetween(1, 9999),
-            'i_prompt' => $this->faker->sentence(),
-            'i_resp_num' => $this->faker->optional()->randomNumber(),
-            'i_resp_text' => $this->faker->optional()->sentence(),
-            'i_resp_file' => $this->faker->optional()->word() . '.pdf',
-            'i_FY' => $this->faker->optional()->year(),
+            'i_num' => $this->faker->numberBetween(1, 10),
+            'i_text' => $this->faker->sentence,
+            'i_type' => $this->faker->randomElement(['integer', 'string', 'document']),
+            'i_doc_path' => $this->faker->optional()->filePath(),
+            'i_value' => $this->faker->optional()->text,
             'o_id' => Objective::factory(),
         ];
     }

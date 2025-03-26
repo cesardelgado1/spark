@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class StrategicPlan extends Model {
     use HasFactory;
 
-    protected $table = 'strategic_plan';
+    protected $table = 'strategic_plans';
     protected $primaryKey = 'sp_id';
     protected $fillable = ['sp_institution'];
 

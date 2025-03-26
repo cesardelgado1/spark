@@ -2,6 +2,9 @@
 
 namespace Database\Seeders;
 
+use App\Models\AssignIndicators;
+use App\Models\AssignObjectives;
+use App\Models\AuditLogs;
 use Illuminate\Database\Seeder;
 use App\Models\User;
 use App\Models\StrategicPlan;
@@ -9,57 +12,55 @@ use App\Models\Topic;
 use App\Models\Goal;
 use App\Models\Objective;
 use App\Models\Indicator;
-use App\Models\Task;
-use App\Models\AuditLogs;
+use App\Models\AssignObjective;
+use App\Models\AssignIndicator;
+use App\Models\AuditLog;
 
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. Create Strategic Plan
+        // Create users
+        $users = User::factory()->count(10)->create();
+
+        // Create strategic plan with nested data
         $strategicPlan = StrategicPlan::factory()->create();
 
-        // 2. Create Users
-        $users = User::factory()->count(5)->create();
+        $usersByType = [
+            'Planner' => $users->where('u_type', 'Planner'),
+            'Contributor' => $users->where('u_type', 'Contributor'),
+            'Assignee' => $users->where('u_type', 'Assignee'),
+        ];
 
-        // 3. Create Topics with nested Goals, Objectives, and Indicators
-        Topic::factory()
-            ->count(3)
-            ->create(['sp_id' => $strategicPlan->sp_id])
-            ->each(function ($topic) {
-                Goal::factory()
-                    ->count(2)
-                    ->create(['t_id' => $topic->t_id])
-                    ->each(function ($goal) {
-                        Objective::factory()
-                            ->count(2)
-                            ->create(['g_id' => $goal->g_id])
-                            ->each(function ($objective) {
-                                Indicator::factory()->count(3)->create([
-                                    'o_id' => $objective->o_id,
-                                    'i_FY' => now()->year,
-                                ]);
-                            });
+        Topic::factory()->count(rand(2, 4))->create(['sp_id' => $strategicPlan->sp_id])->each(function ($topic) use ($usersByType) {
+            Goal::factory()->count(rand(2, 4))->create(['t_id' => $topic->t_id])->each(function ($goal) use ($usersByType) {
+                Objective::factory()->count(rand(2, 4))->create(['g_id' => $goal->g_id])->each(function ($objective) use ($usersByType) {
+                    // Assign objectives to Contributors
+                    if ($usersByType['Contributor']->count()) {
+                        AssignObjectives::create([
+                            'o_id' => $objective->o_id,
+                            'user_id' => $usersByType['Contributor']->random()->id,
+                        ]);
+                    }
+
+                    Indicator::factory()->count(rand(2, 3))->create(['o_id' => $objective->o_id])->each(function ($indicator) use ($usersByType) {
+                        // Assign indicators to Assignees
+                        if ($usersByType['Assignee']->count()) {
+                            AssignIndicators::create([
+                                'i_id' => $indicator->i_id,
+                                'user_id' => $usersByType['Assignee']->random()->id,
+                            ]);
+                        }
                     });
+                });
             });
-
-        // 4. Create Tasks between users
-        Task::factory()->count(10)->create([
-            'assigned_by' => $users[0]->id,
-            'assigned_to' => $users[1]->id,
-        ]);
-
-        // 5. Create Audit Logs for seeded indicators
-        $indicators = Indicator::all();
-        $logUser = $users->first();
-
-        $indicators->each(function ($indicator) use ($logUser) {
-            AuditLogs::factory()->create([
-                'user_id' => $logUser->id,
-                'al_action' => 'Seeded indicator',
-                'al_action_par' => json_encode(['indicator_id' => $indicator->i_id]),
-                'al_IPAddress' => ip2long('127.0.0.1'),
-            ]);
         });
+
+        // Add audit logs
+        foreach ($users as $user) {
+            AuditLogs::factory()->count(rand(1, 3))->create([
+                'user_id' => $user->id,
+            ]);
+        }
     }
 }
