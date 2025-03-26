@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Support\Facades\Route;
 use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Facades\Auth;
@@ -9,23 +10,22 @@ Route::get('/auth/saml/login', function () {
     return Socialite::driver('saml2')->redirect();
 })->name("saml.login");
 
-Route::any('/auth/callback', function () {
-    $saml = Socialite::driver('saml2')->user();
+Route::match(['get','post'],'/auth/callback', function () {
+    $saml = Socialite::driver('saml2')->stateless()->user();
 
     $user = User::updateOrCreate([
         'email' => $saml->getEmail(),
     ], [
-        'u_fname' => $saml->first_name,
-        'u_lname' => $saml->last_name,
+        'u_fname' => $saml->u_fname,
+        'u_lname' => $saml->u_lname,
         'auth_type' => 'saml2',
-        'password' => "thisisatest",
+        'password' => bcrypt(\Illuminate\Support\Str::random(32)),
     ]);
 
     Auth::login($user);
 
-    return redirect('/dashboard');
-})->name("saml.callback");
-
+    return redirect('/');
+})->withoutMiddleware([VerifyCsrfToken::class])->name('saml.callback');
 Route::get('/auth/saml/metadata', function () {
     return Socialite::driver('saml2')->getServiceProviderMetadata();
 })->name("saml.metadata");

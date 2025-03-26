@@ -11,6 +11,14 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\AssignObjectiveController;
 use App\Http\Controllers\AssignIndicatorController;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
+
+Route::post('/logout', function () {
+    Auth::logout();
+    Session::flush(); // optional: kills everything
+    return redirect('/');
+})->name('logout');
 
 Route::view('/', 'home');
 Route::view('/planes-estrategicos', 'planes-estrategicos/index');

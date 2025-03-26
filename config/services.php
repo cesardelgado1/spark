@@ -35,17 +35,16 @@ return [
         ],
     ],
     'saml2' => [
-        'entityId' => env('SAML2_ENTITY_ID', 'http://spark.test/auth/saml/metadata'), // or what UPRM expects
         'metadata' => 'https://idp.uprm.edu/saml2/idp/metadata.php',
         'sp_default_binding_method' => \LightSaml\SamlConstants::BINDING_SAML2_HTTP_POST,
         'attribute_map' => [
             'email' => 'email',
-            'first_name' => 'real_name',
-            'last_name' => 'surname',
-            'upn' => 'email',
-            'name' => 'real_name',
+            'u_fname' => 'real_name',
+            'u_lname' => 'surname',
         ],
     ],
+
+
 
 
 

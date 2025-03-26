@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
+use App\SAML\CustomSaml2Provider;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
+use SocialiteProviders\Manager\SocialiteWasCalled;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -23,6 +25,7 @@ class AppServiceProvider extends ServiceProvider
         Event::listen(function (\SocialiteProviders\Manager\SocialiteWasCalled $event) {
             $event->extendSocialite('saml2', \SocialiteProviders\Saml2\Provider::class);
         });
+
 
     }
 }
