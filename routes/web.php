@@ -29,6 +29,10 @@ Route::delete('assign-objectives/{assignment}', [AssignObjectiveController::clas
 Route::post('assign-indicators', [AssignIndicatorController::class, 'store'])->name('assignindicators.store');
 Route::delete('assign-indicators/{assignment}', [AssignIndicatorController::class, 'destroy'])->name('assignindicators.destroy');
 
+
+require __DIR__.'/saml2.php';
+
+
 //Route::get('/', function () {
 //    return view('home');
 //});

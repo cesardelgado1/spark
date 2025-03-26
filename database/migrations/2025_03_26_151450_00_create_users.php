@@ -12,6 +12,7 @@ return new class extends Migration
             $table->id(); // Primary key
             $table->string('u_fname'); // First name
             $table->string('u_lname'); // Last name
+            $table->string('auth_type')->default('local');
             $table->string('email')->unique();
             $table->timestamp('u_signup_date')->nullable();
             $table->enum('u_type', ['Planner', 'Contributor', 'Assignee'])->default('Contributor');

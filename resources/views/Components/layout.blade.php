@@ -100,9 +100,13 @@
                 {{--Add SPARK name & logo here when side panel is closed--}}
 
                 {{--Direct Button to SAML--}}
-                <button class="text-white border border-white px-4 py-2 rounded hover:bg-gray-700 focus:outline-none ml-auto mr-2">
-                    Iniciar Sesión
-                </button>
+                @guest
+                    <a href="{{ route('saml.login') }}"
+                       class="text-white border border-white px-4 py-2 rounded hover:bg-gray-700 focus:outline-none ml-auto mr-2">
+                        Iniciar Sesión
+                    </a>
+                @endguest
+
             </header>
             {{--PAGE CONTENT--}}
 
