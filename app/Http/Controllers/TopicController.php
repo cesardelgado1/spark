@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\StrategicPlan;
 use App\Models\Topic;
 use Illuminate\Http\Request;
 
 class TopicController extends Controller
 {
-    public function index()
+    public function index(StrategicPlan $strategicplan)
     {
-        $topics = Topic::latest()->simplePaginate(5);
-        return view('topics.index', compact('topics'));
+        $topics = Topic::where('sp_id', $strategicplan->sp_id)->get();
+        return view('topics.index', ['topics' => $topics, 'strategicplan' => $strategicplan]);
     }
 
     public function create()

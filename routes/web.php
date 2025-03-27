@@ -24,8 +24,20 @@ Route::view('/', 'home');
 Route::view('/planes-estrategicos', 'planes-estrategicos/index');
 Route::view('/reportes', 'reportes/index');
 Route::view('/configuracion', 'configuracion/index');
-Route::view('/plan-estrategico-UPRM', 'plan-estrategico-UPRM.index');
-Route::view('/plan-estrategico-UPRM-asuntos', 'plan-estrategico-UPRM-asuntos.index');
+Route::view('/strategicplans', 'strategicplans.index');
+Route::view('/topics', 'topics.index');
+
+
+
+// Implementar en un controlador
+Route::get('/strategicplans/{strategicplan}/topics', [TopicController::class, 'index'])->name('strategicplans.topics');
+
+
+
+
+
+
+
 
 
 Route::resource('strategicplans', StrategicPlanController::class);

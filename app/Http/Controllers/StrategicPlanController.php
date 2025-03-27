@@ -10,7 +10,7 @@ class StrategicPlanController extends Controller
     public function index()
     {
         $strategicplans = StrategicPlan::latest()->simplePaginate(5);
-        return view('strategicplans.index', compact('strategicplans'));
+        return view('strategicplans.index', ['strategicplans' => $strategicplans]);
     }
 
     public function create()
