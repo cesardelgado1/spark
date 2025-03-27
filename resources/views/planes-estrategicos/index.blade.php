@@ -15,9 +15,9 @@
         <!-- UPRM logo and link -->
         <div class="flex flex-col items-center space-y-2">
             <img src="{{ asset('images/sello-uprm.png') }}" alt="Plan Estratégico UPRM" class="w-[350px]">
-            <a href="#" class="bg-[#1F2937] text-white px-3 py-2 rounded-lg hover:bg-green-700 transition">
+            <x-button href="/plan-estrategico-UPRM" class="hover:bg-green-700 transition">
                 Plan Estratégico UPRM
-            </a>
+            </x-button>
         </div>
     </div>
 

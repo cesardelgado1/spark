@@ -24,16 +24,25 @@ Route::view('/', 'home');
 Route::view('/planes-estrategicos', 'planes-estrategicos/index');
 Route::view('/reportes', 'reportes/index');
 Route::view('/configuracion', 'configuracion/index');
+Route::view('/plan-estrategico-UPRM', 'plan-estrategico-UPRM.index');
+Route::view('/plan-estrategico-UPRM-asuntos', 'plan-estrategico-UPRM-asuntos.index');
+
+
 Route::resource('strategicplans', StrategicPlanController::class);
 Route::resource('topics', TopicController::class);
 Route::resource('goals', GoalController::class);
 Route::resource('objectives', ObjectiveController::class);
 Route::resource('indicators', IndicatorController::class);
 Route::resource('users', UserController::class);
+
+
 Route::get('auditlogs', [AuditLogController::class, 'index'])->name('auditlogs.index');
 Route::get('auditlogs/{auditlog}', [AuditLogController::class, 'show'])->name('auditlogs.show');
+
+
 Route::post('assign-objectives', [AssignObjectiveController::class, 'store'])->name('assignobjectives.store');
 Route::delete('assign-objectives/{assignment}', [AssignObjectiveController::class, 'destroy'])->name('assignobjectives.destroy');
+
 Route::post('assign-indicators', [AssignIndicatorController::class, 'store'])->name('assignindicators.store');
 Route::delete('assign-indicators/{assignment}', [AssignIndicatorController::class, 'destroy'])->name('assignindicators.destroy');
 
