@@ -32,11 +32,11 @@ Route::view('/topics', 'topics.index');
 // Implementar en un controlador
 Route::get('/strategicplans/{strategicplan}/topics', [TopicController::class, 'index'])->name('strategicplans.topics');
 
+Route::get('/topics/{topic}/goals', [GoalController::class, 'showGoals'])->name('topics.goals');
 
+Route::get('/goals/{goal}/objectives', [ObjectiveController::class, 'showObjectives'])->name('goals.objectives');
 
-
-
-
+Route::get('/objectives/{objective}/indicators', [IndicatorController::class, 'showIndicators'])->name('objectives.indicators');
 
 
 
@@ -60,20 +60,3 @@ Route::delete('assign-indicators/{assignment}', [AssignIndicatorController::clas
 
 
 require __DIR__.'/saml2.php';
-
-
-//Route::get('/', function () {
-//    return view('home');
-//});
-
-//Route::get('/planes-estrategicos', function () {
-//    return view('planes-estrategicos.index');
-//});
-
-//Route::get('/reportes', function () {
-//    return view('reportes.index');
-//});
-//
-//Route::get('/configuracion', function () {
-//    return view('configuracion.index');
-//});

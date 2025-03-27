@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Goal;
 use App\Models\Objective;
 use Illuminate\Http\Request;
 
@@ -55,4 +56,11 @@ class ObjectiveController extends Controller
         $objective->delete();
         return redirect()->route('objectives.index');
     }
+
+    public function showObjectives(Goal $goal)
+    {
+        $objectives = $goal->objectives;
+        return view('objectives.index', compact('objectives', 'goal'));
+    }
+
 }

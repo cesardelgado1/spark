@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Goal;
+use App\Models\Topic;
 use Illuminate\Http\Request;
 
 class GoalController extends Controller
@@ -55,4 +56,15 @@ class GoalController extends Controller
         $goal->delete();
         return redirect()->route('goals.index');
     }
+
+    public function showGoals(Topic $topic)
+    {
+        $goals = $topic->goals()->get();
+
+        return view('goals.index', [
+            'goals' => $goals,
+            'topic' => $topic,
+        ]);
+    }
 }
+

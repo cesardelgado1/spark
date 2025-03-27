@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Indicator;
+use App\Models\Objective;
 use Illuminate\Http\Request;
 
 class IndicatorController extends Controller
@@ -54,5 +55,11 @@ class IndicatorController extends Controller
     {
         $indicator->delete();
         return redirect()->route('indicators.index');
+    }
+
+    public function showIndicators(Objective $objective)
+    {
+        $indicators = $objective->indicators;
+        return view('indicators.index', compact('indicators','objective'));
     }
 }
