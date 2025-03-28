@@ -3,6 +3,9 @@
         Planes Estratégicos de UPRM - Asuntos del {{ $strategicplan->sp_institution }}
     </x-slot:heading>
 
+{{--    --}}{{-- Breadcrumb --}}
+{{--    <x-breadcrumb :strategicplan="$strategicplan" />--}}
+
     <div class="px-6 py-4">
         @if(count($topics) > 0)
             <div class="space-y-4">
@@ -23,5 +26,3 @@
         @endif
     </div>
 </x-layout>
-
-

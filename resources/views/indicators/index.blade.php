@@ -18,7 +18,6 @@
                         <div class="text-gray-500">
                             {{ $indicator->i_text }}
                         </div>
-                        <div class="text-blue-500 mt-2">Ver más detalles</div>
                     </a>
                 @endforeach
 

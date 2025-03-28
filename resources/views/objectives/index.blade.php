@@ -17,7 +17,7 @@
                         <div class="text-gray-500">
                             {{ $objective->o_text }}
                         </div>
-                        <div class="text-blue-500 mt-2">Ver más detalles</div>
+                        <div class="text-blue-500 mt-2">Ver Indicadores</div>
                     </a>
                 @endforeach
             </div>

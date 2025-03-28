@@ -11,7 +11,7 @@ class TopicController extends Controller
     public function index(StrategicPlan $strategicplan)
     {
         $topics = Topic::where('sp_id', $strategicplan->sp_id)->get();
-        return view('topics.index', ['topics' => $topics, 'strategicplan' => $strategicplan]);
+        return view('topics.index', compact('topics', 'strategicplan'));
     }
 
     public function create()
