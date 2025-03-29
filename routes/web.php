@@ -45,6 +45,8 @@ Route::get('/strategicplans/{strategicplan}/topics/create', [TopicController::cl
 // Ruta para guardar el asunto
 Route::post('/strategicplans/{strategicplan}/topics', [TopicController::class, 'store'])->name('topics.store');
 
+// Borrado masivo
+Route::delete('/topics/bulk-delete', [TopicController::class, 'bulkDelete'])->name('topics.bulkDelete');
 
 
 Route::resource('strategicplans', StrategicPlanController::class);

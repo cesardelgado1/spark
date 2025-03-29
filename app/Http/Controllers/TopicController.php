@@ -10,7 +10,14 @@ class TopicController extends Controller
 {
     public function index(StrategicPlan $strategicplan)
     {
+
         $topics = Topic::where('sp_id', $strategicplan->sp_id)->get();
+
+        // Para hacer lo de mostrar mas resultados
+//        $topics = Topic::where('sp_id', $strategicplan->sp_id)
+//            ->orderBy('t_num', 'asc')
+//            ->paginate(4); // Cambiamos get() por paginate(4)
+
         return view('topics.index', compact('topics', 'strategicplan'));
     }
 
@@ -68,9 +75,24 @@ class TopicController extends Controller
         return redirect()->route('topics.index');
     }
 
+    // Este sirve para borrar solamente 1, si quiero que sea mas de 1, cree el de abajo, que coje muchos id de muchos topics :)
     public function destroy(Topic $topic)
     {
         $topic->delete();
-        return redirect()->route('topics.index');
+        return redirect()->route('strategicplans.topics', ['strategicplan' => $topic->sp_id])
+            ->with('success', 'Asunto eliminado correctamente.');
+    }
+
+    public function bulkDelete(Request $request)
+    {
+        $topicIds = $request->input('topics');
+
+        if (!$topicIds || count($topicIds) === 0) {
+            return redirect()->back()->with('error', 'No seleccionaste ningún asunto para eliminar.');
+        }
+
+        Topic::whereIn('t_id', $topicIds)->delete();
+
+        return redirect()->back()->with('success', 'Asuntos eliminados correctamente.');
     }
 }
