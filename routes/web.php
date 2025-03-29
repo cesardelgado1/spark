@@ -13,6 +13,7 @@ use App\Http\Controllers\AssignObjectiveController;
 use App\Http\Controllers\AssignIndicatorController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
+use App\Http\Controllers\ExportController;
 
 Route::post('/logout', function () {
     Auth::logout();
@@ -57,6 +58,10 @@ Route::delete('assign-objectives/{assignment}', [AssignObjectiveController::clas
 
 Route::post('assign-indicators', [AssignIndicatorController::class, 'store'])->name('assignindicators.store');
 Route::delete('assign-indicators/{assignment}', [AssignIndicatorController::class, 'destroy'])->name('assignindicators.destroy');
+
+
+Route::get('/export', [ExportController::class, 'export']);
+
 
 
 require __DIR__.'/saml2.php';
