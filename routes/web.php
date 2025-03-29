@@ -39,6 +39,12 @@ Route::get('/goals/{goal}/objectives', [ObjectiveController::class, 'showObjecti
 
 Route::get('/objectives/{objective}/indicators', [IndicatorController::class, 'showIndicators'])->name('objectives.indicators');
 
+// Ruta para mostrar el formulario de creación
+Route::get('/strategicplans/{strategicplan}/topics/create', [TopicController::class, 'create']);
+
+// Ruta para guardar el asunto
+Route::post('/strategicplans/{strategicplan}/topics', [TopicController::class, 'store'])->name('topics.store');
+
 
 
 Route::resource('strategicplans', StrategicPlanController::class);

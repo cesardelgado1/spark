@@ -14,21 +14,38 @@ class TopicController extends Controller
         return view('topics.index', compact('topics', 'strategicplan'));
     }
 
-    public function create()
+    public function create(StrategicPlan $strategicplan)
     {
-        return view('topics.create');
+        return view('topics.create', compact('strategicplan'));
     }
 
-    public function store(Request $request)
+
+    public function store(Request $request, StrategicPlan $strategicplan)
     {
+//        // Verifica que los datos lleguen correctamente
+//        dd($request->all());
+
         $validated = $request->validate([
-            // TODO: add validation rules
+            't_num' => 'required|integer|min:1',
+            't_text' => 'required|string|max:255',
+            'sp_id'  => 'required|exists:strategic_plans,sp_id',
         ]);
 
-        Topic::create($validated);
+        // Crear el asunto vinculado al plan estratégico
+        $topic = new Topic([
+            't_num' => $validated['t_num'],
+            't_text' => $validated['t_text'],
+            'sp_id' => $validated['sp_id'],
+        ]);
 
-        return redirect()->route('topics.index');
+        $topic->save();
+
+
+        return redirect()->route('strategicplans.topics', ['strategicplan' => $strategicplan->sp_id])
+            ->with('success', 'Asunto creado correctamente.');
     }
+
+
 
     public function show(Topic $topic)
     {
