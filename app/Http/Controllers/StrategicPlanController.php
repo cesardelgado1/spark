@@ -13,11 +13,9 @@ class StrategicPlanController extends Controller
         return view('strategicplans.index', ['strategicplans' => $strategicplans]);
     }
 
-    public function create($sp_id)
+    public function create()
     {
-        $strategicplan = StrategicPlan::where('sp_id', $sp_id)->firstOrFail();
-
-        return view('topics.create', compact('strategicplan'));
+        return view('strategicplans.create');
     }
 
     public function store(Request $request)
