@@ -39,6 +39,7 @@ Route::get('/goals/{goal}/objectives', [ObjectiveController::class, 'showObjecti
 
 Route::get('/objectives/{objective}/indicators', [IndicatorController::class, 'showIndicators'])->name('objectives.indicators');
 
+// ESTAS RUTAS SON JUNTO CON EL STRATEGIC PLAN, CREO QUE ESTA ES LA FORMA.
 // Ruta para mostrar el formulario de creación
 Route::get('/strategicplans/{strategicplan}/topics/create', [TopicController::class, 'create']);
 
@@ -47,6 +48,12 @@ Route::post('/strategicplans/{strategicplan}/topics', [TopicController::class, '
 
 // Borrado masivo
 Route::delete('/topics/bulk-delete', [TopicController::class, 'bulkDelete'])->name('topics.bulkDelete');
+
+// Rutas para mostrar, editar y actualizar un asunto
+Route::get('/topics/{topic}/edit', [TopicController::class, 'edit'])->name('topics.edit');
+Route::put('/topics/{topic}', [TopicController::class, 'update'])->name('topics.update');
+Route::get('/topics/{strategicplan}', [TopicController::class, 'index'])->name('topics.index');
+
 
 
 Route::resource('strategicplans', StrategicPlanController::class);

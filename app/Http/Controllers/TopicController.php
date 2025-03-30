@@ -11,7 +11,9 @@ class TopicController extends Controller
     public function index(StrategicPlan $strategicplan)
     {
 
-        $topics = Topic::where('sp_id', $strategicplan->sp_id)->get();
+        $topics = Topic::where('sp_id', $strategicplan->sp_id)
+            ->orderBy('t_num', 'asc')
+            ->get();
 
         // Para hacer lo de mostrar mas resultados
 //        $topics = Topic::where('sp_id', $strategicplan->sp_id)
@@ -59,21 +61,32 @@ class TopicController extends Controller
         return view('topics.show', compact('topic'));
     }
 
-    public function edit(Topic $topic)
+    public function edit($id)
     {
-        return view('topics.edit', compact('topic'));
+        $topic = Topic::findOrFail($id);
+        $strategicplan = StrategicPlan::findOrFail($topic->sp_id);
+
+        return view('topics.edit', compact('topic', 'strategicplan'));
     }
 
-    public function update(Request $request, Topic $topic)
+    public function update(Request $request, $id)
     {
-        $validated = $request->validate([
-            // TODO: add validation rules
+        $request->validate([
+            't_num' => 'required|string|max:255',
+            't_text' => 'required|string',
         ]);
 
-        $topic->update($validated);
+        $topic = Topic::findOrFail($id);
+        $topic->t_num = $request->t_num;
+        $topic->t_text = $request->t_text;
+        $topic->save();
 
-        return redirect()->route('topics.index');
+        // Asegúrate de redirigir correctamente pasando el strategicplan id
+        return redirect()->route('topics.index', ['strategicplan' => $topic->sp_id])
+            ->with('success', 'Asunto actualizado correctamente.');
     }
+
+
 
     // Este sirve para borrar solamente 1, si quiero que sea mas de 1, cree el de abajo, que coje muchos id de muchos topics :)
     public function destroy(Topic $topic)
