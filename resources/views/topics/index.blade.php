@@ -56,7 +56,7 @@
         </div>
 
 
-        <div class="px-6 py-4 max-h-[500px] overflow-y-auto border border-gray-300 rounded-lg shadow-md">
+        <div class="px-6 py-4 max-h-auto overflow-y-auto border border-gray-300 rounded-lg shadow-md">
 
         {{--                    Debug sp_id hasta donde llega (AQUI LLEGA) --}}
 {{--        @php--}}

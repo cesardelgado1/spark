@@ -15,7 +15,7 @@
     {{-- Breadcrumb --}}
     <x-breadcrumb :strategicplan="$objective->goal->topic->strategicplan" :topic="$objective->goal->topic" :goal="$objective->goal" :objective="$objective" />
 
-    <div class="px-6 py-4">
+    <div class="px-6 py-4 max-h-auto overflow-y-auto border border-gray-300 rounded-lg shadow-md">
 
         @if(count($indicators) > 0)
             <div class="space-y-4">

@@ -54,7 +54,7 @@
     </span>
     </div>
 
-    <div class="px-6 py-3">
+    <div class="px-6 py-4 max-h-auto overflow-y-auto border border-gray-300 rounded-lg shadow-md">
         @if(count($goals) > 0)
             <form id="delete-goals-form" action="{{ route('goals.bulkDelete') }}" method="POST">
                 @csrf

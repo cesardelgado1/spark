@@ -54,7 +54,7 @@
 
     </div>
 
-    <div class="px-6 py-4">
+    <div class="px-6 py-4 max-h-auto overflow-y-auto border border-gray-300 rounded-lg shadow-md">
         @if(count($objectives) > 0)
             <form id="delete-objectives-form" action="{{ route('objectives.bulkDelete') }}" method="POST">
                 @csrf
