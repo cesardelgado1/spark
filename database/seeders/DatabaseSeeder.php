@@ -12,9 +12,6 @@ use App\Models\Topic;
 use App\Models\Goal;
 use App\Models\Objective;
 use App\Models\Indicator;
-use App\Models\AssignObjective;
-use App\Models\AssignIndicator;
-use App\Models\AuditLog;
 
 class DatabaseSeeder extends Seeder
 {
@@ -57,10 +54,10 @@ class DatabaseSeeder extends Seeder
         });
 
         // Add audit logs
-        foreach ($users as $user) {
-            AuditLogs::factory()->count(rand(1, 3))->create([
-                'user_id' => $user->id,
-            ]);
-        }
+//        foreach ($users as $user) {
+//            AuditLogs::factory()->count(rand(1, 3))->create([
+//                'user_id' => $user->id,
+//            ]);
+//        }
     }
 }

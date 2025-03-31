@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AuditLogs;
 use App\Models\StrategicPlan;
 use App\Models\Topic;
 use Illuminate\Http\Request;
@@ -108,9 +109,8 @@ class TopicController extends Controller
         if (!$topicIds || count($topicIds) === 0) {
             return redirect()->back()->with('error', 'No seleccionaste ningún asunto para eliminar.');
         }
-
+        AuditLogs::log('Deleted Topics: ' , implode(',', $topicIds));
         Topic::whereIn('t_id', $topicIds)->delete();
-
         return redirect()->back()->with('success', 'Asuntos eliminados correctamente.');
     }
 }

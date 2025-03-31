@@ -12,7 +12,7 @@ return new class extends Migration {
             $table->id('al_id');
             $table->string('al_IPAddress');
             $table->text('al_action');
-            $table->text('al_action_par');
+            $table->text('al_action_par')->nullable();
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();
