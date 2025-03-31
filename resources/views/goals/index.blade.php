@@ -69,7 +69,7 @@
                                 </div>
                             </div>
 
-                            <a href="{{ route('goals.show', ['goal' => $goal->g_id]) }}" class="text-blue-500 hover:text-blue-700 transition">
+                            <a href="{{ route('goals.objectives', ['goal' => $goal->g_id]) }}" class="text-blue-500 hover:text-blue-700 transition">
                                 Ver Detalles
                             </a>
                         </div>

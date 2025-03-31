@@ -24,7 +24,7 @@ Route::match(['get','post'],'/auth/callback', function () {
 
     Auth::login($user);
 
-    return redirect('/');
+    return redirect()->intended('/');
 })->withoutMiddleware([VerifyCsrfToken::class])->name('saml.callback');
 Route::get('/auth/saml/metadata', function () {
     return Socialite::driver('saml2')->getServiceProviderMetadata();

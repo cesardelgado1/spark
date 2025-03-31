@@ -20,7 +20,7 @@
                 <h1 class="text-3xl font-bold tracking-tight text-gray-900">
                     Planes Estratégicos de UPRM - Asuntos del {{ $strategicplan->sp_institution }}
                 </h1>
-                <div class="flex gap-3 items-center">
+                <div class="flex gap-3 items-center ml-10">
                     <a href="{{ route('topics.create', $strategicplan) }}"
                        class="inline-flex items-center justify-center w-8 h-8 bg-[#1F2937] text-white rounded-full shadow hover:bg-gray-700 transition"
                        title="Crear Asunto">
