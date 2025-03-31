@@ -70,7 +70,7 @@
                             </div>
 
                             <a href="{{ route('goals.objectives', ['goal' => $goal->g_id]) }}" class="text-blue-500 hover:text-blue-700 transition">
-                                Ver Detalles
+                                Ver Metas
                             </a>
                         </div>
                     @endforeach

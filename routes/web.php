@@ -59,10 +59,16 @@ Route::get('/topics/{strategicplan}', [TopicController::class, 'index'])->name('
 //GOALS
 
 Route::delete('/goals/bulk-delete', [GoalController::class, 'bulkDelete'])->name('goals.bulkDelete');
-
 Route::get('/goals/{goal}/edit', [GoalController::class, 'edit'])->name('goals.edit');
 Route::put('/goals/{goal}', [GoalController::class, 'update'])->name('goals.update');
 Route::get('/topics/{topic}/goals', [GoalController::class, 'index'])->name('topics.goals');
+
+// OBJECTIVES
+
+Route::delete('/objectives/bulk-delete', [ObjectiveController::class, 'bulkDelete'])->name('objectives.bulkDelete');
+Route::get('/objectives/{objective}/edit', [ObjectiveController::class, 'edit'])->name('objectives.edit');
+Route::put('/objectives/{objective}', [ObjectiveController::class, 'update'])->name('objectives.update');
+Route::get('/goals/{goal}/objectives', [ObjectiveController::class, 'index'])->name('goals.objectives');
 
 
 
