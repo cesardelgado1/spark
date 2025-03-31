@@ -8,11 +8,15 @@ use Illuminate\Http\Request;
 
 class GoalController extends Controller
 {
-    public function index()
+    public function index(Topic $topic)
     {
-        $goals = Goal::latest()->simplePaginate(5);
-        return view('goals.index', compact('goals'));
+        $goals = Goal::where('t_id', $topic->t_id)
+            ->orderBy('g_num', 'asc')
+            ->get();
+
+        return view('goals.index', compact('goals', 'topic'));
     }
+
 
     public function create()
     {
@@ -35,21 +39,32 @@ class GoalController extends Controller
         return view('goals.show', compact('goal'));
     }
 
-    public function edit(Goal $goal)
+    public function edit($id)
     {
-        return view('goals.edit', compact('goal'));
+        // Obtener la meta por su ID
+        $goal = Goal::findOrFail($id);
+
+        $topic = Topic::findOrFail($goal->t_id);
+
+        return view('goals.edit', compact('goal', 'topic'));
     }
 
     public function update(Request $request, Goal $goal)
     {
-        $validated = $request->validate([
-            // TODO: add validation rules
+        $request->validate([
+            'g_num' => 'required|string|max:255',
+            'g_text' => 'required|string',
         ]);
 
-        $goal->update($validated);
+        $goal->g_num = $request->g_num;
+        $goal->g_text = $request->g_text;
+        $goal->save();
 
-        return redirect()->route('goals.index');
+        // Redirige correctamente a la página de metas del asunto
+        return redirect()->route('topics.goals', ['topic' => $goal->t_id])
+            ->with('success', 'Meta actualizada correctamente.');
     }
+
 
     public function destroy(Goal $goal)
     {
@@ -66,5 +81,18 @@ class GoalController extends Controller
             'topic' => $topic,
         ]);
     }
+
+    public function bulkDelete(Request $request)
+    {
+        $goalIds = $request->input('goals', []);
+
+        if (count($goalIds) > 0) {
+            Goal::whereIn('g_id', $goalIds)->delete();
+            return redirect()->back()->with('success', 'Metas eliminadas correctamente.');
+        }
+
+        return redirect()->back()->with('error', 'No se seleccionaron metas para eliminar.');
+    }
+
 }
 

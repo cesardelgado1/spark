@@ -1,4 +1,4 @@
-<nav class="flex px-5 py-3 text-gray-700 border border-gray-200 rounded-lg bg-white mb-4" aria-label="Breadcrumb">
+<nav class="flex px-5 py-3 text-gray-700 border border-gray-200 rounded-lg bg-white" aria-label="Breadcrumb">
     <ol class="inline-flex items-center space-x-1 md:space-x-3">
 {{--        --}}{{-- Plan Estratégico --}}
 {{--        <li class="inline-flex items-center">--}}
