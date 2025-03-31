@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\SettingsController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\JobController; // already there
 use App\Http\Controllers\StrategicPlanController;
@@ -24,7 +25,6 @@ Route::post('/logout', function () {
 Route::view('/', 'home');
 Route::view('/planes-estrategicos', 'planes-estrategicos/index');
 Route::view('/reportes', 'reportes/index');
-Route::view('/configuracion', 'configuracion/index');
 Route::view('/strategicplans', 'strategicplans.index');
 Route::view('/topics', 'topics.index');
 
@@ -67,6 +67,14 @@ Route::middleware(['auth', 'isPlanner'])->group(function () {
     Route::get('/goals/{goal}/objectives', [ObjectiveController::class, 'index'])->name('goals.objectives');
 
 });
+
+//ADMIN
+
+Route::middleware(['auth', 'isAdmin'])->group(function () {
+    Route::get('/configuracion', [SettingsController::class, 'index'])->name('settings.index');
+    Route::patch('/configuracion/role-usuario/{user}', [SettingsController::class, 'updateRole'])->name('settings.updateRole');
+});
+
 
 # CAUTION THESE WILL PROBABLY GENEATE SOME CONFLICTS WILL REMOVE SOON!!!
 Route::resource('strategicplans', StrategicPlanController::class);

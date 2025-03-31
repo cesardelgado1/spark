@@ -9,7 +9,7 @@ class IsAdmin
 {
     public function handle($request, Closure $next)
     {
-        if (Auth::check() && Auth::user()->u_type === 'System Administrator') {
+        if (Auth::check() && Auth::user()->u_type === 'Admin') {
             return $next($request);
         }
 

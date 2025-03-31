@@ -18,4 +18,14 @@ class AuditLogs extends Model {
     public function user(): BelongsTo {
         return $this->belongsTo(User::class, 'user_id');
     }
+    public static function log(string $action, $model = null)
+    {
+        self::create([
+            'user_id'        => auth()->id(),
+            'al_action'      => $action,
+            'al_action_par'  => $model?->id,
+            'al_IPAddress'   => request()->ip(),
+        ]);
+    }
+
 }
