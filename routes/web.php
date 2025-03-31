@@ -53,6 +53,8 @@ Route::middleware(['auth', 'isPlanner'])->group(function () {
 
 //GOALS
 Route::middleware(['auth', 'isPlanner'])->group(function () {
+    Route::get('/topics/{topic}/goals/create', [GoalController::class, 'create'])->name('goals.create');
+    Route::post('/topics/{topic}/goals', [GoalController::class, 'store'])->name('goals.store');
     Route::delete('/goals/bulk-delete', [GoalController::class, 'bulkDelete'])->name('goals.bulkDelete');
     Route::get('/goals/{goal}/edit', [GoalController::class, 'edit'])->name('goals.edit');
     Route::put('/goals/{goal}', [GoalController::class, 'update'])->name('goals.update');
@@ -61,11 +63,23 @@ Route::middleware(['auth', 'isPlanner'])->group(function () {
 
 // OBJECTIVES
 Route::middleware(['auth', 'isPlanner'])->group(function () {
+    Route::get('/goals/{goal}/objectives/create', [ObjectiveController::class, 'create'])->name('objectives.create');
+    Route::post('/goals/{goal}/objectives', [ObjectiveController::class, 'store'])->name('objectives.store');
     Route::delete('/objectives/bulk-delete', [ObjectiveController::class, 'bulkDelete'])->name('objectives.bulkDelete');
     Route::get('/objectives/{objective}/edit', [ObjectiveController::class, 'edit'])->name('objectives.edit');
     Route::put('/objectives/{objective}', [ObjectiveController::class, 'update'])->name('objectives.update');
     Route::get('/goals/{goal}/objectives', [ObjectiveController::class, 'index'])->name('goals.objectives');
 
+});
+
+// INDICATORS
+Route::middleware(['auth', 'isPlanner'])->group(function () {
+    Route::get('/objectives/{objective}/indicators/create', [IndicatorController::class, 'create'])->name('indicators.create');
+    Route::post('/objectives/{objective}/indicators', [IndicatorController::class, 'store'])->name('indicators.store');
+    Route::delete('/indicators/bulk-delete', [IndicatorController::class, 'bulkDelete'])->name('indicators.bulkDelete');
+    Route::get('/indicators/{indicator}/edit', [IndicatorController::class, 'edit'])->name('indicators.edit');
+    Route::put('/indicators/{indicator}', [IndicatorController::class, 'update'])->name('indicators.update');
+    Route::get('/objectives/{objective}/indicators', [IndicatorController::class, 'index'])->name('objectives.indicators');
 });
 
 //ADMIN
@@ -79,9 +93,9 @@ Route::middleware(['auth', 'isAdmin'])->group(function () {
 # CAUTION THESE WILL PROBABLY GENEATE SOME CONFLICTS WILL REMOVE SOON!!!
 Route::resource('strategicplans', StrategicPlanController::class);
 #Route::resource('topics', TopicController::class);
-Route::resource('goals', GoalController::class);
-Route::resource('objectives', ObjectiveController::class);
-Route::resource('indicators', IndicatorController::class);
+#Route::resource('goals', GoalController::class);
+#Route::resource('objectives', ObjectiveController::class);
+#Route::resource('indicators', IndicatorController::class);
 Route::resource('users', UserController::class);
 
 

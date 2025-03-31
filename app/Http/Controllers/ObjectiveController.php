@@ -17,20 +17,28 @@ class ObjectiveController extends Controller
         return view('objectives.index', compact('objectives', 'goal'));
     }
 
-    public function create()
+    public function create(Goal $goal)
     {
-        return view('objectives.create');
+        return view('objectives.create', compact('goal'));
     }
 
-    public function store(Request $request)
+    public function store(Request $request, Goal $goal)
     {
         $validated = $request->validate([
-            // TODO: add validation rules
+            'o_num' => 'required|integer|min:1',
+            'o_text' => 'required|string|max:255',
+            'g_id'   => 'required|exists:goals,g_id',
         ]);
 
-        Objective::create($validated);
+        // Crear el objetivo vinculado a la meta
+        Objective::create([
+            'o_num' => $validated['o_num'],
+            'o_text' => $validated['o_text'],
+            'g_id' => $validated['g_id'],
+        ]);
 
-        return redirect()->route('objectives.index');
+        return redirect()->route('goals.objectives', ['goal' => $goal->g_id])
+            ->with('success', 'Objetivo creado correctamente.');
     }
 
     public function show(Objective $objective)

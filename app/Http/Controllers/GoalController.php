@@ -18,20 +18,30 @@ class GoalController extends Controller
     }
 
 
-    public function create()
+    public function create(Topic $topic)
     {
-        return view('goals.create');
+        return view('goals.create', compact('topic'));
     }
 
-    public function store(Request $request)
+    public function store(Request $request, Topic $topic)
     {
         $validated = $request->validate([
-            // TODO: add validation rules
+            'g_num' => 'required|integer|min:1',
+            'g_text' => 'required|string|max:255',
+            't_id' => 'required|exists:topics,t_id',
         ]);
 
-        Goal::create($validated);
+        // Crear la meta vinculada al asunto
+        $goal = new Goal([
+            'g_num' => $validated['g_num'],
+            'g_text' => $validated['g_text'],
+            't_id' => $validated['t_id'],
+        ]);
 
-        return redirect()->route('goals.index');
+        $goal->save();
+
+        return redirect()->route('topics.goals', ['topic' => $topic->t_id])
+            ->with('success', 'Meta creada correctamente.');
     }
 
     public function show(Goal $goal)

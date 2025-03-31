@@ -2,6 +2,14 @@
     <x-slot:heading>
         Planes Estratégicos de UPRM - Objetivos de la Meta #{{ $goal->g_num }}
 
+        <a href="{{ route('objectives.create', $goal->g_id) }}"
+           class="inline-flex items-center justify-center w-8 h-8 bg-[#1F2937] text-white rounded-full shadow hover:bg-gray-700 transition"
+           title="Crear Objetivo">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-5 w-5 text-white">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+            </svg>
+        </a>
+
         <button onclick="toggleObjectiveCheckboxes()" class="inline-flex items-center justify-center w-8 h-8 bg-red-500 text-white rounded-full shadow hover:bg-red-700 transition"
                 title="Eliminar Objetivos">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-5 w-5 text-white">
