@@ -42,29 +42,33 @@ Route::get('/objectives/{objective}/indicators', [IndicatorController::class, 's
 // ESTAS RUTAS SON JUNTO CON EL STRATEGIC PLAN, CREO QUE ESTA ES LA FORMA.
 
 // TOPICS
-Route::get('/strategicplans/{strategicplan}/topics/create', [TopicController::class, 'create'])->name('topics.create');
-Route::post('/strategicplans/{strategicplan}/topics', [TopicController::class, 'store'])->name('topics.store');
-Route::delete('/topics/bulk-delete', [TopicController::class, 'bulkDelete'])->name('topics.bulkDelete');
-Route::get('/topics/{topic}/edit', [TopicController::class, 'edit'])->name('topics.edit');
-Route::put('/topics/{topic}', [TopicController::class, 'update'])->name('topics.update');
-Route::get('/topics/{strategicplan}', [TopicController::class, 'index'])->name('topics.index');
+Route::middleware(['auth', 'isPlanner'])->group(function () {
+    Route::get('/strategicplans/{strategicplan}/topics/create', [TopicController::class, 'create'])->name('topics.create');
+    Route::post('/strategicplans/{strategicplan}/topics', [TopicController::class, 'store'])->name('topics.store');
+    Route::delete('/topics/bulk-delete', [TopicController::class, 'bulkDelete'])->name('topics.bulkDelete');
+    Route::get('/topics/{topic}/edit', [TopicController::class, 'edit'])->name('topics.edit');
+    Route::put('/topics/{topic}', [TopicController::class, 'update'])->name('topics.update');
+    Route::get('/topics/{strategicplan}', [TopicController::class, 'index'])->name('topics.index');
+});
 
 //GOALS
-
-Route::delete('/goals/bulk-delete', [GoalController::class, 'bulkDelete'])->name('goals.bulkDelete');
-Route::get('/goals/{goal}/edit', [GoalController::class, 'edit'])->name('goals.edit');
-Route::put('/goals/{goal}', [GoalController::class, 'update'])->name('goals.update');
-Route::get('/topics/{topic}/goals', [GoalController::class, 'index'])->name('topics.goals');
+Route::middleware(['auth', 'isPlanner'])->group(function () {
+    Route::delete('/goals/bulk-delete', [GoalController::class, 'bulkDelete'])->name('goals.bulkDelete');
+    Route::get('/goals/{goal}/edit', [GoalController::class, 'edit'])->name('goals.edit');
+    Route::put('/goals/{goal}', [GoalController::class, 'update'])->name('goals.update');
+    Route::get('/topics/{topic}/goals', [GoalController::class, 'index'])->name('topics.goals');
+});
 
 // OBJECTIVES
+Route::middleware(['auth', 'isPlanner'])->group(function () {
+    Route::delete('/objectives/bulk-delete', [ObjectiveController::class, 'bulkDelete'])->name('objectives.bulkDelete');
+    Route::get('/objectives/{objective}/edit', [ObjectiveController::class, 'edit'])->name('objectives.edit');
+    Route::put('/objectives/{objective}', [ObjectiveController::class, 'update'])->name('objectives.update');
+    Route::get('/goals/{goal}/objectives', [ObjectiveController::class, 'index'])->name('goals.objectives');
 
-Route::delete('/objectives/bulk-delete', [ObjectiveController::class, 'bulkDelete'])->name('objectives.bulkDelete');
-Route::get('/objectives/{objective}/edit', [ObjectiveController::class, 'edit'])->name('objectives.edit');
-Route::put('/objectives/{objective}', [ObjectiveController::class, 'update'])->name('objectives.update');
-Route::get('/goals/{goal}/objectives', [ObjectiveController::class, 'index'])->name('goals.objectives');
+});
 
-
-
+# CAUTION THESE WILL PROBABLY GENEATE SOME CONFLICTS WILL REMOVE SOON!!!
 Route::resource('strategicplans', StrategicPlanController::class);
 #Route::resource('topics', TopicController::class);
 Route::resource('goals', GoalController::class);

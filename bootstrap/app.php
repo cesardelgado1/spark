@@ -1,5 +1,9 @@
 <?php
 
+use App\Http\Middleware\IsAdmin;
+use App\Http\Middleware\IsAssignee;
+use App\Http\Middleware\IsContributor;
+use App\Http\Middleware\IsPlanner;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -11,8 +15,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
-    })
+        $middleware->alias([
+            'isAdmin' => IsAdmin::class,
+            'isPlanner' => IsPlanner::class,
+            'isContributor' => IsContributor::class,
+            'isAssignee' => IsAssignee::class,
+        ]);    })
     ->withExceptions(function (Exceptions $exceptions) {
         //
     })->create();
