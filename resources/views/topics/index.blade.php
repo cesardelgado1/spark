@@ -1,5 +1,7 @@
 <x-layout>
 
+    <x-breadcrumb :strategicplan="$strategicplan"/>
+
     @if(session('success'))
         <div id="success-message" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
             <strong class="font-bold">¡Éxito!</strong>
@@ -79,13 +81,12 @@
                                     </div>
                                     <div class="text-gray-500">
                                         {{ $topic->t_text }}
+                                        <a href="{{ route('topics.goals', ['topic' => $topic->t_id]) }}" class="text-blue-500 hover:text-blue-700 transition">
+                                            Ver Metas
+                                        </a>
                                     </div>
                                 </div>
                             </div>
-
-                            <a href="{{ route('topics.goals', ['topic' => $topic->t_id]) }}" class="text-blue-500 hover:text-blue-700 transition">
-                                Ver Metas
-                            </a>
                         </div>
                     @endforeach
 

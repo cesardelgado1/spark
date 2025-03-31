@@ -31,7 +31,7 @@ Route::view('/topics', 'topics.index');
 
 
 // Implementar en un controlador
-Route::get('/strategicplans/{strategicplan}/topics', [TopicController::class, 'index'])->name('strategicplans.topics');
+Route::get('/strategicplans/{strategicplan}/topics', [TopicController::class, 'showTopics'])->name('strategicplans.topics');
 
 Route::get('/topics/{topic}/goals', [GoalController::class, 'showGoals'])->name('topics.goals');
 
@@ -42,16 +42,9 @@ Route::get('/objectives/{objective}/indicators', [IndicatorController::class, 's
 // ESTAS RUTAS SON JUNTO CON EL STRATEGIC PLAN, CREO QUE ESTA ES LA FORMA.
 
 // TOPICS
-// Ruta para mostrar el formulario de creación
-Route::get('/strategicplans/{strategicplan}/topics/create', [TopicController::class, 'create']);
-
-// Ruta para guardar el asunto
+Route::get('/strategicplans/{strategicplan}/topics/create', [TopicController::class, 'create'])->name('topics.create');
 Route::post('/strategicplans/{strategicplan}/topics', [TopicController::class, 'store'])->name('topics.store');
-
-// Borrado masivo
 Route::delete('/topics/bulk-delete', [TopicController::class, 'bulkDelete'])->name('topics.bulkDelete');
-
-// Rutas para mostrar, editar y actualizar un asunto
 Route::get('/topics/{topic}/edit', [TopicController::class, 'edit'])->name('topics.edit');
 Route::put('/topics/{topic}', [TopicController::class, 'update'])->name('topics.update');
 Route::get('/topics/{strategicplan}', [TopicController::class, 'index'])->name('topics.index');
@@ -73,7 +66,7 @@ Route::get('/goals/{goal}/objectives', [ObjectiveController::class, 'index'])->n
 
 
 Route::resource('strategicplans', StrategicPlanController::class);
-Route::resource('topics', TopicController::class);
+#Route::resource('topics', TopicController::class);
 Route::resource('goals', GoalController::class);
 Route::resource('objectives', ObjectiveController::class);
 Route::resource('indicators', IndicatorController::class);

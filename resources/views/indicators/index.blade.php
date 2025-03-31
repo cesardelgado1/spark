@@ -4,7 +4,7 @@
     </x-slot:heading>
 
     {{-- Breadcrumb --}}
-    <x-breadcrumb :topic="$objective->goal->topic" :goal="$objective->goal" :objective="$objective" />
+    <x-breadcrumb :strategicplan="$objective->goal->topic->strategicplan" :topic="$objective->goal->topic" :goal="$objective->goal" :objective="$objective" />
 
     <div class="px-6 py-4">
 

@@ -95,7 +95,12 @@ class TopicController extends Controller
         return redirect()->route('strategicplans.topics', ['strategicplan' => $topic->sp_id])
             ->with('success', 'Asunto eliminado correctamente.');
     }
+    public function showTopics(StrategicPlan $strategicplan)
+    {
+        $topics = $strategicplan->topics()->get();
 
+        return view('topics.index', compact('topics', 'strategicplan'));
+    }
     public function bulkDelete(Request $request)
     {
         $topicIds = $request->input('topics');

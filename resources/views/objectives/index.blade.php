@@ -20,7 +20,7 @@
     </x-slot:heading>
 
     {{-- Breadcrumb --}}
-    <x-breadcrumb :topic="$goal->topic" :goal="$goal" />
+    <x-breadcrumb :strategicplan="$goal->topic->strategicplan" :topic="$goal->topic" :goal="$goal" />
 
     @if(session('success'))
         <div id="success-message" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
@@ -64,13 +64,12 @@
                                     </div>
                                     <div class="text-gray-500">
                                         {{ $objective->o_text }}
+                                        <a href="{{ route('objectives.indicators', ['objective' => $objective->o_id]) }}" class="text-blue-500 hover:text-blue-700 transition">
+                                            Ver Indicadores
+                                        </a>
                                     </div>
                                 </div>
                             </div>
-
-                            <a href="{{ route('objectives.indicators', ['objective' => $objective->o_id]) }}" class="text-blue-500 hover:text-blue-700 transition">
-                                Ver Indicadores
-                            </a>
                         </div>
                     @endforeach
                 </div>

@@ -20,7 +20,7 @@
     </x-slot:heading>
 
     {{-- Breadcrumb --}}
-    <x-breadcrumb :topic="$topic" />
+    <x-breadcrumb :strategicplan="$topic->strategicplan" :topic="$topic" />
 
     @if(session('success'))
         <div id="success-message" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
@@ -65,13 +65,12 @@
                                     </div>
                                     <div class="text-gray-500">
                                         {{ $goal->g_text }}
+                                        <a href="{{ route('goals.objectives', ['goal' => $goal->g_id]) }}" class="text-blue-500 hover:text-blue-700 transition">
+                                            Ver Objetivos
+                                        </a>
                                     </div>
                                 </div>
                             </div>
-
-                            <a href="{{ route('goals.objectives', ['goal' => $goal->g_id]) }}" class="text-blue-500 hover:text-blue-700 transition">
-                                Ver Metas
-                            </a>
                         </div>
                     @endforeach
 
