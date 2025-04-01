@@ -1,10 +1,10 @@
 <x-layout>
     <x-slot:heading>
-        Crear Indicador para el Objetivo: {{ $objective->o_num }}
+        Crear Indicador para el Objetivo #{{ $objective->o_num }}
     </x-slot:heading>
 
     <div class="px-6 py-4">
-        <form action="{{ route('indicators.store', $objective) }}" method="POST">
+        <form action="{{ route('indicators.store', $objective->o_id) }}" method="POST">
             @csrf
             <input type="hidden" name="o_id" value="{{ $objective->o_id }}">
 
@@ -16,7 +16,6 @@
             </div>
 
             <style>
-                /* Quitar flechas del input de tipo number */
                 input[type="number"].no-spinner::-webkit-outer-spin-button,
                 input[type="number"].no-spinner::-webkit-inner-spin-button {
                     -webkit-appearance: none;
@@ -27,10 +26,10 @@
                 }
             </style>
 
-            <!-- Texto del Indicador -->
+            <!-- Descripción del Indicador -->
             <div class="mb-4">
-                <label for="i_prompt" class="block font-bold text-gray-700">Descripción del Indicador</label>
-                <textarea name="i_prompt" id="i_prompt" rows="4" required
+                <label for="i_text" class="block font-bold text-gray-700">Descripción del Indicador</label>
+                <textarea name="i_text" id="i_text" rows="4" required
                           class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500"></textarea>
             </div>
 
@@ -39,16 +38,16 @@
                 <label for="i_type" class="block font-bold text-gray-700">Tipo de Indicador</label>
                 <select name="i_type" id="i_type" required
                         class="w-32 px-2 py-1 border rounded-md focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm">
-                    <option value="string">string</option>
-                    <option value="integer">integer</option>
-                    <option value="document">document</option>
+                    <option value="string">Texto</option>
+                    <option value="integer">Número</option>
+                    <option value="document">Documento</option>
                 </select>
             </div>
 
             <!-- Botones -->
             <div class="mt-6 flex items-center justify-end gap-x-6">
-                <a href="{{ route('objectives.indicators', $objective->o_id) }}" class="text-sm/6 font-semibold text-gray-900">Cancelar</a>
-                <button type="submit" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <a href="{{ route('objectives.indicators', $objective->o_id) }}" class="text-sm font-semibold text-gray-900">Cancelar</a>
+                <button type="submit" class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500">
                     Guardar
                 </button>
             </div>

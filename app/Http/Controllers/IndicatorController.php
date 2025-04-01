@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AuditLogs;
 use App\Models\Indicator;
 use App\Models\Objective;
 use Illuminate\Http\Request;
@@ -26,14 +27,15 @@ class IndicatorController extends Controller
     {
         $validated = $request->validate([
             'i_num' => 'required|integer|min:1',
-            'i_prompt' => 'required|string|max:255',
+            'i_text' => 'required|string|max:255',
+            'i_type' => 'required|in:string,integer,document',
             'o_id'   => 'required|exists:objectives,o_id',
         ]);
 
-        // Crear el indicador vinculado al objetivo
         Indicator::create([
             'i_num' => $validated['i_num'],
-            'i_prompt' => $validated['i_prompt'],
+            'i_text' => $validated['i_text'],
+            'i_type' => $validated['i_type'],
             'o_id' => $validated['o_id'],
         ]);
 
@@ -46,19 +48,27 @@ class IndicatorController extends Controller
         return view('indicators.show', compact('indicator'));
     }
 
-    public function edit(Indicator $indicator)
+    public function edit($id)
     {
-        return view('indicators.edit', compact('indicator'));
+        $indicator = Indicator::findOrFail($id);
+        $objective = Objective::findOrFail($indicator->o_id);
+
+        return view('indicators.edit', compact('indicator', 'objective'));
     }
 
     public function update(Request $request, Indicator $indicator)
     {
-        $validated = $request->validate([
+        $request->validate([
             'i_num' => 'required|integer|min:1',
-            'i_prompt' => 'required|string|max:255',
+            'i_text' => 'required|string|max:255',
+            'i_type' => 'required|in:string,integer,document',
         ]);
 
-        $indicator->update($validated);
+        $indicator->update([
+            'i_num' => $request->i_num,
+            'i_text' => $request->i_text,
+            'i_type' => $request->i_type,
+        ]);
 
         return redirect()->route('objectives.indicators', ['objective' => $indicator->o_id])
             ->with('success', 'Indicador actualizado correctamente.');
@@ -76,4 +86,18 @@ class IndicatorController extends Controller
         $indicators = $objective->indicators;
         return view('indicators.index', compact('indicators','objective'));
     }
+
+    public function bulkDelete(Request $request)
+    {
+        $indicatorIds = $request->input('indicators');
+
+        if (!$indicatorIds || count($indicatorIds) === 0) {
+            return redirect()->back()->with('error', 'No seleccionaste ningún indicador para eliminar.');
+        }
+
+        AuditLogs::log('Deleted Indicators: ', implode(',', $indicatorIds));
+        Indicator::whereIn('i_id', $indicatorIds)->delete();
+        return redirect()->back()->with('success', 'Indicadores eliminados correctamente.');
+    }
+
 }
