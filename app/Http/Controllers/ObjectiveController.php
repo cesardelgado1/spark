@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Goal;
 use App\Models\Objective;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class ObjectiveController extends Controller
@@ -93,6 +94,13 @@ class ObjectiveController extends Controller
         } else {
             return redirect()->back()->with('error', 'No se seleccionaron objetivos para eliminar.');
         }
+    }
+    public function showAssignForm(Goal $goal)
+    {
+        $objectives = $goal->objectives; // or load as needed
+        $contributors = User::where('u_type', 'Contributor')->get();
+
+        return view('objectives.assign', compact('goal', 'objectives', 'contributors'));
     }
 
 

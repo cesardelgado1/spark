@@ -11,11 +11,8 @@ class AssignObjectives extends Model
     protected $primaryKey = 'ao_id';
 
     protected $fillable = [
-        'ao_ObjToFill',
-        'ao_assigned_by',
-        'ao_assigned_to',
-        'ao_assigned_on',
-        'ao_completed_on',
+        'o_id',
+        'user_id',
     ];
     public function assignedBy(): belongsTo {
         return $this->belongsTo(User::class, 'ao_assigned_by');

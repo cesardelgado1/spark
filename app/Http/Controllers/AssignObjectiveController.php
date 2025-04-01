@@ -13,12 +13,21 @@ class AssignObjectiveController extends Controller
     {
         $validated = $request->validate([
             'objective_id' => 'required|exists:objectives,o_id',
-            'user_id' => 'required|exists:users,id',
+            'user_ids'     => 'required|array',
+            'user_ids.*'   => 'exists:users,id',
         ]);
 
-        AssignObjectives::create($validated);
+        $objectiveId = $validated['objective_id'];
+        $userIds = $validated['user_ids'];
 
-        return back()->with('success', 'AssignObjective created successfully.');
+        foreach ($userIds as $userId) {
+            AssignObjectives::firstOrCreate([
+                'o_id'    => $objectiveId,
+                'user_id' => $userId,
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Objetivo asignado correctamente.');
     }
 
     public function destroy(AssignObjectives $assignment)
