@@ -13,6 +13,7 @@ return new class extends Migration {
             $table->enum('i_type', ['integer', 'string', 'document']);
             $table->string('i_doc_path')->nullable();
             $table->text('i_value')->nullable();
+            $table->integer('i_FY')->nullable();
             $table->unsignedBigInteger('o_id');
             $table->foreign('o_id')->references('o_id')->on('objectives')->onDelete('cascade');
             $table->timestamps();
