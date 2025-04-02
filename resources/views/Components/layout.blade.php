@@ -17,7 +17,7 @@
         <div id="sidebar" class="hidden md:flex flex-col w-64 bg-[#2d3745] transition-all duration-300">
             {{--Logo, Title & Toggle button--}}
             <div class="flex items-center h-16 px-4 justify-between">
-                <span id="sidebar-title" class="text-white font-bold uppercase ml-2">SPARK</span>
+                <span id="sidebar-title" class="text-white font-bold uppercase ml-2 text-3xl">SPARK</span>
                 <button id="toggle-btn" class="text-white focus:outline-none ml-1">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
