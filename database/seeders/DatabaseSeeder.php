@@ -17,10 +17,10 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // Create users
+// Create users
         $users = User::factory()->count(10)->create();
 
-        // Create strategic plan with nested data
+// Create strategic plan with nested data
         $strategicPlan = StrategicPlan::factory()->create();
 
         $usersByType = [
@@ -32,16 +32,18 @@ class DatabaseSeeder extends Seeder
         Topic::factory()->count(rand(2, 4))->create(['sp_id' => $strategicPlan->sp_id])->each(function ($topic) use ($usersByType) {
             Goal::factory()->count(rand(2, 4))->create(['t_id' => $topic->t_id])->each(function ($goal) use ($usersByType) {
                 Objective::factory()->count(rand(2, 4))->create(['g_id' => $goal->g_id])->each(function ($objective) use ($usersByType) {
-                    // Assign objectives to Contributors
-                    if ($usersByType['Contributor']->count()) {
+
+// Assign objectives to Contributors
+                    if ($usersByType['Contributor']->count() && $usersByType['Planner']->count()) {
                         AssignObjectives::create([
-                            'o_id' => $objective->o_id,
-                            'user_id' => $usersByType['Contributor']->random()->id,
+                            'ao_ObjToFill' => $objective->o_id,
+                            'ao_assigned_to' => $usersByType['Contributor']->random()->id,
+                            'ao_assigned_by' => $usersByType['Planner']->random()->id,
                         ]);
                     }
 
                     Indicator::factory()->count(rand(2, 3))->create(['o_id' => $objective->o_id])->each(function ($indicator) use ($usersByType) {
-                        // Assign indicators to Assignees
+// Assign indicators to Assignees
                         if ($usersByType['Assignee']->count()) {
                             AssignIndicators::create([
                                 'i_id' => $indicator->i_id,
@@ -52,12 +54,5 @@ class DatabaseSeeder extends Seeder
                 });
             });
         });
-
-        // Add audit logs
-//        foreach ($users as $user) {
-//            AuditLogs::factory()->count(rand(1, 3))->create([
-//                'user_id' => $user->id,
-//            ]);
-//        }
     }
 }

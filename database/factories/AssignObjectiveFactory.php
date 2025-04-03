@@ -11,8 +11,9 @@ class AssignObjectiveFactory extends Factory
     public function definition(): array
     {
         return [
-            'o_id' => Objective::factory(),
-            'user_id' => User::factory(),
+            'ao_ObjToFill' => Objective::factory(),
+            'ao_assigned_to' => User::factory(),
+            'ao_assigned_by' => User::factory(),
         ];
     }
 }

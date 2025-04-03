@@ -35,4 +35,28 @@ class AssignObjectiveController extends Controller
         $assignment->delete();
         return back()->with('success', 'AssignObjective removed successfully.');
     }
+    public function showAssigneeForm(Objective $objective)
+    {
+        $assignees = User::where('u_type', 'Assignee')->get();
+        return view('assignments.assign-to-assignee', compact('objective', 'assignees'));
+    }
+
+    public function assignToAssignee(Request $request, Objective $objective)
+    {
+        $request->validate([
+            'user_ids' => 'required|array',
+            'user_ids.*' => 'exists:users,id'
+        ]);
+
+        foreach ($request->user_ids as $assigneeId) {
+            AssignObjectives::updateOrCreate([
+                'ao_ObjToFill' => $objective->o_id,
+                'ao_assigned_to' => $assigneeId,
+            ], [
+                'ao_assigned_by' => auth()->id(),
+            ]);
+        }
+
+        return redirect()->route('tasks.index')->with('success', 'Objetivo asignado a Asignados.');
+    }
 }

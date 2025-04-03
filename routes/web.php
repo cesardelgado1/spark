@@ -89,7 +89,10 @@ Route::middleware(['auth', 'isAdmin'])->group(function () {
     Route::get('/configuracion', [SettingsController::class, 'index'])->name('settings.index');
     Route::patch('/configuracion/role-usuario/{user}', [SettingsController::class, 'updateRole'])->name('settings.updateRole');
 });
-
+// ASSIGNMENT
+Route::get('/tareas', [\App\Http\Controllers\TaskController::class, 'index'])->name('tasks.index');
+Route::get('/objectives/{objective}/assign-to-assignee', [AssignObjectiveController::class, 'showAssigneeForm'])->name('assignments.assignView');
+Route::post('/objectives/{objective}/assign-to-assignee', [AssignObjectiveController::class, 'assignToAssignee'])->name('assignments.assign');
 
 # CAUTION THESE WILL PROBABLY GENEATE SOME CONFLICTS WILL REMOVE SOON!!!
 Route::resource('strategicplans', StrategicPlanController::class);

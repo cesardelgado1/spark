@@ -52,7 +52,7 @@
                     </x-nav-link>
                     @endrole
                     @role('Contributor', 'Assignee')
-                    <x-nav-link href="/">
+                    <x-nav-link href="/tareas">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 mr-2 sidebar-icon shrink-0">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
                         </svg>
@@ -116,15 +116,25 @@
                         Iniciar Sesión
                     </a>
                 @endguest
-
                 @auth
-                    <form action="{{ route('logout') }}" method="POST" class="ml-auto mr-2">
-                        @csrf
-                        <button type="submit" class="text-white border border-white px-4 py-2 rounded hover:bg-gray-700 focus:outline-none">
-                            Cerrar Sesión
-                        </button>
-                    </form>
+                    <div class="flex items-center ml-auto mr-4 space-x-4 text-white">
+                        <div class="text-right">
+                            <div class="font-semibold">
+                                {{ Auth::user()->u_fname }} {{ Auth::user()->u_lname }}
+                            </div>
+                            <div class="text-sm text-gray-300">
+                                {{ Auth::user()->u_type }}
+                            </div>
+                        </div>
+                        <form action="{{ route('logout') }}" method="POST">
+                            @csrf
+                            <button type="submit" class="border border-white px-4 py-2 rounded hover:bg-gray-700 transition">
+                                Cerrar Sesión
+                            </button>
+                        </form>
+                    </div>
                 @endauth
+
 
 
             </header>

@@ -27,7 +27,7 @@ class IndicatorController extends Controller
     {
         $validated = $request->validate([
             'i_num' => 'required|integer|min:1',
-            'i_text' => 'required|string|max:255',
+            'i_text' => 'required|string',
             'i_type' => 'required|in:string,integer,document',
             'o_id'   => 'required|exists:objectives,o_id',
         ]);

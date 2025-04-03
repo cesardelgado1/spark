@@ -21,7 +21,7 @@ class Objective extends Model {
     public function indicators(): HasMany {
         return $this->hasMany(Indicator::class, 'o_id');
     }
-    public function assigments(): HasMany {
+    public function assignments(): HasMany {
         return $this->hasMany(AssignObjectives::class, 'ao_ObjToFill');
     }
 }

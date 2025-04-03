@@ -8,10 +8,16 @@ return new class extends Migration {
     public function up(): void {
         Schema::create('assign_objectives', function (Blueprint $table) {
             $table->id('ao_id');
-            $table->unsignedBigInteger('o_id');
-            $table->foreign('o_id')->references('o_id')->on('objectives')->onDelete('cascade');
-            $table->unsignedBigInteger('user_id');
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+
+            $table->unsignedBigInteger('ao_ObjToFill');
+            $table->foreign('ao_ObjToFill')->references('o_id')->on('objectives')->onDelete('cascade');
+
+            $table->unsignedBigInteger('ao_assigned_to');
+            $table->foreign('ao_assigned_to')->references('id')->on('users')->onDelete('cascade');
+
+            $table->unsignedBigInteger('ao_assigned_by');
+            $table->foreign('ao_assigned_by')->references('id')->on('users')->onDelete('cascade');
+
             $table->timestamps();
         });
     }
@@ -20,3 +26,4 @@ return new class extends Migration {
         Schema::dropIfExists('assign_objectives');
     }
 };
+

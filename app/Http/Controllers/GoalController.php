@@ -27,7 +27,7 @@ class GoalController extends Controller
     {
         $validated = $request->validate([
             'g_num' => 'required|integer|min:1',
-            'g_text' => 'required|string|max:255',
+            'g_text' => 'required|string',
             't_id' => 'required|exists:topics,t_id',
         ]);
 

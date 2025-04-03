@@ -37,7 +37,7 @@ class TopicController extends Controller
 
         $validated = $request->validate([
             't_num' => 'required|integer|min:1',
-            't_text' => 'required|string|max:255',
+            't_text' => 'required|string',
             'sp_id'  => 'required|exists:strategic_plans,sp_id',
         ]);
 

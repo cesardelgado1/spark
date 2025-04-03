@@ -18,7 +18,7 @@ class Topic extends Model {
         return $this->hasMany(Goal::class, 't_id');
     }
 
-    public function strategicPlan(): BelongsTo {
+    public function strategicplan(): BelongsTo {
         return $this->belongsTo(StrategicPlan::class, 'sp_id');
     }
 }
