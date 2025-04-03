@@ -3,7 +3,7 @@
 use App\Http\Controllers\SettingsController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\JobController; // already there
-use App\Http\Controllers\StrategicPlanController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\TopicController;
 use App\Http\Controllers\GoalController;
 use App\Http\Controllers\ObjectiveController;
@@ -23,6 +23,7 @@ Route::post('/logout', function () {
 })->name('logout');
 
 Route::view('/', 'home');
+Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::view('/planes-estrategicos', 'planes-estrategicos/index');
 Route::view('/reportes', 'reportes/index');
 Route::view('/strategicplans', 'strategicplans.index');
@@ -96,7 +97,7 @@ Route::get('/objectives/{objective}/assign-to-assignee', [AssignObjectiveControl
 Route::post('/objectives/{objective}/assign-to-assignee', [AssignObjectiveController::class, 'assignToAssignee'])->name('assignments.assign');
 
 # CAUTION THESE WILL PROBABLY GENEATE SOME CONFLICTS WILL REMOVE SOON!!!
-Route::resource('strategicplans', StrategicPlanController::class);
+Route::resource('strategicplans', HomeController::class);
 #Route::resource('topics', TopicController::class);
 #Route::resource('goals', GoalController::class);
 #Route::resource('objectives', ObjectiveController::class);

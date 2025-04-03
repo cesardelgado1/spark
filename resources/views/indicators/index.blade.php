@@ -1,5 +1,3 @@
-indicators/index.blade.php
-
 <x-layout>
     <x-slot:heading>
         Planes Estratégicos de UPRM - Indicadores del Objetivo #{{ $objective->o_num }}
