@@ -60,7 +60,7 @@ class IndicatorController extends Controller
     {
         $request->validate([
             'i_num' => 'required|integer|min:1',
-            'i_text' => 'required|string|max:255',
+            'i_text' => 'required|string',
             'i_type' => 'required|in:string,integer,document',
         ]);
 
@@ -73,6 +73,30 @@ class IndicatorController extends Controller
         return redirect()->route('objectives.indicators', ['objective' => $indicator->o_id])
             ->with('success', 'Indicador actualizado correctamente.');
     }
+
+    public function updateValue(Request $request, Indicator $indicator)
+    {
+        if ($indicator->i_type === 'document') {
+            $request->validate([
+                'i_value' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png|max:2048',
+            ]);
+
+            if ($request->hasFile('i_value')) {
+                $path = $request->file('i_value')->store('documents', 'public');
+                $indicator->i_value = $path;
+            }
+        } else {
+            $request->validate([
+                'i_value' => 'nullable|string',
+            ]);
+            $indicator->i_value = $request->i_value;
+        }
+
+        $indicator->save();
+
+        return redirect()->back()->with('success', 'Valor del indicador actualizado.');
+    }
+
 
     public function destroy(Indicator $indicator)
     {
@@ -99,5 +123,4 @@ class IndicatorController extends Controller
         Indicator::whereIn('i_id', $indicatorIds)->delete();
         return redirect()->back()->with('success', 'Indicadores eliminados correctamente.');
     }
-
 }

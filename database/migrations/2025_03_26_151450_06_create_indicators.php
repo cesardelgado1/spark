@@ -1,3 +1,5 @@
+migrations/create_indicators
+
 <?php
 
 use Illuminate\Database\Migrations\Migration;
@@ -11,7 +13,6 @@ return new class extends Migration {
             $table->integer('i_num');
             $table->text('i_text');
             $table->enum('i_type', ['integer', 'string', 'document']);
-            $table->string('i_doc_path')->nullable();
             $table->text('i_value')->nullable();
             $table->integer('i_FY')->nullable();
             $table->unsignedBigInteger('o_id');

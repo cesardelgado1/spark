@@ -1,3 +1,5 @@
+indicators/index.blade.php
+
 <x-layout>
     <x-slot:heading>
         Planes Estratégicos de UPRM - Indicadores del Objetivo #{{ $objective->o_num }}
@@ -55,31 +57,60 @@
 
     <div class="px-6 py-4 max-h-auto overflow-y-auto border border-gray-300 rounded-lg shadow-md">
         @if(count($indicators) > 0)
+
+            <div class="space-y-4">
+                @foreach($indicators as $indicator)
+                    <div class="bg-white border border-gray-300 rounded-lg shadow-md p-4 relative group cursor-pointer hover:bg-gray-100 transition"
+                         onclick="redirectToIndicatorEdit({{ $indicator->i_id }})">
+
+                        <div class="flex items-start gap-3">
+                            {{-- Este checkbox forma parte del form de DELETE --}}
+                            <input type="checkbox" form="delete-indicators-form" name="indicators[]" value="{{ $indicator->i_id }}"
+                                   class="indicator-checkbox hidden w-5 h-5 text-red-600 focus:ring-red-500 border-gray-300 rounded mt-1">
+
+                            <div class="flex-1">
+                                <div class="font-bold text-gray-700 text-sm">
+                                    Indicador #{{ $indicator->i_num }}
+                                </div>
+                                <div class="text-gray-500">
+                                    {{ $indicator->i_text }}
+                                </div>
+                                <div class="text-sm text-gray-700 font-semibold mt-1">
+                                    Tipo: {{ $indicator->i_type }}
+                                </div>
+
+                                {{-- Este form es independiente, para updateValue --}}
+                                <form action="{{ route('indicators.updateValue', $indicator->i_id) }}"
+                                      method="POST" enctype="multipart/form-data" class="mt-3"
+                                      onClick="event.stopPropagation()">
+                                    @csrf
+                                    @method('PUT')
+
+                                    @if($indicator->i_type === 'integer')
+                                        <input type="number" name="i_value" value="{{ $indicator->i_value }}" class="border rounded px-2 py-1 w-full">
+                                    @elseif($indicator->i_type === 'string')
+                                        <input type="text" name="i_value" value="{{ $indicator->i_value }}" class="border rounded px-2 py-1 w-full">
+                                    @elseif($indicator->i_type === 'document')
+                                        @if(!empty($indicator->i_value))
+                                            <a href="{{ asset('storage/' . $indicator->i_value) }}" target="_blank" class="text-blue-500 underline">Ver documento actual</a><br>
+                                        @endif
+                                        <input type="file" name="i_value" class="border rounded px-2 py-1 w-full">
+                                    @endif
+
+                                    <button type="submit" class="mt-2 bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700">
+                                        Guardar
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+
+            {{-- Formulario de eliminación separado y al final --}}
             <form id="delete-indicators-form" action="{{ route('indicators.bulkDelete') }}" method="POST">
                 @csrf
                 @method('DELETE')
-
-                <div class="space-y-4">
-                    @foreach($indicators as $indicator)
-                        <div onclick="redirectToIndicatorEdit({{ $indicator->i_id }})"
-                             class="flex items-center justify-between px-4 py-4 bg-white border border-gray-300 rounded-lg shadow-md hover:bg-gray-100 transition cursor-pointer">
-                            <div class="flex items-center gap-3">
-                                <input type="checkbox" name="indicators[]" value="{{ $indicator->i_id }}" class="indicator-checkbox hidden w-5 h-5 text-red-600 focus:ring-red-500 border-gray-300 rounded">
-                                <div>
-                                    <div class="font-bold text-gray-700 text-sm">
-                                        Indicador #{{ $indicator->i_num }}
-                                    </div>
-                                    <div class="text-gray-500">
-                                        {{ $indicator->i_text }}
-                                    </div>
-                                    <div class="font-bold text-gray-700 text-sm mt-1">
-                                        {{ $indicator->i_type }}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
 
                 <div id="delete-indicators-button-container" class="mt-4 flex justify-end items-center gap-3 hidden">
                     <button type="button" onclick="cancelIndicatorDelete()" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition">
@@ -90,21 +121,6 @@
                     </button>
                 </div>
             </form>
-
-            <div id="confirm-indicator-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 hidden">
-                <div class="bg-white w-1/3 rounded-lg shadow-lg p-6">
-                    <h2 class="text-lg font-bold mb-4">¿Estás seguro de borrar estos indicadores?</h2>
-                    <div class="flex justify-end gap-3">
-                        <button onclick="closeIndicatorConfirmModal()" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition">
-                            Cancelar
-                        </button>
-                        <button onclick="submitIndicatorDeleteForm()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition">
-                            Sí, Borrar
-                        </button>
-                    </div>
-                </div>
-            </div>
-
 
             {{-- Modal de confirmación --}}
             <div id="confirm-indicator-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 hidden">
@@ -124,6 +140,8 @@
             <p class="text-gray-500">No hay indicadores relacionados con este objetivo.</p>
         @endif
     </div>
+
+
 
 
 

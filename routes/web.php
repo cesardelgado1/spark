@@ -81,6 +81,7 @@ Route::middleware(['auth', 'isPlanner'])->group(function () {
     Route::get('/indicators/{indicator}/edit', [IndicatorController::class, 'edit'])->name('indicators.edit');
     Route::put('/indicators/{indicator}', [IndicatorController::class, 'update'])->name('indicators.update');
     Route::get('/objectives/{objective}/indicators', [IndicatorController::class, 'index'])->name('objectives.indicators');
+    Route::put('/indicators/{indicator}/update-value', [IndicatorController::class, 'updateValue'])->name('indicators.updateValue');
 });
 
 //ADMIN

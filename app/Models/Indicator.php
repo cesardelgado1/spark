@@ -12,7 +12,7 @@ class Indicator extends Model {
 
     protected $table = 'indicators';
     protected $primaryKey = 'i_id';
-    protected $fillable = ['i_num', 'i_text','i_type', 'i_doc_path','i_value', 'i_FY', 'o_id'];
+    protected $fillable = ['i_num', 'i_text','i_type','i_value', 'i_FY', 'o_id'];
 
     public function objective(): BelongsTo {
         return $this->belongsTo(Objective::class, 'o_id');
