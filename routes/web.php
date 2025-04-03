@@ -30,6 +30,7 @@ Route::view('/topics', 'topics.index');
 
 
 
+
 // Implementar en un controlador
 Route::get('/strategicplans/{strategicplan}/topics', [TopicController::class, 'showTopics'])->name('strategicplans.topics');
 
@@ -111,7 +112,13 @@ Route::post('assign-indicators', [AssignIndicatorController::class, 'store'])->n
 Route::delete('assign-indicators/{assignment}', [AssignIndicatorController::class, 'destroy'])->name('assignindicators.destroy');
 
 
-Route::get('/export', [ExportController::class, 'export']);
+//Route::get('/export', [ExportController::class, 'export']);
+Route::post('/export', [ExportController::class, 'export'])->name('export');
+Route::get('/reportes', [ExportController::class, 'getAllSP'])->name('reportes.index');
+Route::get('/reportes/{sp_id}', [ExportController::class, 'getTopicsForSP']);
+Route::get('/reportes/topics/{topic_id}/goals', [ExportController::class, 'getGoalsForTopic']);
+Route::get('/reportes/goals/{goal_id}/objectives', [ExportController::class, 'getObjectivesForGoal']);
+
 
 
 

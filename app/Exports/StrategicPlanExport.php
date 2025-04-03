@@ -1,131 +1,4 @@
 <?php
-// 1st VERSION
-//namespace App\Exports;
-//
-//use Illuminate\Support\Facades\DB;
-//use Maatwebsite\Excel\Concerns\FromCollection;
-//use Maatwebsite\Excel\Concerns\WithHeadings;
-//
-//class StrategicPlanExport implements FromCollection, WithHeadings
-//{
-//    public function collection()
-//    {
-//        // Datagrip Query
-////        Select * FROM strategic_plans as SP, topics as T, goals as G, objectives as O, indicators as I
-////        where SP.sp_id = T.sp_id
-////            And T.t_id = G.t_id
-////            AND G.g_id = O.g_id
-////            AND O.o_id = I.o_id
-//
-//        // Query data and return it as a collection
-//        $data = DB::table('strategic_plans as SP')
-//            ->join('topics as T', 'SP.sp_id', '=', 'T.sp_id')
-//            ->join('goals as G', 'T.t_id', '=', 'G.t_id')
-//            ->join('objectives as O', 'G.g_id', '=', 'O.g_id')
-//            ->join('indicators as I', 'O.o_id', '=', 'I.o_id')
-//            ->select('SP.sp_id', 'SP.sp_institution',
-//                'T.t_id', 'T.t_num', 'T.t_text',
-//                'G.g_id', 'G.g_num', 'G.g_text',
-//                'O.o_id', 'O.o_num', 'O.o_text',
-//                'I.i_id', 'I.i_num', 'I.i_text', 'I.i_type', 'I.i_doc_path', 'I.i_value')
-//            ->get();
-//
-//        // Adding the new concatenated columns: Asuntos, Metas, Objetivos, Indicadores
-//        foreach ($data as $item) {
-//            $item->Asuntos = 'Asunto ' . $item->t_num . ': ' . $item->t_text;
-//            $item->Metas = 'Meta ' . $item->g_num . ': ' . $item->g_text;
-//            $item->Objetivos = 'Objetivo ' . $item->t_num . '.' . $item->g_num . '.' . $item->o_num . ': ' . $item->o_text;
-//            $item->Indicadores = 'Indicador ' . $item->t_num . '.' . $item->g_num . '.' . $item->o_num . '.' . $item->i_num . ': ' . $item->i_text;
-//        }
-//
-//        return $data;
-//    }
-//
-//    public function headings(): array
-//    {
-//        // Retrieve the keys of the first item to dynamically generate headings
-//        $data = $this->collection();
-//
-//        // If there is data, use the keys of the first row as headings
-//        return $data->isNotEmpty() ? array_keys((array) $data->first()) : [];
-//    }
-//}
-//
-// 2nd VERSION
-//namespace App\Exports;
-//
-//use Illuminate\Support\Facades\DB;
-//use Maatwebsite\Excel\Concerns\FromCollection;
-//use Maatwebsite\Excel\Concerns\WithHeadings;
-//use Illuminate\Support\Collection;
-//
-//class StrategicPlanExport implements FromCollection, WithHeadings
-//{
-//    public function collection()
-//    {
-//        // Query data and return it as a collection
-//        $data = DB::table('strategic_plans as SP')
-//            ->join('topics as T', 'SP.sp_id', '=', 'T.sp_id')
-//            ->join('goals as G', 'T.t_id', '=', 'G.t_id')
-//            ->join('objectives as O', 'G.g_id', '=', 'O.g_id')
-//            ->join('indicators as I', 'O.o_id', '=', 'I.o_id')
-//            ->select('SP.sp_id', 'SP.sp_institution',
-//                'T.t_id', 'T.t_num', 'T.t_text',
-//                'G.g_id', 'G.g_num', 'G.g_text',
-//                'O.o_id', 'O.o_num', 'O.o_text',
-//                'I.i_id', 'I.i_num', 'I.i_text', 'I.i_type', 'I.i_doc_path', 'I.i_value')
-//            ->get();
-//
-//        // Add the new concatenated columns dynamically
-//        foreach ($data as $item) {
-//            $item->asuntos = 'Asunto ' . $item->t_num . ': ' . $item->t_text;
-//            $item->metas = 'Meta ' . $item->g_num . ': ' . $item->g_text;
-//            $item->objetivos = 'Objetivo ' . $item->t_num . '.' . $item->g_num . '.' . $item->o_num . ': ' . $item->o_text;
-//            $item->indicadores = 'Indicador ' . $item->t_num . '.' . $item->g_num . '.' . $item->o_num . '.' . $item->i_num . ': ' . $item->i_text;
-//        }
-//
-//        // Group by institution and pivot the data
-//        $pivotData = $this->pivotData($data);
-//
-//        return $pivotData;
-//    }
-//
-//    public function headings(): array
-//    {
-//        // Define custom headings for the pivot table
-//        return ['Asuntos', 'Metas', 'Objetivos', 'Indicadores', 'Valor de Indicador'];
-//    }
-//
-//    /**
-//     * Pivot the data by institution
-//     */
-//    private function pivotData(Collection $data)
-//    {
-//        // Group data by institution
-////        $grouped = $data->groupBy('sp_institution');
-//        $grouped = $data->groupBy('asuntos');
-//
-//        // Flatten the grouped data into a new array
-//        $pivotTable = [];
-//        foreach ($grouped as $institution => $items) {
-//            foreach ($items as $item) {
-//                $pivotTable[] = [
-////                    'sp_institution' => $institution,
-//                    'Asuntos' => $item->asuntos,
-//                    'Metas' => $item->metas,
-//                    'Objetivos' => $item->objetivos,
-//                    'Indicadores' => $item->indicadores,
-//                    'Valor de Indicador' => $item->i_value
-//                ];
-//            }
-//        }
-//
-//        return collect($pivotTable);
-//    }
-//}
-//
-//
-//
 
 namespace App\Exports;
 
@@ -139,25 +12,51 @@ use Illuminate\Support\Collection;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 
-
 class StrategicPlanExport implements FromCollection, WithHeadings, WithStyles, WithEvents
 {
+    protected $sp_id;
+    protected $topics;
+    protected $goals;
+    protected $objectives;
+
+    public function __construct($sp_id, $topics = [], $goals = [], $objectives = [])
+    {
+        $this->sp_id = $sp_id;
+        $this->topics = $topics;
+        $this->goals = $goals;
+        $this->objectives = $objectives;
+    }
+
     public function collection()
     {
-        // Query data and return it as a collection
-        $data = DB::table('strategic_plans as SP')
+        $query = DB::table('strategic_plans as SP')
             ->join('topics as T', 'SP.sp_id', '=', 'T.sp_id')
             ->join('goals as G', 'T.t_id', '=', 'G.t_id')
             ->join('objectives as O', 'G.g_id', '=', 'O.g_id')
             ->join('indicators as I', 'O.o_id', '=', 'I.o_id')
-            ->select('SP.sp_id', 'SP.sp_institution',
+            ->where('SP.sp_id', $this->sp_id)
+            ->select(
+                'SP.sp_id', 'SP.sp_institution',
                 'T.t_id', 'T.t_num', 'T.t_text',
                 'G.g_id', 'G.g_num', 'G.g_text',
                 'O.o_id', 'O.o_num', 'O.o_text',
-                'I.i_id', 'I.i_num', 'I.i_text', 'I.i_type', 'I.i_doc_path', 'I.i_value')
-            ->get();
+                'I.i_id', 'I.i_num', 'I.i_text', 'I.i_type', 'I.i_doc_path', 'I.i_value'
+            );
 
-        // Add the new concatenated columns dynamically
+        if (!empty($this->topics)) {
+            $query->whereIn('T.t_id', $this->topics);
+        }
+
+        if (!empty($this->goals)) {
+            $query->whereIn('G.g_id', $this->goals);
+        }
+
+        if (!empty($this->objectives)) {
+            $query->whereIn('O.o_id', $this->objectives);
+        }
+
+        $data = $query->get();
+
         foreach ($data as $item) {
             $item->asuntos = 'Asunto ' . $item->t_num . ': ' . $item->t_text;
             $item->metas = 'Meta ' . $item->g_num . ': ' . $item->g_text;
@@ -165,12 +64,10 @@ class StrategicPlanExport implements FromCollection, WithHeadings, WithStyles, W
             $item->indicadores = 'Indicador ' . $item->t_num . '.' . $item->g_num . '.' . $item->o_num . '.' . $item->i_num . ': ' . $item->i_text;
         }
 
-        // Group by institution and pivot the data
-        $pivotData = $this->pivotData($data);
-
-        return $pivotData;
+        return $this->pivotData($data);
     }
 
+    // ...rest of your class remains the same...
     public function headings(): array
     {
         // Define custom headings for the pivot table
@@ -215,9 +112,6 @@ class StrategicPlanExport implements FromCollection, WithHeadings, WithStyles, W
 //        $sheet->getStyle('A1:E1')->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID);
 //        $sheet->getStyle('A1:E1')->getFill()->getStartColor()->setRGB('A9D08E');
         $sheet->getStyle('A1:E1')->getFont()->setBold(true);
-
-        // Add auto filters to the first row (header row)
-//        $sheet->setAutoFilter('A1:E1'); // Set auto filter on columns A to E
 
         // Align merged cells to the center (both horizontally and vertically)
         $sheet->getStyle('A2:A' . $sheet->getHighestRow())->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
