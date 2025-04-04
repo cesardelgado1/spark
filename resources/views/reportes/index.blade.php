@@ -14,11 +14,26 @@
                 @endforeach
             </select>
         </div>
+        <div class="mb-4">
+{{--            <label for="FY" class="block text-sm font-medium text-gray-700">Select Fiscal Year</label>--}}
+{{--            <select id="FY" name="i_FY" class="mt-1 block w-full p-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">--}}
+{{--                <option value="">-- Select Fiscal Year --</option>--}}
+{{--                @foreach($indicators as $indicator)--}}
+{{--                    <option value="{{ $indicator->i_FY }}">{{ $indicator->i_FY }}</option>--}}
+{{--                @endforeach--}}
+{{--            </select>--}}
+            <label for="FY" class="block text-sm font-medium text-gray-700">Select Fiscal Year</label>
+            <select id="fiscal-year" name="i_FY" class="mt-1 block w-full p-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                <option value="">-- Select Fiscal Year --</option>
+            </select>
+        </div>
     </div>
-
     <form id="export-form" action="{{ url('/export') }}" method="POST" class="p-4">
         @csrf
+
+        {{-- 👇 Inputs ocultos para enviar SP ID y FY --}}
         <input type="hidden" name="sp_id" id="form-sp-id">
+        <input type="hidden" name="i_FY" id="form-fy"> {{-- 👈 importante --}}
 
         <div class="flex space-x-4">
             <!-- Asuntos Section -->
@@ -56,24 +71,23 @@
         </div>
     </form>
 
-    {{--WORKS POR FIN!!!!!!!!!!!!! YAY WOHOOOOOO--}}
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const dropdown = document.getElementById('strategic-plan');
+            const dropdownSP = document.getElementById('strategic-plan');
+            const dropdownFY = document.getElementById('fiscal-year');
+
             const topicsList = document.getElementById('topics-list');
             const goalsList = document.getElementById('goals-list');
             const objectivesList = document.getElementById('objectives-list');
             const formSpId = document.getElementById('form-sp-id');
+            const formFY = document.getElementById('form-fy');
 
             const toggleAsuntos = document.getElementById('toggle-asuntos');
             const toggleMetas = document.getElementById('toggle-metas');
             const toggleObjetivos = document.getElementById('toggle-objetivos');
 
-            // Recalculate sets directly from checkboxes
             function getSelected(container) {
-                return new Set(
-                    [...container.querySelectorAll('input[type="checkbox"]:checked')].map(cb => cb.value)
-                );
+                return new Set([...container.querySelectorAll('input[type="checkbox"]:checked')].map(cb => cb.value));
             }
 
             function syncParentCheckbox(parentCheckbox, container) {
@@ -94,66 +108,74 @@
                 });
             }
 
-            toggleAsuntos.addEventListener('change', () => {
-                const checkboxes = topicsList.querySelectorAll('input[type="checkbox"]');
-                checkboxes.forEach(cb => cb.checked = toggleAsuntos.checked);
-                syncParentCheckbox(toggleAsuntos, topicsList);
-                loadGoalsFromSelectedTopics();
-            });
+            // Load FYs when a Strategic Plan is selected
+            dropdownSP.addEventListener('change', function () {
+                const spId = this.value;
+                formSpId.value = spId;
+                formFY.value = '';
 
-            toggleMetas.addEventListener('change', () => {
-                const checkboxes = goalsList.querySelectorAll('input[type="checkbox"]');
-                checkboxes.forEach(cb => cb.checked = toggleMetas.checked);
-                syncParentCheckbox(toggleMetas, goalsList);
-                loadObjectivesFromSelectedGoals();
-            });
-
-            toggleObjetivos.addEventListener('change', () => {
-                const checkboxes = objectivesList.querySelectorAll('input[type="checkbox"]');
-                checkboxes.forEach(cb => cb.checked = toggleObjetivos.checked);
-                syncParentCheckbox(toggleObjetivos, objectivesList);
-            });
-
-            dropdown.addEventListener('change', function () {
-                const planId = this.value;
-                formSpId.value = planId;
-
+                dropdownFY.innerHTML = '<option value="">-- Select Fiscal Year --</option>';
                 topicsList.innerHTML = '';
                 goalsList.innerHTML = '';
                 objectivesList.innerHTML = '';
 
-                if (planId) {
-                    fetch(`/reportes/${planId}`)
-                        .then(res => res.json())
+                if (spId) {
+                    fetch(`/reportes/sp/${spId}/fys`)
+                        .then(response => response.json())
                         .then(data => {
-                            data.forEach(topic => {
-                                const wrapper = document.createElement('div');
-                                wrapper.className = 'flex items-center space-x-2 text-sm text-gray-700';
-
-                                const checkbox = document.createElement('input');
-                                checkbox.type = 'checkbox';
-                                checkbox.name = 'topics[]';
-                                checkbox.value = topic.t_id;
-                                checkbox.className = 'form-checkbox h-4 w-4 text-blue-600';
-                                checkbox.checked = true;
-
-                                const label = document.createElement('label');
-                                label.textContent = `Asunto ${topic.t_num}`;
-                                label.className = 'font-medium';
-
-                                wrapper.appendChild(checkbox);
-                                wrapper.appendChild(label);
-                                topicsList.appendChild(wrapper);
+                            data.forEach(fy => {
+                                const option = document.createElement('option');
+                                option.value = fy;
+                                option.textContent = fy;
+                                dropdownFY.appendChild(option);
                             });
-
-                            syncParentCheckbox(toggleAsuntos, topicsList);
-                            bindCheckboxes(topicsList, loadGoalsFromSelectedTopics, toggleAsuntos);
-                            loadGoalsFromSelectedTopics();
-                        });
+                        })
+                        .catch(error => console.error('Error fetching FYs:', error));
                 }
             });
 
-            function loadGoalsFromSelectedTopics() {
+            // Load checkboxes when FY is selected
+            dropdownFY.addEventListener('change', function () {
+                const fy = this.value;
+                const spId = dropdownSP.value;
+
+                if (!spId || !fy) return;
+
+                formFY.value = fy;
+                topicsList.innerHTML = '';
+                goalsList.innerHTML = '';
+                objectivesList.innerHTML = '';
+
+                fetch(`/reportes/${spId}/${fy}/topics`)
+                    .then(res => res.json())
+                    .then(data => {
+                        data.forEach(topic => {
+                            const wrapper = document.createElement('div');
+                            wrapper.className = 'flex items-center space-x-2 text-sm text-gray-700';
+
+                            const checkbox = document.createElement('input');
+                            checkbox.type = 'checkbox';
+                            checkbox.name = 'topics[]';
+                            checkbox.value = topic.t_id;
+                            checkbox.className = 'form-checkbox h-4 w-4 text-blue-600';
+                            checkbox.checked = true;
+
+                            const label = document.createElement('label');
+                            label.textContent = `Asunto ${topic.t_num}`;
+                            label.className = 'font-medium';
+
+                            wrapper.appendChild(checkbox);
+                            wrapper.appendChild(label);
+                            topicsList.appendChild(wrapper);
+                        });
+
+                        syncParentCheckbox(toggleAsuntos, topicsList);
+                        bindCheckboxes(topicsList, () => loadGoalsFromSelectedTopics(fy), toggleAsuntos);
+                        loadGoalsFromSelectedTopics(fy);
+                    });
+            });
+
+            function loadGoalsFromSelectedTopics(fy) {
                 const selectedTopics = getSelected(topicsList);
                 goalsList.innerHTML = '';
                 objectivesList.innerHTML = '';
@@ -167,7 +189,9 @@
                 const seen = new Set();
 
                 Promise.all(
-                    [...selectedTopics].map(id => fetch(`/reportes/topics/${id}/goals`).then(res => res.json()))
+                    [...selectedTopics].map(id =>
+                        fetch(`/reportes/topics/${id}/goals/${fy}`).then(res => res.json())
+                    )
                 ).then(results => {
                     results.flat().forEach(goal => {
                         if (seen.has(goal.g_id)) return;
@@ -193,12 +217,12 @@
                     });
 
                     syncParentCheckbox(toggleMetas, goalsList);
-                    bindCheckboxes(goalsList, loadObjectivesFromSelectedGoals, toggleMetas);
-                    loadObjectivesFromSelectedGoals();
+                    bindCheckboxes(goalsList, () => loadObjectivesFromSelectedGoals(fy), toggleMetas);
+                    loadObjectivesFromSelectedGoals(fy);
                 });
             }
 
-            function loadObjectivesFromSelectedGoals() {
+            function loadObjectivesFromSelectedGoals(fy) {
                 const selectedGoals = getSelected(goalsList);
                 objectivesList.innerHTML = '';
 
@@ -210,7 +234,9 @@
                 const seen = new Set();
 
                 Promise.all(
-                    [...selectedGoals].map(id => fetch(`/reportes/goals/${id}/objectives`).then(res => res.json()))
+                    [...selectedGoals].map(id =>
+                        fetch(`/reportes/goals/${id}/objectives/${fy}`).then(res => res.json())
+                    )
                 ).then(results => {
                     results.flat().forEach(obj => {
                         if (seen.has(obj.o_id)) return;
@@ -227,9 +253,7 @@
                         checkbox.checked = true;
 
                         const label = document.createElement('label');
-                        // label.textContent = `Objetivo #${obj.o_num}`;
                         label.textContent = `Objetivo ${obj.t_num}.${obj.g_num}.${obj.o_num}`;
-
                         label.className = 'font-medium';
 
                         wrapper.appendChild(checkbox);
@@ -239,11 +263,944 @@
 
                     syncParentCheckbox(toggleObjetivos, objectivesList);
                     bindCheckboxes(objectivesList, () => {}, toggleObjetivos);
-
                 });
             }
+
+            // Parent toggles
+            toggleAsuntos.addEventListener('change', () => {
+                const checkboxes = topicsList.querySelectorAll('input[type="checkbox"]');
+                checkboxes.forEach(cb => cb.checked = toggleAsuntos.checked);
+                syncParentCheckbox(toggleAsuntos, topicsList);
+                loadGoalsFromSelectedTopics(dropdownFY.value);
+            });
+
+            toggleMetas.addEventListener('change', () => {
+                const checkboxes = goalsList.querySelectorAll('input[type="checkbox"]');
+                checkboxes.forEach(cb => cb.checked = toggleMetas.checked);
+                syncParentCheckbox(toggleMetas, goalsList);
+                loadObjectivesFromSelectedGoals(dropdownFY.value);
+            });
+
+            toggleObjetivos.addEventListener('change', () => {
+                const checkboxes = objectivesList.querySelectorAll('input[type="checkbox"]');
+                checkboxes.forEach(cb => cb.checked = toggleObjetivos.checked);
+                syncParentCheckbox(toggleObjetivos, objectivesList);
+            });
         });
     </script>
+
+    {{--    <form id="export-form" action="{{ url('/export') }}" method="POST" class="p-4">--}}
+    {{--        @csrf--}}
+    {{--        <input type="hidden" name="sp_id" id="form-sp-id">--}}
+
+    {{--        <div class="flex space-x-4">--}}
+    {{--            <!-- Asuntos Section -->--}}
+    {{--            <div class="flex-1 bg-gray-100 p-4 rounded-lg shadow">--}}
+    {{--                <label class="flex items-center space-x-2 mb-2">--}}
+    {{--                    <input type="checkbox" class="form-checkbox h-5 w-5 text-blue-600" id="toggle-asuntos" name="include_asuntos">--}}
+    {{--                    <h3 class="text-lg font-bold">Asuntos</h3>--}}
+    {{--                </label>--}}
+    {{--                <div id="topics-list" class="space-y-4 ml-7"></div>--}}
+    {{--            </div>--}}
+
+    {{--            <!-- Metas Section -->--}}
+    {{--            <div class="flex-1 bg-gray-100 p-4 rounded-lg shadow">--}}
+    {{--                <label class="flex items-center space-x-2 mb-2">--}}
+    {{--                    <input type="checkbox" class="form-checkbox h-5 w-5 text-blue-600" id="toggle-metas" name="include_metas">--}}
+    {{--                    <h3 class="text-lg font-bold">Metas</h3>--}}
+    {{--                </label>--}}
+    {{--                <div id="goals-list" class="space-y-4 ml-7"></div>--}}
+    {{--            </div>--}}
+
+    {{--            <!-- Objetivos Section -->--}}
+    {{--            <div class="flex-1 bg-gray-100 p-4 rounded-lg shadow">--}}
+    {{--                <label class="flex items-center space-x-2 mb-2">--}}
+    {{--                    <input type="checkbox" class="form-checkbox h-5 w-5 text-blue-600" id="toggle-objetivos" name="include_objetivos">--}}
+    {{--                    <h3 class="text-lg font-bold">Objetivos</h3>--}}
+    {{--                </label>--}}
+    {{--                <div id="objectives-list" class="space-y-4 ml-7"></div>--}}
+    {{--            </div>--}}
+    {{--        </div>--}}
+
+    {{--        <div class="mt-6">--}}
+    {{--            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">--}}
+    {{--                Generate Excel--}}
+    {{--            </button>--}}
+    {{--        </div>--}}
+    {{--    </form>--}}
+
+    {{--    <script>--}}
+    {{--    document.getElementById('strategic-plan').addEventListener('change', function () {--}}
+    {{--        const spId = this.value;--}}
+    {{--        const fySelect = document.getElementById('fiscal-year');--}}
+
+    {{--        // Clear current FY options--}}
+    {{--        fySelect.innerHTML = '<option value="">-- Select Fiscal Year --</option>';--}}
+
+    {{--        if (spId) {--}}
+    {{--            fetch(`/reportes/sp/${spId}/fys`)--}}
+    {{--                .then(response => response.json())--}}
+    {{--                .then(data => {--}}
+    {{--                    data.forEach(fy => {--}}
+    {{--                        const option = document.createElement('option');--}}
+    {{--                        option.value = fy;--}}
+    {{--                        option.textContent = fy;--}}
+    {{--                        fySelect.appendChild(option);--}}
+    {{--                    });--}}
+    {{--                })--}}
+    {{--                .catch(error => console.error('Error fetching FYs:', error));--}}
+    {{--        }--}}
+    {{--    });--}}
+    {{--</script>--}}
+
+
+    {{--WORKS POR FIN!!!!!!!!!!!!! YAY WOHOOOOOO--}}
+    {{--    <script>--}}
+    {{--        document.addEventListener('DOMContentLoaded', function () {--}}
+    {{--            const dropdown = document.getElementById('strategic-plan');--}}
+    {{--            const topicsList = document.getElementById('topics-list');--}}
+    {{--            const goalsList = document.getElementById('goals-list');--}}
+    {{--            const objectivesList = document.getElementById('objectives-list');--}}
+    {{--            const formSpId = document.getElementById('form-sp-id');--}}
+
+    {{--            const toggleAsuntos = document.getElementById('toggle-asuntos');--}}
+    {{--            const toggleMetas = document.getElementById('toggle-metas');--}}
+    {{--            const toggleObjetivos = document.getElementById('toggle-objetivos');--}}
+
+    {{--            // Recalculate sets directly from checkboxes--}}
+    {{--            function getSelected(container) {--}}
+    {{--                return new Set(--}}
+    {{--                    [...container.querySelectorAll('input[type="checkbox"]:checked')].map(cb => cb.value)--}}
+    {{--                );--}}
+    {{--            }--}}
+
+    {{--            function syncParentCheckbox(parentCheckbox, container) {--}}
+    {{--                const checkboxes = container.querySelectorAll('input[type="checkbox"]');--}}
+    {{--                const checked = container.querySelectorAll('input[type="checkbox"]:checked').length;--}}
+    {{--                const total = checkboxes.length;--}}
+
+    {{--                parentCheckbox.checked = checked === total && total > 0;--}}
+    {{--                parentCheckbox.indeterminate = checked > 0 && checked < total;--}}
+    {{--            }--}}
+
+    {{--            function bindCheckboxes(container, onChangeCallback, parentToggle) {--}}
+    {{--                container.querySelectorAll('input[type="checkbox"]').forEach(cb => {--}}
+    {{--                    cb.addEventListener('change', () => {--}}
+    {{--                        onChangeCallback();--}}
+    {{--                        syncParentCheckbox(parentToggle, container);--}}
+    {{--                    });--}}
+    {{--                });--}}
+    {{--            }--}}
+
+    {{--            toggleAsuntos.addEventListener('change', () => {--}}
+    {{--                const checkboxes = topicsList.querySelectorAll('input[type="checkbox"]');--}}
+    {{--                checkboxes.forEach(cb => cb.checked = toggleAsuntos.checked);--}}
+    {{--                syncParentCheckbox(toggleAsuntos, topicsList);--}}
+    {{--                loadGoalsFromSelectedTopics();--}}
+    {{--            });--}}
+
+    {{--            toggleMetas.addEventListener('change', () => {--}}
+    {{--                const checkboxes = goalsList.querySelectorAll('input[type="checkbox"]');--}}
+    {{--                checkboxes.forEach(cb => cb.checked = toggleMetas.checked);--}}
+    {{--                syncParentCheckbox(toggleMetas, goalsList);--}}
+    {{--                loadObjectivesFromSelectedGoals();--}}
+    {{--            });--}}
+
+    {{--            toggleObjetivos.addEventListener('change', () => {--}}
+    {{--                const checkboxes = objectivesList.querySelectorAll('input[type="checkbox"]');--}}
+    {{--                checkboxes.forEach(cb => cb.checked = toggleObjetivos.checked);--}}
+    {{--                syncParentCheckbox(toggleObjetivos, objectivesList);--}}
+    {{--            });--}}
+
+    {{--            dropdown.addEventListener('change', function () {--}}
+    {{--                const planId = this.value;--}}
+    {{--                formSpId.value = planId;--}}
+
+    {{--                topicsList.innerHTML = '';--}}
+    {{--                goalsList.innerHTML = '';--}}
+    {{--                objectivesList.innerHTML = '';--}}
+
+    {{--                if (planId) {--}}
+    {{--                    fetch(`/reportes/${planId}`)--}}
+    {{--                        .then(res => res.json())--}}
+    {{--                        .then(data => {--}}
+    {{--                            data.forEach(topic => {--}}
+    {{--                                const wrapper = document.createElement('div');--}}
+    {{--                                wrapper.className = 'flex items-center space-x-2 text-sm text-gray-700';--}}
+
+    {{--                                const checkbox = document.createElement('input');--}}
+    {{--                                checkbox.type = 'checkbox';--}}
+    {{--                                checkbox.name = 'topics[]';--}}
+    {{--                                checkbox.value = topic.t_id;--}}
+    {{--                                checkbox.className = 'form-checkbox h-4 w-4 text-blue-600';--}}
+    {{--                                checkbox.checked = true;--}}
+
+    {{--                                const label = document.createElement('label');--}}
+    {{--                                label.textContent = `Asunto ${topic.t_num}`;--}}
+    {{--                                label.className = 'font-medium';--}}
+
+    {{--                                wrapper.appendChild(checkbox);--}}
+    {{--                                wrapper.appendChild(label);--}}
+    {{--                                topicsList.appendChild(wrapper);--}}
+    {{--                            });--}}
+
+    {{--                            syncParentCheckbox(toggleAsuntos, topicsList);--}}
+    {{--                            bindCheckboxes(topicsList, loadGoalsFromSelectedTopics, toggleAsuntos);--}}
+    {{--                            loadGoalsFromSelectedTopics();--}}
+    {{--                        });--}}
+    {{--                }--}}
+    {{--            });--}}
+
+    {{--            function loadGoalsFromSelectedTopics() {--}}
+    {{--                const selectedTopics = getSelected(topicsList);--}}
+    {{--                goalsList.innerHTML = '';--}}
+    {{--                objectivesList.innerHTML = '';--}}
+
+    {{--                if (selectedTopics.size === 0) {--}}
+    {{--                    syncParentCheckbox(toggleMetas, goalsList);--}}
+    {{--                    syncParentCheckbox(toggleObjetivos, objectivesList);--}}
+    {{--                    return;--}}
+    {{--                }--}}
+
+    {{--                const seen = new Set();--}}
+
+    {{--                Promise.all(--}}
+    {{--                    [...selectedTopics].map(id => fetch(`/reportes/topics/${id}/goals`).then(res => res.json()))--}}
+    {{--                ).then(results => {--}}
+    {{--                    results.flat().forEach(goal => {--}}
+    {{--                        if (seen.has(goal.g_id)) return;--}}
+    {{--                        seen.add(goal.g_id);--}}
+
+    {{--                        const wrapper = document.createElement('div');--}}
+    {{--                        wrapper.className = 'flex items-center space-x-2 text-sm text-gray-700';--}}
+
+    {{--                        const checkbox = document.createElement('input');--}}
+    {{--                        checkbox.type = 'checkbox';--}}
+    {{--                        checkbox.name = 'goals[]';--}}
+    {{--                        checkbox.value = goal.g_id;--}}
+    {{--                        checkbox.className = 'form-checkbox h-4 w-4 text-green-600';--}}
+    {{--                        checkbox.checked = true;--}}
+
+    {{--                        const label = document.createElement('label');--}}
+    {{--                        label.textContent = `Meta ${goal.g_num}`;--}}
+    {{--                        label.className = 'font-medium';--}}
+
+    {{--                        wrapper.appendChild(checkbox);--}}
+    {{--                        wrapper.appendChild(label);--}}
+    {{--                        goalsList.appendChild(wrapper);--}}
+    {{--                    });--}}
+
+    {{--                    syncParentCheckbox(toggleMetas, goalsList);--}}
+    {{--                    bindCheckboxes(goalsList, loadObjectivesFromSelectedGoals, toggleMetas);--}}
+    {{--                    loadObjectivesFromSelectedGoals();--}}
+    {{--                });--}}
+    {{--            }--}}
+
+    {{--            function loadObjectivesFromSelectedGoals() {--}}
+    {{--                const selectedGoals = getSelected(goalsList);--}}
+    {{--                objectivesList.innerHTML = '';--}}
+
+    {{--                if (selectedGoals.size === 0) {--}}
+    {{--                    syncParentCheckbox(toggleObjetivos, objectivesList);--}}
+    {{--                    return;--}}
+    {{--                }--}}
+
+    {{--                const seen = new Set();--}}
+
+    {{--                Promise.all(--}}
+    {{--                    [...selectedGoals].map(id => fetch(`/reportes/goals/${id}/objectives`).then(res => res.json()))--}}
+    {{--                ).then(results => {--}}
+    {{--                    results.flat().forEach(obj => {--}}
+    {{--                        if (seen.has(obj.o_id)) return;--}}
+    {{--                        seen.add(obj.o_id);--}}
+
+    {{--                        const wrapper = document.createElement('div');--}}
+    {{--                        wrapper.className = 'flex items-center space-x-2 text-sm text-gray-700';--}}
+
+    {{--                        const checkbox = document.createElement('input');--}}
+    {{--                        checkbox.type = 'checkbox';--}}
+    {{--                        checkbox.name = 'objectives[]';--}}
+    {{--                        checkbox.value = obj.o_id;--}}
+    {{--                        checkbox.className = 'form-checkbox h-4 w-4 text-purple-600';--}}
+    {{--                        checkbox.checked = true;--}}
+
+    {{--                        const label = document.createElement('label');--}}
+    {{--                        // label.textContent = `Objetivo #${obj.o_num}`;--}}
+    {{--                        label.textContent = `Objetivo ${obj.t_num}.${obj.g_num}.${obj.o_num}`;--}}
+
+    {{--                        label.className = 'font-medium';--}}
+
+    {{--                        wrapper.appendChild(checkbox);--}}
+    {{--                        wrapper.appendChild(label);--}}
+    {{--                        objectivesList.appendChild(wrapper);--}}
+    {{--                    });--}}
+
+    {{--                    syncParentCheckbox(toggleObjetivos, objectivesList);--}}
+    {{--                    bindCheckboxes(objectivesList, () => {}, toggleObjetivos);--}}
+
+    {{--                });--}}
+    {{--            }--}}
+    {{--        });--}}
+    {{--    </script>--}}
+
+    {{--    WORKING WELL--}}
+    {{--    <script>--}}
+    {{--        document.addEventListener('DOMContentLoaded', function () {--}}
+    {{--            const dropdownSP = document.getElementById('strategic-plan');--}}
+    {{--            const dropdownFY = document.getElementById('fiscal-year');--}}
+
+    {{--            const topicsList = document.getElementById('topics-list');--}}
+    {{--            const goalsList = document.getElementById('goals-list');--}}
+    {{--            const objectivesList = document.getElementById('objectives-list');--}}
+    {{--            const formSpId = document.getElementById('form-sp-id');--}}
+
+    {{--            const toggleAsuntos = document.getElementById('toggle-asuntos');--}}
+    {{--            const toggleMetas = document.getElementById('toggle-metas');--}}
+    {{--            const toggleObjetivos = document.getElementById('toggle-objetivos');--}}
+
+    {{--            // Helper functions--}}
+    {{--            function getSelected(container) {--}}
+    {{--                return new Set([...container.querySelectorAll('input[type="checkbox"]:checked')].map(cb => cb.value));--}}
+    {{--            }--}}
+
+    {{--            function syncParentCheckbox(parentCheckbox, container) {--}}
+    {{--                const checkboxes = container.querySelectorAll('input[type="checkbox"]');--}}
+    {{--                const checked = container.querySelectorAll('input[type="checkbox"]:checked').length;--}}
+    {{--                const total = checkboxes.length;--}}
+
+    {{--                parentCheckbox.checked = checked === total && total > 0;--}}
+    {{--                parentCheckbox.indeterminate = checked > 0 && checked < total;--}}
+    {{--            }--}}
+
+    {{--            function bindCheckboxes(container, onChangeCallback, parentToggle) {--}}
+    {{--                container.querySelectorAll('input[type="checkbox"]').forEach(cb => {--}}
+    {{--                    cb.addEventListener('change', () => {--}}
+    {{--                        onChangeCallback();--}}
+    {{--                        syncParentCheckbox(parentToggle, container);--}}
+    {{--                    });--}}
+    {{--                });--}}
+    {{--            }--}}
+
+    {{--            // Fetch FYs when Strategic Plan changes--}}
+    {{--            dropdownSP.addEventListener('change', function () {--}}
+    {{--                const spId = this.value;--}}
+    {{--                formSpId.value = spId;--}}
+    {{--                dropdownFY.innerHTML = '<option value="">-- Select Fiscal Year --</option>';--}}
+    {{--                topicsList.innerHTML = '';--}}
+    {{--                goalsList.innerHTML = '';--}}
+    {{--                objectivesList.innerHTML = '';--}}
+
+    {{--                if (spId) {--}}
+    {{--                    fetch(`/reportes/sp/${spId}/fys`)--}}
+    {{--                        .then(response => response.json())--}}
+    {{--                        .then(data => {--}}
+    {{--                            data.forEach(fy => {--}}
+    {{--                                const option = document.createElement('option');--}}
+    {{--                                option.value = fy;--}}
+    {{--                                option.textContent = fy;--}}
+    {{--                                dropdownFY.appendChild(option);--}}
+    {{--                            });--}}
+    {{--                        })--}}
+    {{--                        .catch(error => console.error('Error fetching FYs:', error));--}}
+    {{--                }--}}
+    {{--            });--}}
+
+    {{--            // Fetch checkboxes when both SP and FY are selected--}}
+    {{--            dropdownFY.addEventListener('change', function () {--}}
+    {{--                const spId = dropdownSP.value;--}}
+    {{--                const fy = this.value;--}}
+
+    {{--                if (!spId || !fy) return;--}}
+
+    {{--                topicsList.innerHTML = '';--}}
+    {{--                goalsList.innerHTML = '';--}}
+    {{--                objectivesList.innerHTML = '';--}}
+
+    {{--                fetch(`/reportes/${spId}/${fy}/topics`)--}}
+    {{--                    .then(res => res.json())--}}
+    {{--                    .then(data => {--}}
+    {{--                        data.forEach(topic => {--}}
+    {{--                            const wrapper = document.createElement('div');--}}
+    {{--                            wrapper.className = 'flex items-center space-x-2 text-sm text-gray-700';--}}
+
+    {{--                            const checkbox = document.createElement('input');--}}
+    {{--                            checkbox.type = 'checkbox';--}}
+    {{--                            checkbox.name = 'topics[]';--}}
+    {{--                            checkbox.value = topic.t_id;--}}
+    {{--                            checkbox.className = 'form-checkbox h-4 w-4 text-blue-600';--}}
+    {{--                            checkbox.checked = true;--}}
+
+    {{--                            const label = document.createElement('label');--}}
+    {{--                            label.textContent = `Asunto ${topic.t_num}`;--}}
+    {{--                            label.className = 'font-medium';--}}
+
+    {{--                            wrapper.appendChild(checkbox);--}}
+    {{--                            wrapper.appendChild(label);--}}
+    {{--                            topicsList.appendChild(wrapper);--}}
+    {{--                        });--}}
+
+    {{--                        syncParentCheckbox(toggleAsuntos, topicsList);--}}
+    {{--                        bindCheckboxes(topicsList, () => loadGoalsFromSelectedTopics(fy), toggleAsuntos);--}}
+    {{--                        loadGoalsFromSelectedTopics(fy);--}}
+    {{--                    });--}}
+    {{--            });--}}
+
+    {{--            function loadGoalsFromSelectedTopics(fy) {--}}
+    {{--                const selectedTopics = getSelected(topicsList);--}}
+    {{--                goalsList.innerHTML = '';--}}
+    {{--                objectivesList.innerHTML = '';--}}
+
+    {{--                if (selectedTopics.size === 0) {--}}
+    {{--                    syncParentCheckbox(toggleMetas, goalsList);--}}
+    {{--                    syncParentCheckbox(toggleObjetivos, objectivesList);--}}
+    {{--                    return;--}}
+    {{--                }--}}
+
+    {{--                const seen = new Set();--}}
+
+    {{--                Promise.all(--}}
+    {{--                    [...selectedTopics].map(id =>--}}
+    {{--                        fetch(`/reportes/topics/${id}/goals`).then(res => res.json())--}}
+    {{--                    )--}}
+    {{--                ).then(results => {--}}
+    {{--                    results.flat().forEach(goal => {--}}
+    {{--                        if (seen.has(goal.g_id)) return;--}}
+    {{--                        seen.add(goal.g_id);--}}
+
+    {{--                        const wrapper = document.createElement('div');--}}
+    {{--                        wrapper.className = 'flex items-center space-x-2 text-sm text-gray-700';--}}
+
+    {{--                        const checkbox = document.createElement('input');--}}
+    {{--                        checkbox.type = 'checkbox';--}}
+    {{--                        checkbox.name = 'goals[]';--}}
+    {{--                        checkbox.value = goal.g_id;--}}
+    {{--                        checkbox.className = 'form-checkbox h-4 w-4 text-green-600';--}}
+    {{--                        checkbox.checked = true;--}}
+
+    {{--                        const label = document.createElement('label');--}}
+    {{--                        label.textContent = `Meta ${goal.g_num}`;--}}
+    {{--                        label.className = 'font-medium';--}}
+
+    {{--                        wrapper.appendChild(checkbox);--}}
+    {{--                        wrapper.appendChild(label);--}}
+    {{--                        goalsList.appendChild(wrapper);--}}
+    {{--                    });--}}
+
+    {{--                    syncParentCheckbox(toggleMetas, goalsList);--}}
+    {{--                    bindCheckboxes(goalsList, () => loadObjectivesFromSelectedGoals(fy), toggleMetas);--}}
+    {{--                    loadObjectivesFromSelectedGoals(fy);--}}
+    {{--                });--}}
+    {{--            }--}}
+
+    {{--            function loadObjectivesFromSelectedGoals(fy) {--}}
+    {{--                const selectedGoals = getSelected(goalsList);--}}
+    {{--                objectivesList.innerHTML = '';--}}
+
+    {{--                if (selectedGoals.size === 0) {--}}
+    {{--                    syncParentCheckbox(toggleObjetivos, objectivesList);--}}
+    {{--                    return;--}}
+    {{--                }--}}
+
+    {{--                const seen = new Set();--}}
+
+    {{--                Promise.all(--}}
+    {{--                    [...selectedGoals].map(id =>--}}
+    {{--                        fetch(`/reportes/goals/${id}/objectives`).then(res => res.json())--}}
+    {{--                    )--}}
+    {{--                ).then(results => {--}}
+    {{--                    results.flat().forEach(obj => {--}}
+    {{--                        if (seen.has(obj.o_id)) return;--}}
+    {{--                        seen.add(obj.o_id);--}}
+
+    {{--                        const wrapper = document.createElement('div');--}}
+    {{--                        wrapper.className = 'flex items-center space-x-2 text-sm text-gray-700';--}}
+
+    {{--                        const checkbox = document.createElement('input');--}}
+    {{--                        checkbox.type = 'checkbox';--}}
+    {{--                        checkbox.name = 'objectives[]';--}}
+    {{--                        checkbox.value = obj.o_id;--}}
+    {{--                        checkbox.className = 'form-checkbox h-4 w-4 text-purple-600';--}}
+    {{--                        checkbox.checked = true;--}}
+
+    {{--                        const label = document.createElement('label');--}}
+    {{--                        label.textContent = `Objetivo ${obj.t_num}.${obj.g_num}.${obj.o_num}`;--}}
+    {{--                        label.className = 'font-medium';--}}
+
+    {{--                        wrapper.appendChild(checkbox);--}}
+    {{--                        wrapper.appendChild(label);--}}
+    {{--                        objectivesList.appendChild(wrapper);--}}
+    {{--                    });--}}
+
+    {{--                    syncParentCheckbox(toggleObjetivos, objectivesList);--}}
+    {{--                    bindCheckboxes(objectivesList, () => {}, toggleObjetivos);--}}
+    {{--                });--}}
+    {{--            }--}}
+
+    {{--            // Parent toggles--}}
+    {{--            toggleAsuntos.addEventListener('change', () => {--}}
+    {{--                const checkboxes = topicsList.querySelectorAll('input[type="checkbox"]');--}}
+    {{--                checkboxes.forEach(cb => cb.checked = toggleAsuntos.checked);--}}
+    {{--                syncParentCheckbox(toggleAsuntos, topicsList);--}}
+    {{--                const fy = dropdownFY.value;--}}
+    {{--                loadGoalsFromSelectedTopics(fy);--}}
+    {{--            });--}}
+
+    {{--            toggleMetas.addEventListener('change', () => {--}}
+    {{--                const checkboxes = goalsList.querySelectorAll('input[type="checkbox"]');--}}
+    {{--                checkboxes.forEach(cb => cb.checked = toggleMetas.checked);--}}
+    {{--                syncParentCheckbox(toggleMetas, goalsList);--}}
+    {{--                const fy = dropdownFY.value;--}}
+    {{--                loadObjectivesFromSelectedGoals(fy);--}}
+    {{--            });--}}
+
+    {{--            toggleObjetivos.addEventListener('change', () => {--}}
+    {{--                const checkboxes = objectivesList.querySelectorAll('input[type="checkbox"]');--}}
+    {{--                checkboxes.forEach(cb => cb.checked = toggleObjetivos.checked);--}}
+    {{--                syncParentCheckbox(toggleObjetivos, objectivesList);--}}
+    {{--            });--}}
+    {{--        });--}}
+    {{--    </script>--}}
+
+    {{--   Works well 2--}}
+    {{--    <script>--}}
+    {{--        document.addEventListener('DOMContentLoaded', function () {--}}
+    {{--            const dropdownSP = document.getElementById('strategic-plan');--}}
+    {{--            const dropdownFY = document.getElementById('fiscal-year');--}}
+
+    {{--            const topicsList = document.getElementById('topics-list');--}}
+    {{--            const goalsList = document.getElementById('goals-list');--}}
+    {{--            const objectivesList = document.getElementById('objectives-list');--}}
+    {{--            const formSpId = document.getElementById('form-sp-id');--}}
+    {{--            const formFY = document.getElementById('form-fy'); // 👈 Nuevo hidden input--}}
+
+    {{--            const toggleAsuntos = document.getElementById('toggle-asuntos');--}}
+    {{--            const toggleMetas = document.getElementById('toggle-metas');--}}
+    {{--            const toggleObjetivos = document.getElementById('toggle-objetivos');--}}
+
+    {{--            function getSelected(container) {--}}
+    {{--                return new Set([...container.querySelectorAll('input[type="checkbox"]:checked')].map(cb => cb.value));--}}
+    {{--            }--}}
+
+    {{--            function syncParentCheckbox(parentCheckbox, container) {--}}
+    {{--                const checkboxes = container.querySelectorAll('input[type="checkbox"]');--}}
+    {{--                const checked = container.querySelectorAll('input[type="checkbox"]:checked').length;--}}
+    {{--                const total = checkboxes.length;--}}
+
+    {{--                parentCheckbox.checked = checked === total && total > 0;--}}
+    {{--                parentCheckbox.indeterminate = checked > 0 && checked < total;--}}
+    {{--            }--}}
+
+    {{--            function bindCheckboxes(container, onChangeCallback, parentToggle) {--}}
+    {{--                container.querySelectorAll('input[type="checkbox"]').forEach(cb => {--}}
+    {{--                    cb.addEventListener('change', () => {--}}
+    {{--                        onChangeCallback();--}}
+    {{--                        syncParentCheckbox(parentToggle, container);--}}
+    {{--                    });--}}
+    {{--                });--}}
+    {{--            }--}}
+
+    {{--            // Load FYs when a Strategic Plan is selected--}}
+    {{--            dropdownSP.addEventListener('change', function () {--}}
+    {{--                const spId = this.value;--}}
+    {{--                formSpId.value = spId;--}}
+    {{--                formFY.value = ''; // Limpiar valor FY al cambiar SP--}}
+
+    {{--                dropdownFY.innerHTML = '<option value="">-- Select Fiscal Year --</option>';--}}
+    {{--                topicsList.innerHTML = '';--}}
+    {{--                goalsList.innerHTML = '';--}}
+    {{--                objectivesList.innerHTML = '';--}}
+
+    {{--                if (spId) {--}}
+    {{--                    fetch(`/reportes/sp/${spId}/fys`)--}}
+    {{--                        .then(response => response.json())--}}
+    {{--                        .then(data => {--}}
+    {{--                            data.forEach(fy => {--}}
+    {{--                                const option = document.createElement('option');--}}
+    {{--                                option.value = fy;--}}
+    {{--                                option.textContent = fy;--}}
+    {{--                                dropdownFY.appendChild(option);--}}
+    {{--                            });--}}
+    {{--                        })--}}
+    {{--                        .catch(error => console.error('Error fetching FYs:', error));--}}
+    {{--                }--}}
+    {{--            });--}}
+
+    {{--            // Load checkboxes when FY is selected--}}
+    {{--            dropdownFY.addEventListener('change', function () {--}}
+    {{--                const fy = this.value;--}}
+    {{--                const spId = dropdownSP.value;--}}
+
+    {{--                if (!spId || !fy) return;--}}
+
+    {{--                // Guardar FY en el formulario--}}
+    {{--                formFY.value = fy;--}}
+
+    {{--                topicsList.innerHTML = '';--}}
+    {{--                goalsList.innerHTML = '';--}}
+    {{--                objectivesList.innerHTML = '';--}}
+
+    {{--                fetch(`/reportes/${spId}/${fy}/topics`)--}}
+    {{--                    .then(res => res.json())--}}
+    {{--                    .then(data => {--}}
+    {{--                        data.forEach(topic => {--}}
+    {{--                            const wrapper = document.createElement('div');--}}
+    {{--                            wrapper.className = 'flex items-center space-x-2 text-sm text-gray-700';--}}
+
+    {{--                            const checkbox = document.createElement('input');--}}
+    {{--                            checkbox.type = 'checkbox';--}}
+    {{--                            checkbox.name = 'topics[]';--}}
+    {{--                            checkbox.value = topic.t_id;--}}
+    {{--                            checkbox.className = 'form-checkbox h-4 w-4 text-blue-600';--}}
+    {{--                            checkbox.checked = true;--}}
+
+    {{--                            const label = document.createElement('label');--}}
+    {{--                            label.textContent = `Asunto ${topic.t_num}`;--}}
+    {{--                            label.className = 'font-medium';--}}
+
+    {{--                            wrapper.appendChild(checkbox);--}}
+    {{--                            wrapper.appendChild(label);--}}
+    {{--                            topicsList.appendChild(wrapper);--}}
+    {{--                        });--}}
+
+    {{--                        syncParentCheckbox(toggleAsuntos, topicsList);--}}
+    {{--                        bindCheckboxes(topicsList, () => loadGoalsFromSelectedTopics(fy), toggleAsuntos);--}}
+    {{--                        loadGoalsFromSelectedTopics(fy);--}}
+    {{--                    });--}}
+    {{--            });--}}
+
+    {{--            function loadGoalsFromSelectedTopics(fy) {--}}
+    {{--                const selectedTopics = getSelected(topicsList);--}}
+    {{--                goalsList.innerHTML = '';--}}
+    {{--                objectivesList.innerHTML = '';--}}
+
+    {{--                if (selectedTopics.size === 0) {--}}
+    {{--                    syncParentCheckbox(toggleMetas, goalsList);--}}
+    {{--                    syncParentCheckbox(toggleObjetivos, objectivesList);--}}
+    {{--                    return;--}}
+    {{--                }--}}
+
+    {{--                const seen = new Set();--}}
+
+    {{--                Promise.all(--}}
+    {{--                    [...selectedTopics].map(id =>--}}
+    {{--                        fetch(`/reportes/topics/${id}/goals`).then(res => res.json())--}}
+    {{--                    )--}}
+    {{--                ).then(results => {--}}
+    {{--                    results.flat().forEach(goal => {--}}
+    {{--                        if (seen.has(goal.g_id)) return;--}}
+    {{--                        seen.add(goal.g_id);--}}
+
+    {{--                        const wrapper = document.createElement('div');--}}
+    {{--                        wrapper.className = 'flex items-center space-x-2 text-sm text-gray-700';--}}
+
+    {{--                        const checkbox = document.createElement('input');--}}
+    {{--                        checkbox.type = 'checkbox';--}}
+    {{--                        checkbox.name = 'goals[]';--}}
+    {{--                        checkbox.value = goal.g_id;--}}
+    {{--                        checkbox.className = 'form-checkbox h-4 w-4 text-green-600';--}}
+    {{--                        checkbox.checked = true;--}}
+
+    {{--                        const label = document.createElement('label');--}}
+    {{--                        label.textContent = `Meta ${goal.g_num}`;--}}
+    {{--                        label.className = 'font-medium';--}}
+
+    {{--                        wrapper.appendChild(checkbox);--}}
+    {{--                        wrapper.appendChild(label);--}}
+    {{--                        goalsList.appendChild(wrapper);--}}
+    {{--                    });--}}
+
+    {{--                    syncParentCheckbox(toggleMetas, goalsList);--}}
+    {{--                    bindCheckboxes(goalsList, () => loadObjectivesFromSelectedGoals(fy), toggleMetas);--}}
+    {{--                    loadObjectivesFromSelectedGoals(fy);--}}
+    {{--                });--}}
+    {{--            }--}}
+
+    {{--            function loadObjectivesFromSelectedGoals(fy) {--}}
+    {{--                const selectedGoals = getSelected(goalsList);--}}
+    {{--                objectivesList.innerHTML = '';--}}
+
+    {{--                if (selectedGoals.size === 0) {--}}
+    {{--                    syncParentCheckbox(toggleObjetivos, objectivesList);--}}
+    {{--                    return;--}}
+    {{--                }--}}
+
+    {{--                const seen = new Set();--}}
+
+    {{--                Promise.all(--}}
+    {{--                    [...selectedGoals].map(id =>--}}
+    {{--                        fetch(`/reportes/goals/${id}/objectives`).then(res => res.json())--}}
+    {{--                    )--}}
+    {{--                ).then(results => {--}}
+    {{--                    results.flat().forEach(obj => {--}}
+    {{--                        if (seen.has(obj.o_id)) return;--}}
+    {{--                        seen.add(obj.o_id);--}}
+
+    {{--                        const wrapper = document.createElement('div');--}}
+    {{--                        wrapper.className = 'flex items-center space-x-2 text-sm text-gray-700';--}}
+
+    {{--                        const checkbox = document.createElement('input');--}}
+    {{--                        checkbox.type = 'checkbox';--}}
+    {{--                        checkbox.name = 'objectives[]';--}}
+    {{--                        checkbox.value = obj.o_id;--}}
+    {{--                        checkbox.className = 'form-checkbox h-4 w-4 text-purple-600';--}}
+    {{--                        checkbox.checked = true;--}}
+
+    {{--                        const label = document.createElement('label');--}}
+    {{--                        label.textContent = `Objetivo ${obj.t_num}.${obj.g_num}.${obj.o_num}`;--}}
+    {{--                        label.className = 'font-medium';--}}
+
+    {{--                        wrapper.appendChild(checkbox);--}}
+    {{--                        wrapper.appendChild(label);--}}
+    {{--                        objectivesList.appendChild(wrapper);--}}
+    {{--                    });--}}
+
+    {{--                    syncParentCheckbox(toggleObjetivos, objectivesList);--}}
+    {{--                    bindCheckboxes(objectivesList, () => {}, toggleObjetivos);--}}
+    {{--                });--}}
+    {{--            }--}}
+
+    {{--            // Parent toggles--}}
+    {{--            toggleAsuntos.addEventListener('change', () => {--}}
+    {{--                const checkboxes = topicsList.querySelectorAll('input[type="checkbox"]');--}}
+    {{--                checkboxes.forEach(cb => cb.checked = toggleAsuntos.checked);--}}
+    {{--                syncParentCheckbox(toggleAsuntos, topicsList);--}}
+    {{--                loadGoalsFromSelectedTopics(dropdownFY.value);--}}
+    {{--            });--}}
+
+    {{--            toggleMetas.addEventListener('change', () => {--}}
+    {{--                const checkboxes = goalsList.querySelectorAll('input[type="checkbox"]');--}}
+    {{--                checkboxes.forEach(cb => cb.checked = toggleMetas.checked);--}}
+    {{--                syncParentCheckbox(toggleMetas, goalsList);--}}
+    {{--                loadObjectivesFromSelectedGoals(dropdownFY.value);--}}
+    {{--            });--}}
+
+    {{--            toggleObjetivos.addEventListener('change', () => {--}}
+    {{--                const checkboxes = objectivesList.querySelectorAll('input[type="checkbox"]');--}}
+    {{--                checkboxes.forEach(cb => cb.checked = toggleObjetivos.checked);--}}
+    {{--                syncParentCheckbox(toggleObjetivos, objectivesList);--}}
+    {{--            });--}}
+    {{--        });--}}
+    {{--    </script>--}}
+
+    {{--    Con Objetivos y topics filtrados por FY--}}
+    {{--    <script>--}}
+    {{--        document.addEventListener('DOMContentLoaded', function () {--}}
+    {{--            const dropdownSP = document.getElementById('strategic-plan');--}}
+    {{--            const dropdownFY = document.getElementById('fiscal-year');--}}
+
+    {{--            const topicsList = document.getElementById('topics-list');--}}
+    {{--            const goalsList = document.getElementById('goals-list');--}}
+    {{--            const objectivesList = document.getElementById('objectives-list');--}}
+    {{--            const formSpId = document.getElementById('form-sp-id');--}}
+    {{--            const formFY = document.getElementById('form-fy');--}}
+
+    {{--            const toggleAsuntos = document.getElementById('toggle-asuntos');--}}
+    {{--            const toggleMetas = document.getElementById('toggle-metas');--}}
+    {{--            const toggleObjetivos = document.getElementById('toggle-objetivos');--}}
+
+    {{--            function getSelected(container) {--}}
+    {{--                return new Set([...container.querySelectorAll('input[type="checkbox"]:checked')].map(cb => cb.value));--}}
+    {{--            }--}}
+
+    {{--            function syncParentCheckbox(parentCheckbox, container) {--}}
+    {{--                const checkboxes = container.querySelectorAll('input[type="checkbox"]');--}}
+    {{--                const checked = container.querySelectorAll('input[type="checkbox"]:checked').length;--}}
+    {{--                const total = checkboxes.length;--}}
+
+    {{--                parentCheckbox.checked = checked === total && total > 0;--}}
+    {{--                parentCheckbox.indeterminate = checked > 0 && checked < total;--}}
+    {{--            }--}}
+
+    {{--            function bindCheckboxes(container, onChangeCallback, parentToggle) {--}}
+    {{--                container.querySelectorAll('input[type="checkbox"]').forEach(cb => {--}}
+    {{--                    cb.addEventListener('change', () => {--}}
+    {{--                        onChangeCallback();--}}
+    {{--                        syncParentCheckbox(parentToggle, container);--}}
+    {{--                    });--}}
+    {{--                });--}}
+    {{--            }--}}
+
+    {{--            // Load FYs when a Strategic Plan is selected--}}
+    {{--            dropdownSP.addEventListener('change', function () {--}}
+    {{--                const spId = this.value;--}}
+    {{--                formSpId.value = spId;--}}
+    {{--                formFY.value = '';--}}
+
+    {{--                dropdownFY.innerHTML = '<option value="">-- Select Fiscal Year --</option>';--}}
+    {{--                topicsList.innerHTML = '';--}}
+    {{--                goalsList.innerHTML = '';--}}
+    {{--                objectivesList.innerHTML = '';--}}
+
+    {{--                if (spId) {--}}
+    {{--                    fetch(`/reportes/sp/${spId}/fys`)--}}
+    {{--                        .then(response => response.json())--}}
+    {{--                        .then(data => {--}}
+    {{--                            data.forEach(fy => {--}}
+    {{--                                const option = document.createElement('option');--}}
+    {{--                                option.value = fy;--}}
+    {{--                                option.textContent = fy;--}}
+    {{--                                dropdownFY.appendChild(option);--}}
+    {{--                            });--}}
+    {{--                        })--}}
+    {{--                        .catch(error => console.error('Error fetching FYs:', error));--}}
+    {{--                }--}}
+    {{--            });--}}
+
+    {{--            // Load checkboxes when FY is selected--}}
+    {{--            dropdownFY.addEventListener('change', function () {--}}
+    {{--                const fy = this.value;--}}
+    {{--                const spId = dropdownSP.value;--}}
+
+    {{--                if (!spId || !fy) return;--}}
+
+    {{--                formFY.value = fy;--}}
+    {{--                topicsList.innerHTML = '';--}}
+    {{--                goalsList.innerHTML = '';--}}
+    {{--                objectivesList.innerHTML = '';--}}
+
+    {{--                fetch(`/reportes/${spId}/${fy}/topics`)--}}
+    {{--                    .then(res => res.json())--}}
+    {{--                    .then(data => {--}}
+    {{--                        data.forEach(topic => {--}}
+    {{--                            const wrapper = document.createElement('div');--}}
+    {{--                            wrapper.className = 'flex items-center space-x-2 text-sm text-gray-700';--}}
+
+    {{--                            const checkbox = document.createElement('input');--}}
+    {{--                            checkbox.type = 'checkbox';--}}
+    {{--                            checkbox.name = 'topics[]';--}}
+    {{--                            checkbox.value = topic.t_id;--}}
+    {{--                            checkbox.className = 'form-checkbox h-4 w-4 text-blue-600';--}}
+    {{--                            checkbox.checked = true;--}}
+
+    {{--                            const label = document.createElement('label');--}}
+    {{--                            label.textContent = `Asunto ${topic.t_num}`;--}}
+    {{--                            label.className = 'font-medium';--}}
+
+    {{--                            wrapper.appendChild(checkbox);--}}
+    {{--                            wrapper.appendChild(label);--}}
+    {{--                            topicsList.appendChild(wrapper);--}}
+    {{--                        });--}}
+
+    {{--                        syncParentCheckbox(toggleAsuntos, topicsList);--}}
+    {{--                        bindCheckboxes(topicsList, () => loadGoalsFromSelectedTopics(fy), toggleAsuntos);--}}
+    {{--                        loadGoalsFromSelectedTopics(fy);--}}
+    {{--                    });--}}
+    {{--            });--}}
+
+    {{--            function loadGoalsFromSelectedTopics(fy) {--}}
+    {{--                const selectedTopics = getSelected(topicsList);--}}
+    {{--                goalsList.innerHTML = '';--}}
+    {{--                objectivesList.innerHTML = '';--}}
+
+    {{--                if (selectedTopics.size === 0) {--}}
+    {{--                    syncParentCheckbox(toggleMetas, goalsList);--}}
+    {{--                    syncParentCheckbox(toggleObjetivos, objectivesList);--}}
+    {{--                    return;--}}
+    {{--                }--}}
+
+    {{--                const seen = new Set();--}}
+
+    {{--                Promise.all(--}}
+    {{--                    [...selectedTopics].map(id =>--}}
+    {{--                        fetch(`/reportes/topics/${id}/goals`).then(res => res.json())--}}
+    {{--                    )--}}
+    {{--                ).then(results => {--}}
+    {{--                    results.flat().forEach(goal => {--}}
+    {{--                        if (seen.has(goal.g_id)) return;--}}
+    {{--                        seen.add(goal.g_id);--}}
+
+    {{--                        const wrapper = document.createElement('div');--}}
+    {{--                        wrapper.className = 'flex items-center space-x-2 text-sm text-gray-700';--}}
+
+    {{--                        const checkbox = document.createElement('input');--}}
+    {{--                        checkbox.type = 'checkbox';--}}
+    {{--                        checkbox.name = 'goals[]';--}}
+    {{--                        checkbox.value = goal.g_id;--}}
+    {{--                        checkbox.className = 'form-checkbox h-4 w-4 text-green-600';--}}
+    {{--                        checkbox.checked = true;--}}
+
+    {{--                        const label = document.createElement('label');--}}
+    {{--                        label.textContent = `Meta ${goal.g_num}`;--}}
+    {{--                        label.className = 'font-medium';--}}
+
+    {{--                        wrapper.appendChild(checkbox);--}}
+    {{--                        wrapper.appendChild(label);--}}
+    {{--                        goalsList.appendChild(wrapper);--}}
+    {{--                    });--}}
+
+    {{--                    syncParentCheckbox(toggleMetas, goalsList);--}}
+    {{--                    bindCheckboxes(goalsList, () => loadObjectivesFromSelectedGoals(fy), toggleMetas);--}}
+    {{--                    loadObjectivesFromSelectedGoals(fy);--}}
+    {{--                });--}}
+    {{--            }--}}
+
+    {{--            function loadObjectivesFromSelectedGoals(fy) {--}}
+    {{--                const selectedGoals = getSelected(goalsList);--}}
+    {{--                objectivesList.innerHTML = '';--}}
+
+    {{--                if (selectedGoals.size === 0) {--}}
+    {{--                    syncParentCheckbox(toggleObjetivos, objectivesList);--}}
+    {{--                    return;--}}
+    {{--                }--}}
+
+    {{--                const seen = new Set();--}}
+
+    {{--                Promise.all(--}}
+    {{--                    [...selectedGoals].map(id =>--}}
+    {{--                        fetch(`/reportes/goals/${id}/objectives/${fy}`).then(res => res.json())--}}
+    {{--                    )--}}
+    {{--                ).then(results => {--}}
+    {{--                    results.flat().forEach(obj => {--}}
+    {{--                        if (seen.has(obj.o_id)) return;--}}
+    {{--                        seen.add(obj.o_id);--}}
+
+    {{--                        const wrapper = document.createElement('div');--}}
+    {{--                        wrapper.className = 'flex items-center space-x-2 text-sm text-gray-700';--}}
+
+    {{--                        const checkbox = document.createElement('input');--}}
+    {{--                        checkbox.type = 'checkbox';--}}
+    {{--                        checkbox.name = 'objectives[]';--}}
+    {{--                        checkbox.value = obj.o_id;--}}
+    {{--                        checkbox.className = 'form-checkbox h-4 w-4 text-purple-600';--}}
+    {{--                        checkbox.checked = true;--}}
+
+    {{--                        const label = document.createElement('label');--}}
+    {{--                        label.textContent = `Objetivo ${obj.t_num}.${obj.g_num}.${obj.o_num}`;--}}
+    {{--                        label.className = 'font-medium';--}}
+
+    {{--                        wrapper.appendChild(checkbox);--}}
+    {{--                        wrapper.appendChild(label);--}}
+    {{--                        objectivesList.appendChild(wrapper);--}}
+    {{--                    });--}}
+
+    {{--                    syncParentCheckbox(toggleObjetivos, objectivesList);--}}
+    {{--                    bindCheckboxes(objectivesList, () => {}, toggleObjetivos);--}}
+    {{--                });--}}
+    {{--            }--}}
+
+    {{--            // Parent toggles--}}
+    {{--            toggleAsuntos.addEventListener('change', () => {--}}
+    {{--                const checkboxes = topicsList.querySelectorAll('input[type="checkbox"]');--}}
+    {{--                checkboxes.forEach(cb => cb.checked = toggleAsuntos.checked);--}}
+    {{--                syncParentCheckbox(toggleAsuntos, topicsList);--}}
+    {{--                loadGoalsFromSelectedTopics(dropdownFY.value);--}}
+    {{--            });--}}
+
+    {{--            toggleMetas.addEventListener('change', () => {--}}
+    {{--                const checkboxes = goalsList.querySelectorAll('input[type="checkbox"]');--}}
+    {{--                checkboxes.forEach(cb => cb.checked = toggleMetas.checked);--}}
+    {{--                syncParentCheckbox(toggleMetas, goalsList);--}}
+    {{--                loadObjectivesFromSelectedGoals(dropdownFY.value);--}}
+    {{--            });--}}
+
+    {{--            toggleObjetivos.addEventListener('change', () => {--}}
+    {{--                const checkboxes = objectivesList.querySelectorAll('input[type="checkbox"]');--}}
+    {{--                checkboxes.forEach(cb => cb.checked = toggleObjetivos.checked);--}}
+    {{--                syncParentCheckbox(toggleObjetivos, objectivesList);--}}
+    {{--            });--}}
+    {{--        });--}}
+    {{--    </script>--}}
+
 
 </x-layout>
 
