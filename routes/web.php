@@ -123,15 +123,11 @@ Route::post('assign-indicators', [AssignIndicatorController::class, 'store'])->n
 Route::delete('assign-indicators/{assignment}', [AssignIndicatorController::class, 'destroy'])->name('assignindicators.destroy');
 
 
-//Route::get('/export', [ExportController::class, 'export']);
 Route::post('/export', [ExportController::class, 'export'])->name('export');
 Route::get('/reportes', [ExportController::class, 'getAllSP'])->name('reportes.index');
 Route::get('/reportes/sp/{sp_id}/fys', [ExportController::class, 'getFYsForSP']);
-//Route::get('/reportes/{sp_id}', [ExportController::class, 'getTopicsForSP']);
 Route::get('/reportes/{sp_id}/{fy}/topics', [ExportController::class, 'getTopicsForSPandFY']);
-//Route::get('/reportes/topics/{topic_id}/goals', [ExportController::class, 'getGoalsForTopic']);
 Route::get('/reportes/topics/{topic_id}/goals/{fy}', [ExportController::class, 'getGoalsForTopicAndFY']);
-//Route::get('/reportes/goals/{goal_id}/objectives', [ExportController::class, 'getObjectivesForGoal']);
 Route::get('/reportes/goals/{goal_id}/objectives/{fy}', [ExportController::class, 'getObjectivesForGoalAndFY']);
 
 
