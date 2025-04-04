@@ -20,7 +20,7 @@
                     </option>
                 @endforeach
             </select>
-            <button type="submit" class="ml-2 px-4 py-2 bg-indigo-600 text-white rounded">Filtrar</button>
+            <button type="submit" class="ml-2 px-4 py-2 bg-blue-600 text-white rounded">Filtrar</button>
         </form>
 
         @forelse($assignedObjectives as $assignment)

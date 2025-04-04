@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\StrategicPlanController;
+use App\Models\StrategicPlan;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\JobController; // already there
 use App\Http\Controllers\HomeController;
@@ -24,7 +26,6 @@ Route::post('/logout', function () {
     return redirect('/');
 })->name('logout');
 
-Route::view('/', 'home');
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::view('/planes-estrategicos', 'planes-estrategicos/index');
 Route::view('/reportes', 'reportes/index');
@@ -102,7 +103,7 @@ Route::post('/indicators/update-values', [IndicatorEntryController::class, 'upda
 
 
 # CAUTION THESE WILL PROBABLY GENEATE SOME CONFLICTS WILL REMOVE SOON!!!
-Route::resource('strategicplans', HomeController::class);
+Route::resource('strategicplans', StrategicPlanController::class);
 #Route::resource('topics', TopicController::class);
 #Route::resource('goals', GoalController::class);
 #Route::resource('objectives', ObjectiveController::class);

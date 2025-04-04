@@ -14,19 +14,19 @@ class AssignObjectiveController extends Controller
     {
         $validated = $request->validate([
             'objective_id' => 'required|exists:objectives,o_id',
-            'user_ids' => 'required|array',
-            'user_ids.*' => 'exists:users,id',
+            'user_ids'     => 'required|array',
+            'user_ids.*'   => 'exists:users,id',
         ]);
 
         $objectiveId = $validated['objective_id'];
-        $assignedBy = Auth::id();
         $userIds = $validated['user_ids'];
+        $assignedBy = Auth::id(); // who is assigning
 
-        foreach ($userIds as $assignedTo) {
+        foreach ($userIds as $userId) {
             AssignObjectives::firstOrCreate([
-                'ao_ObjToFill' => $objectiveId,
-                'ao_assigned_to' => $assignedTo,
-                'ao_assigned_by' => $assignedBy,
+                'ao_ObjToFill'    => $objectiveId,
+                'ao_assigned_to'  => $userId,
+                'ao_assigned_by'  => $assignedBy,
             ]);
         }
 
@@ -38,7 +38,6 @@ class AssignObjectiveController extends Controller
         $assignment->delete();
         return back()->with('success', 'AssignObjective removed successfully.');
     }
-
     public function showAssigneeForm(Objective $objective)
     {
         $assignees = User::where('u_type', 'Assignee')->get();
