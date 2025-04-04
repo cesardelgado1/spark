@@ -44,7 +44,7 @@ class StrategicPlanExport implements FromCollection, WithHeadings, WithStyles, W
                 'T.t_id', 'T.t_num', 'T.t_text',
                 'G.g_id', 'G.g_num', 'G.g_text',
                 'O.o_id', 'O.o_num', 'O.o_text',
-                'I.i_id', 'I.i_num', 'I.i_text', 'I.i_type', 'I.i_doc_path', 'I.i_value', 'I.i_FY'
+                'I.i_id', 'I.i_num', 'I.i_text', 'I.i_type', 'I.i_value', 'I.i_FY'
             );
 
         if (!empty($this->objectives)) {
