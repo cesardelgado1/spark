@@ -25,6 +25,16 @@
 
         @forelse($assignedObjectives as $assignment)
             <div class="p-4 border border-gray-300 rounded-lg bg-white shadow">
+                @php
+                    $filled = $assignment->objective->indicators->every(fn($i) => !is_null($i->i_value) && $i->i_value !== '');
+                @endphp
+
+                <div class="mt-2 text-sm font-semibold">
+                    Estado:
+                    <span class="{{ $filled ? 'text-green-600' : 'text-red-600' }}">
+        {{ $filled ? 'Completado' : 'Incompleto' }}
+    </span>
+                </div>
                 <h2 class="text-lg font-bold text-gray-800">
                     Objetivo #{{ $assignment->objective->o_num }}:
                 </h2>
@@ -45,6 +55,13 @@
                         Asignar
                     </a>
                     @endrole
+                    @role('Assignee')
+                    <a href="{{ route('indicators.fill', $assignment->ao_ObjToFill) }}"
+                       class="inline-block mt-2 text-sm text-indigo-600 hover:underline">
+                        Llenar Indicadores
+                    </a>
+                    @endrole
+
                 </div>
             </div>
         @empty

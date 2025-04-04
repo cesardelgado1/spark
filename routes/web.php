@@ -15,6 +15,8 @@ use App\Http\Controllers\AssignIndicatorController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use App\Http\Controllers\ExportController;
+use App\Http\Controllers\IndicatorEntryController;
+
 
 Route::post('/logout', function () {
     Auth::logout();
@@ -95,6 +97,9 @@ Route::middleware(['auth', 'isAdmin'])->group(function () {
 Route::get('/tareas', [\App\Http\Controllers\TaskController::class, 'index'])->name('tasks.index');
 Route::get('/objectives/{objective}/assign-to-assignee', [AssignObjectiveController::class, 'showAssigneeForm'])->name('assignments.assignView');
 Route::post('/objectives/{objective}/assign-to-assignee', [AssignObjectiveController::class, 'assignToAssignee'])->name('assignments.assign');
+Route::get('/objectives/{objective}/indicators/fill', [IndicatorEntryController::class, 'showForEntry'])->name('indicators.fill');
+Route::post('/indicators/update-values', [IndicatorEntryController::class, 'updateValues'])->name('indicators.updateValues');
+
 
 # CAUTION THESE WILL PROBABLY GENEATE SOME CONFLICTS WILL REMOVE SOON!!!
 Route::resource('strategicplans', HomeController::class);

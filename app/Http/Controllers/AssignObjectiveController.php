@@ -6,6 +6,7 @@ use App\Models\AssignObjectives;
 use App\Models\Objective;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class AssignObjectiveController extends Controller
 {
@@ -13,17 +14,19 @@ class AssignObjectiveController extends Controller
     {
         $validated = $request->validate([
             'objective_id' => 'required|exists:objectives,o_id',
-            'user_ids'     => 'required|array',
-            'user_ids.*'   => 'exists:users,id',
+            'user_ids' => 'required|array',
+            'user_ids.*' => 'exists:users,id',
         ]);
 
         $objectiveId = $validated['objective_id'];
+        $assignedBy = Auth::id();
         $userIds = $validated['user_ids'];
 
-        foreach ($userIds as $userId) {
+        foreach ($userIds as $assignedTo) {
             AssignObjectives::firstOrCreate([
-                'o_id'    => $objectiveId,
-                'user_id' => $userId,
+                'ao_ObjToFill' => $objectiveId,
+                'ao_assigned_to' => $assignedTo,
+                'ao_assigned_by' => $assignedBy,
             ]);
         }
 
@@ -35,6 +38,7 @@ class AssignObjectiveController extends Controller
         $assignment->delete();
         return back()->with('success', 'AssignObjective removed successfully.');
     }
+
     public function showAssigneeForm(Objective $objective)
     {
         $assignees = User::where('u_type', 'Assignee')->get();

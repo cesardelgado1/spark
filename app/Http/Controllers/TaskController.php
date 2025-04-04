@@ -21,9 +21,12 @@ class TaskController extends Controller
         $planId = $request->input('sp_id');
 
         $assignedObjectivesQuery = AssignObjectives::with([
+            'objective.indicators', // <-- add this
             'objective.goal.topic.strategicplan',
             'assignedBy'
-        ])->where('ao_assigned_to', $userId);
+        ])
+            ->where('ao_assigned_to', $userId);
+
 
         if ($planId) {
             $assignedObjectivesQuery->whereHas('objective.goal.topic', function ($q) use ($planId) {
