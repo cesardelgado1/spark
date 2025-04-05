@@ -30,7 +30,7 @@ class AssignObjectiveController extends Controller
             ]);
         }
 
-        return redirect()->back()->with('success', 'Objetivo asignado correctamente.');
+        return redirect()->back()->with('success', 'Objetivo asignado correctamente.')->with('selected_objective', $objectiveId);
     }
 
     public function destroy(AssignObjectives $assignment)
@@ -40,8 +40,20 @@ class AssignObjectiveController extends Controller
     }
     public function showAssigneeForm(Objective $objective)
     {
+        // Get ALL assignees
         $assignees = User::where('u_type', 'Assignee')->get();
-        return view('assignments.assign-to-assignee', compact('objective', 'assignees'));
+
+        // Get already assigned assignees for this specific objective
+        $assignedUserIds = AssignObjectives::where('ao_ObjToFill', $objective->o_id)
+            ->pluck('ao_assigned_to')
+            ->toArray();
+
+        // Build the assigned map format (objective_id => [user_ids])
+        $assignedMap = [
+            $objective->o_id => $assignedUserIds,
+        ];
+
+        return view('indicators.assign', compact('objective', 'assignees', 'assignedMap'));
     }
 
     public function assignToAssignee(Request $request, Objective $objective)
@@ -60,6 +72,7 @@ class AssignObjectiveController extends Controller
             ]);
         }
 
-        return redirect()->route('tasks.index')->with('success', 'Objetivo asignado a Asignados.');
+        return redirect()->back()->with('success', 'Objetivo asignado correctamente.')->with('selected_objective', $objective->o_id);
+
     }
 }

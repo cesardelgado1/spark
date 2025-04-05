@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AssignObjectives;
 use App\Models\Goal;
 use App\Models\Objective;
 use App\Models\User;
@@ -97,11 +98,35 @@ class ObjectiveController extends Controller
     }
     public function showAssignForm(Goal $goal)
     {
-        $objectives = $goal->objectives; // or load as needed
+        $objectives = $goal->objectives;
+
+        // Get ALL contributors
         $contributors = User::where('u_type', 'Contributor')->get();
 
-        return view('objectives.assign', compact('goal', 'objectives', 'contributors'));
+        // Get the objectives' IDs under this Goal
+        $objectiveIds = $objectives->pluck('o_id');
+
+        // Get all assignments for these objectives
+        $assignments = AssignObjectives::whereIn('ao_ObjToFill', $objectiveIds)->get();
+
+        // Build a map: objective_id => array of assigned user IDs
+        $assignedMap = [];
+
+        foreach ($assignments as $assignment) {
+            $assignedMap[$assignment->ao_ObjToFill][] = $assignment->ao_assigned_to;
+        }
+
+        return view('objectives.assign', compact('goal', 'objectives', 'contributors', 'assignedMap'));
     }
+
+    public function getAssignedContributors($objectiveId)
+    {
+        $assignedUserIds = AssignObjectives::where('o_id', $objectiveId)->pluck('user_id');
+        $assignedContributors = User::whereIn('id', $assignedUserIds)->get(['id', 'u_fname', 'u_lname', 'email']);
+
+        return response()->json($assignedContributors);
+    }
+
 
 
 }

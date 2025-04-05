@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\StrategicPlanController;
+use App\Http\Controllers\TaskController;
 use App\Models\StrategicPlan;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\JobController; // already there
@@ -96,10 +97,13 @@ Route::middleware(['auth', 'isAdmin'])->group(function () {
 });
 // ASSIGNMENT
 Route::get('/tareas', [\App\Http\Controllers\TaskController::class, 'index'])->name('tasks.index');
-Route::get('/objectives/{objective}/assign-to-assignee', [AssignObjectiveController::class, 'showAssigneeForm'])->name('assignments.assignView');
-Route::post('/objectives/{objective}/assign-to-assignee', [AssignObjectiveController::class, 'assignToAssignee'])->name('assignments.assign');
+Route::get('/objectives/{objective}/assign', [AssignObjectiveController::class, 'showAssigneeForm'])->name('assignments.assignView');
+Route::post('/objectives/{objective}/assign', [AssignObjectiveController::class, 'assignToAssignee'])->name('assignments.assign');
 Route::get('/objectives/{objective}/indicators/fill', [IndicatorEntryController::class, 'showForEntry'])->name('indicators.fill');
 Route::post('/indicators/update-values', [IndicatorEntryController::class, 'updateValues'])->name('indicators.updateValues');
+Route::get('/objectives/{objective}/assigned-users', [ObjectiveController::class, 'getAssignedContributors']);
+Route::get('/tareas/{objective}/assign', [TaskController::class, 'assignAssigneesForm'])->name('tasks.assignView');
+Route::post('/tareas/assign', [TaskController::class, 'assignAssigneesStore'])->name('tasks.assignStore');
 
 
 # CAUTION THESE WILL PROBABLY GENEATE SOME CONFLICTS WILL REMOVE SOON!!!
