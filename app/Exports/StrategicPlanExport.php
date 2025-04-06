@@ -96,20 +96,28 @@ class StrategicPlanExport implements FromCollection, WithHeadings, WithStyles, W
 
     public function styles($sheet)
     {
-        $sheet->getStyle('A1:E1')->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
-        $sheet->getStyle('A1:E1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-        $sheet->getStyle('A1:E1')->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
-        $sheet->getStyle('A1:E1')->getFont()->setBold(true);
+        // Elimino la columna de FY?
 
-        $sheet->getStyle('A2:A' . $sheet->getHighestRow())->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
-        $sheet->getStyle('A2:A' . $sheet->getHighestRow())->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
-        $sheet->getStyle('B2:B' . $sheet->getHighestRow())->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
-        $sheet->getStyle('B2:B' . $sheet->getHighestRow())->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
-        $sheet->getStyle('C2:C' . $sheet->getHighestRow())->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
-        $sheet->getStyle('C2:C' . $sheet->getHighestRow())->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
+        // Headers
+        $sheet->getStyle('A1:F1')->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
+        $sheet->getStyle('A1:F1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle('A1:F1')->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
+        $sheet->getStyle('A1:F1')->getFont()->setBold(true);
 
-        foreach (range('A', 'E') as $col) {
-            $sheet->getColumnDimension($col)->setAutoSize(true);
+        // Wrap text, set column width, and align text to the left and center
+        $lastRow = $sheet->getHighestRow();
+        foreach (range('A', 'F') as $col) {
+            $sheet->getStyle("{$col}2:{$col}{$lastRow}")
+                ->getAlignment()
+                ->setWrapText(true);
+
+            $sheet->getStyle("{$col}2:{$col}{$lastRow}")
+                ->getAlignment()
+                ->setVertical(Alignment::VERTICAL_CENTER)
+                ->setHorizontal(Alignment::HORIZONTAL_LEFT);
+
+            // Column width set to 40
+            $sheet->getColumnDimension($col)->setWidth(40);
         }
 
         return $sheet;
