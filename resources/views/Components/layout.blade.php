@@ -15,8 +15,8 @@
     <div class="flex h-screen bg-gray-100">
 
         {{--NAVIGATION SIDEBAR--}}
-        <div id="sidebar" class="hidden md:flex flex-col w-64 bg-[#2d3745] transition-all duration-300">
-            {{--Logo, Title & Toggle button--}}
+        <div id="sidebar" class="hidden md:flex flex-col bg-[#2d3745] transition-all duration-300">
+        {{--Logo, Title & Toggle button--}}
             <div class="flex items-center h-16 px-4 justify-between">
                 <span id="sidebar-title" class="text-white font-bold uppercase ml-2 text-3xl">SPARK</span>
                 <button id="toggle-btn" class="text-white focus:outline-none ml-1">
@@ -97,18 +97,42 @@
 
         {{--Script to toggle Navigation Menu--}}
         <script>
-            document.getElementById("toggle-btn").addEventListener("click", function () {
-                let sidebar = document.getElementById("sidebar");
-                let title = document.getElementById("sidebar-title");
-                let textElements = document.querySelectorAll(".sidebar-text");
+            document.addEventListener("DOMContentLoaded", function () {
+                const sidebar = document.getElementById("sidebar");
+                const title = document.getElementById("sidebar-title");
+                const textElements = document.querySelectorAll(".sidebar-text");
 
-                sidebar.classList.toggle("w-64");
-                sidebar.classList.toggle("w-16");
+                // Revisar estado guardado
+                const isCollapsed = localStorage.getItem("sidebar-collapsed") === "true";
 
-                title.classList.toggle("hidden");
-                textElements.forEach(text => text.classList.toggle("hidden"));
+                // Aplicar clases iniciales basadas en localStorage
+                if (isCollapsed) {
+                    sidebar.classList.remove("w-64");
+                    sidebar.classList.add("w-16");
+                    title.classList.add("hidden");
+                    textElements.forEach(text => text.classList.add("hidden"));
+                } else {
+                    sidebar.classList.remove("w-16");
+                    sidebar.classList.add("w-64");
+                    title.classList.remove("hidden");
+                    textElements.forEach(text => text.classList.remove("hidden"));
+                }
+
+                // Botón toggle
+                document.getElementById("toggle-btn").addEventListener("click", function () {
+                    sidebar.classList.toggle("w-64");
+                    sidebar.classList.toggle("w-16");
+                    title.classList.toggle("hidden");
+
+                    textElements.forEach(text => text.classList.toggle("hidden"));
+
+                    // Guardar estado
+                    const isNowCollapsed = sidebar.classList.contains("w-16");
+                    localStorage.setItem("sidebar-collapsed", isNowCollapsed);
+                });
             });
         </script>
+
 
         <style>
             .w-16 {
