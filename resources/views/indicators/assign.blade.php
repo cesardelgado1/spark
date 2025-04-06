@@ -11,7 +11,7 @@
     @endif
 
     <div class="bg-white border border-gray-300 rounded-lg shadow-md px-6 py-4">
-        <form action="{{ route('assignments.assign', $objective->o_id) }}" method="POST">
+        <form action="{{ route('roles.assign', $objective->o_id) }}" method="POST">
             @csrf
 
             {{-- Select Objective (readonly) --}}

@@ -36,6 +36,14 @@
                         </svg>
                         <span class="sidebar-text">Inicio</span>
                     </x-nav-link>
+                    @role('Viewer')
+                    <x-nav-link href="{{ route('roles.request') }}" :active="request()->routeIs('roles.request')">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 sidebar-icon shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                        <span class="sidebar-text">Solicitar Acceso</span>
+                    </x-nav-link>
+                    @endrole
                     @role('Planner')
                     <x-nav-link href="/planes-estrategicos" :active="request()->is('planes-estrategicos')">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 mr-2 sidebar-icon shrink-0">--}}
@@ -50,6 +58,14 @@
                             <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
                         </svg>
                         <span class="sidebar-text">Reportes</span>
+                    </x-nav-link>
+                    @endrole
+                    @role('Planner')
+                    <x-nav-link href="{{ route('roles.requests.index') }}" :active="request()->is('roles/requests')">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 sidebar-icon shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                        </svg>
+                        <span class="sidebar-text">Solicitudes</span>
                     </x-nav-link>
                     @endrole
                     @role('Contributor', 'Assignee')

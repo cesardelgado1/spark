@@ -50,7 +50,7 @@
                     </p>
                     <p><strong>Fecha de asignación:</strong> {{ $assignment->created_at->format('d/m/Y') }}</p>
                     @role('Contributor')
-                    <a href="{{ route('assignments.assignView', $assignment->ao_ObjToFill) }}"
+                    <a href="{{ route('roles.assignView', $assignment->ao_ObjToFill) }}"
                        class="inline-block mt-2 text-lg text-purple-600 hover:underline">
                         Asignar
                     </a>
@@ -61,7 +61,6 @@
                         Llenar Indicadores
                     </a>
                     @endrole
-
                 </div>
             </div>
         @empty

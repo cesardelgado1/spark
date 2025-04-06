@@ -106,7 +106,7 @@ class ObjectiveController extends Controller
         // Get the objectives' IDs under this Goal
         $objectiveIds = $objectives->pluck('o_id');
 
-        // Get all assignments for these objectives
+        // Get all roles for these objectives
         $assignments = AssignObjectives::whereIn('ao_ObjToFill', $objectiveIds)->get();
 
         // Build a map: objective_id => array of assigned user IDs

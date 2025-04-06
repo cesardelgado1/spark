@@ -15,7 +15,7 @@ return new class extends Migration
             $table->string('auth_type')->default('local');
             $table->string('email')->unique();
             $table->timestamp('u_signup_date')->nullable();
-            $table->enum('u_type', ['Admin','Planner', 'Contributor', 'Assignee', 'Viewer'])->default('Planner');
+            $table->enum('u_type', ['Admin','Planner', 'Contributor', 'Assignee', 'Viewer'])->default('Viewer');
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();
