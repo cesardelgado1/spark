@@ -104,6 +104,7 @@ Route::post('/indicators/update-values', [IndicatorEntryController::class, 'upda
 Route::get('/objectives/{objective}/assigned-users', [ObjectiveController::class, 'getAssignedContributors']);
 Route::get('/tareas/{objective}/assign', [TaskController::class, 'assignAssigneesForm'])->name('tasks.assignView');
 Route::post('/tareas/assign', [TaskController::class, 'assignAssigneesStore'])->name('tasks.assignStore');
+Route::delete('/assignments/{assignment}', [AssignObjectiveController::class, 'destroy'])->name('assignments.destroy');
 
 
 # CAUTION THESE WILL PROBABLY GENEATE SOME CONFLICTS WILL REMOVE SOON!!!

@@ -35,22 +35,26 @@ class AssignObjectiveController extends Controller
 
     public function destroy(AssignObjectives $assignment)
     {
+        $userId = $assignment->ao_assigned_to; // capture BEFORE delete
         $assignment->delete();
-        return back()->with('success', 'AssignObjective removed successfully.');
+
+        return response()->json(['success' => true, 'user_id' => $userId]);
     }
     public function showAssigneeForm(Objective $objective)
     {
-        // Get ALL assignees
         $assignees = User::where('u_type', 'Assignee')->get();
 
-        // Get already assigned assignees for this specific objective
-        $assignedUserIds = AssignObjectives::where('ao_ObjToFill', $objective->o_id)
-            ->pluck('ao_assigned_to')
-            ->toArray();
+        $assignedRecords = AssignObjectives::where('ao_ObjToFill', $objective->o_id)
+            ->get(['ao_id', 'ao_assigned_to']); // get both ao_id and user_id
 
-        // Build the assigned map format (objective_id => [user_ids])
+        // Build the assignedMap
         $assignedMap = [
-            $objective->o_id => $assignedUserIds,
+            $objective->o_id => $assignedRecords->map(function($record) {
+                return [
+                    'user_id' => $record->ao_assigned_to,
+                    'ao_id' => $record->ao_id,
+                ];
+            })->toArray(),
         ];
 
         return view('indicators.assign', compact('objective', 'assignees', 'assignedMap'));
