@@ -31,9 +31,7 @@ Route::post('/logout', function () {
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::view('/planes-estrategicos', 'planes-estrategicos/index');
 Route::view('/reportes', 'reportes/index');
-Route::view('/strategicplans', 'strategicplans.index');
 Route::view('/topics', 'topics.index');
-
 
 
 
@@ -47,6 +45,10 @@ Route::get('/goals/{goal}/objectives', [ObjectiveController::class, 'showObjecti
 Route::get('/objectives/{objective}/indicators', [IndicatorController::class, 'showIndicators'])->name('objectives.indicators');
 
 // ESTAS RUTAS SON JUNTO CON EL STRATEGIC PLAN, CREO QUE ESTA ES LA FORMA.
+
+// STRATEGIC PLANS
+Route::delete('/strategicplans/bulk-delete', [StrategicPlanController::class, 'bulkDelete'])->name('strategicplans.bulkDelete');
+
 
 // TOPICS
 Route::middleware(['auth', 'isPlanner'])->group(function () {

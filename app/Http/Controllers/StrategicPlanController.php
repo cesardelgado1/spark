@@ -21,8 +21,9 @@ class StrategicPlanController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            // TODO: add validation rules
+            'sp_institution' => 'required|string|max:255'
         ]);
+
 
         StrategicPlan::create($validated);
 
@@ -42,8 +43,9 @@ class StrategicPlanController extends Controller
     public function update(Request $request, StrategicPlan $strategicplan)
     {
         $validated = $request->validate([
-            // TODO: add validation rules
+            'sp_institution' => 'required|string|max:255'
         ]);
+
 
         $strategicplan->update($validated);
 
@@ -55,4 +57,18 @@ class StrategicPlanController extends Controller
         $strategicplan->delete();
         return redirect()->route('strategicplans.index');
     }
+
+    public function bulkDelete(Request $request)
+    {
+        $ids = $request->input('strategicplans');
+
+        if (!$ids || !is_array($ids)) {
+            return redirect()->route('strategicplans.index')->with('error', 'No se seleccionó ningún plan para eliminar.');
+        }
+
+        StrategicPlan::whereIn('sp_id', $ids)->delete();
+
+        return redirect()->route('strategicplans.index')->with('success', 'Planes estratégicos eliminados correctamente.');
+    }
+
 }
