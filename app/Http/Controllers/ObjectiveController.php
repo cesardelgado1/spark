@@ -113,19 +113,23 @@ class ObjectiveController extends Controller
         $assignedMap = [];
 
         foreach ($assignments as $assignment) {
-            $assignedMap[$assignment->ao_ObjToFill][] = $assignment->ao_assigned_to;
+            $assignedMap[$assignment->ao_ObjToFill][] = [
+                'user_id' => $assignment->ao_assigned_to,
+                'ao_id' => $assignment->ao_id,
+            ];
         }
 
         return view('objectives.assign', compact('goal', 'objectives', 'contributors', 'assignedMap'));
     }
-
     public function getAssignedContributors($objectiveId)
     {
-        $assignedUserIds = AssignObjectives::where('o_id', $objectiveId)->pluck('user_id');
-        $assignedContributors = User::whereIn('id', $assignedUserIds)->get(['id', 'u_fname', 'u_lname', 'email']);
+        $assignedRecords = AssignObjectives::where('ao_ObjToFill', $objectiveId)
+            ->get(['ao_id', 'ao_assigned_to']); // Important: get ao_id and user_id
 
-        return response()->json($assignedContributors);
+        return response()->json($assignedRecords);
     }
+
+
 
 
 

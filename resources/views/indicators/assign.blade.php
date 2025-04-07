@@ -11,7 +11,7 @@
     @endif
 
     <div class="bg-white border border-gray-300 rounded-lg shadow-md px-6 py-4">
-        <form action="{{ route('roles.assign', $objective->o_id) }}" method="POST">
+        <form id="assign-form" action="{{ route('roles.assign', $objective->o_id) }}" method="POST">
             @csrf
 
             {{-- Select Objective (readonly) --}}
@@ -66,6 +66,18 @@
                 </button>
                 <button onclick="confirmUnassign()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition">
                     Sí, Desasignar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="assign-warning-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 hidden">
+        <div class="bg-white w-1/3 rounded-lg shadow-lg p-6">
+            <h2 class="text-lg font-bold text-red-600 mb-4">¡Atención!</h2>
+            <p class="text-gray-700 mb-4">Por favor, selecciona al menos un contribuidor antes de asignar.</p>
+            <div class="flex justify-end gap-3">
+                <button onclick="closeAssignWarningModal()" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition">
+                    Entendido
                 </button>
             </div>
         </div>
@@ -206,5 +218,20 @@
             }, 3000); // 4 seconds (adjust as you wish)
         }
     });
+</script>
+<script>
+    // Intercept form submit
+    document.getElementById('assign-form').addEventListener('submit', function (event) {
+        const selectedCheckboxes = document.querySelectorAll('input[name="user_ids[]"]:checked');
+
+        if (selectedCheckboxes.length === 0) {
+            event.preventDefault(); // Stop form submission
+            document.getElementById('assign-warning-modal').classList.remove('hidden'); // Show modal
+        }
+    });
+
+    function closeAssignWarningModal() {
+        document.getElementById('assign-warning-modal').classList.add('hidden');
+    }
 </script>
 
