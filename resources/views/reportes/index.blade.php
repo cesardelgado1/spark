@@ -10,7 +10,7 @@
             <select id="strategic-plan" name="strategic_plan" class="mt-1 block w-full p-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
                 <option value="">-- Select Strategic Plan --</option>
                 @foreach($strategicPlans as $plan)
-                    <option value="{{ $plan->sp_id }}">{{ $plan->sp_institution }}</option>
+                    <option value="{{ $plan->sp_id }}">{{ $plan->sp_institution }} ({{$plan->sp_years}})</option>
                 @endforeach
             </select>
         </div>
