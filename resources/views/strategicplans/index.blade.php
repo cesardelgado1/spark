@@ -18,11 +18,11 @@
     <x-slot:heading>
         <div class="flex justify-between items-center">
             <h1 class="text-3xl font-bold tracking-tight text-gray-900">
-                Planes Estratégicos de UPRM
+                Planes Estratégicos de {{$institution}}
             </h1>
 
             <div class="flex gap-3 items-center ml-10">
-                <a href="{{ route('strategicplans.create') }}"
+                <a href="{{ route('strategicplans.create',['institution' => $institution]) }}"
                    class="inline-flex items-center justify-center w-8 h-8 bg-[#1F2937] text-white rounded-full shadow hover:bg-gray-700 transition"
                    title="Crear Plan Estratégico">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
@@ -70,7 +70,7 @@
                                 <input type="checkbox" name="strategicplans[]" value="{{ $plan->sp_id }}" class="strategicplan-checkbox hidden w-5 h-5 text-red-600 border-gray-300 rounded">
                                 <div>
                                     <div class="font-bold text-gray-700 text-sm">
-                                        {{ $plan->sp_institution }}
+                                        {{ $plan->sp_years }}
                                     </div>
                                     <div class="text-gray-500">
                                         <a href="{{ route('strategicplans.topics', ['strategicplan' => $plan->sp_id]) }}"

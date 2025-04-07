@@ -23,7 +23,7 @@
 
                 {{-- Department Select --}}
                 <div class="mb-6">
-                    <label for="department" class="block text-sm font-medium text-gray-700 mb-2">Departamento o Decanato</label>
+                    <label for="department" class="block text-sm font-medium text-gray-700 mb-2">Decanato</label>
                     <select name="department" id="department" required class="w-full border-gray-300 rounded-lg shadow-sm px-4 py-2">
                         <option value="">-- Seleccionar --</option>
                         <option>Decanato de Administración</option>

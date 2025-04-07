@@ -29,7 +29,7 @@ Route::post('/logout', function () {
 })->name('logout');
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
-Route::view('/planes-estrategicos', 'planes-estrategicos/index');
+Route::view('/planes-estrategicos', 'strategicplans/select_index');
 Route::view('/reportes', 'reportes/index');
 Route::view('/topics', 'topics.index');
 

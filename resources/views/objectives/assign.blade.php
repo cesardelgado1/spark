@@ -75,7 +75,7 @@
             </div>
         </div>
     </div>
-    
+
     <div id="assign-warning-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 hidden">
         <div class="bg-white w-1/3 rounded-lg shadow-lg p-6">
             <h2 class="text-lg font-bold text-red-600 mb-4">¡Atención!</h2>
