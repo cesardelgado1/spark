@@ -14,7 +14,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->string('department');
-            $table->enum('requested_role', ['Assignee', 'Contributor']);
+            $table->enum('requested_role', ['Assignee', 'Contributor', 'Planner']);
             $table->enum('status', ['Pending', 'Approved', 'Rejected'])->default('Pending');
             $table->timestamps();
         });

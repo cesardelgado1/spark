@@ -43,7 +43,8 @@
                     <select name="requested_role" id="requested_role" required class="w-full border-gray-300 rounded-lg shadow-sm px-4 py-2">
                         <option value="">-- Seleccionar --</option>
                         <option value="Assignee">Asignado</option>
-                        <option value="Contributor">Contribuidor</option>
+                        <option value="Contributor">Contribuidor </option>
+                        <option value="Planner">Planner</option>
                     </select>
                 </div>
 

@@ -18,7 +18,7 @@ class RoleRequestController extends Controller
     {
         $request->validate([
             'department' => 'required|string|max:255',
-            'requested_role' => 'required|in:Assignee,Contributor',
+            'requested_role' => 'required|in:Assignee,Contributor,Planner',
         ]);
 
         RoleRequest::create([
