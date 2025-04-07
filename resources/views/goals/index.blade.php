@@ -1,7 +1,7 @@
 <x-layout>
 
     <x-slot:heading>
-        Planes Estratégicos de UPRM - Metas del Asunto #{{ $topic->t_num }}
+        Plan Estratégico {{$topic->strategicplan->sp_institution}} : Metas del Asunto #{{ $topic->t_num }}
 
         <a href="{{ route('goals.create', ['topic' => $topic->t_id]) }}"
            class="inline-flex items-center justify-center w-8 h-8 bg-[#1F2937] text-white rounded-full shadow hover:bg-gray-700 transition"

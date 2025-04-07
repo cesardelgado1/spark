@@ -1,6 +1,6 @@
 <x-layout>
     <x-slot:heading>
-        Planes Estratégicos de UPRM - Objetivos de la Meta #{{ $goal->g_num }}
+        Plan Estratégico {{$goal->topic->strategicplan->sp_institution}} : Objetivos de la Meta #{{ $goal->g_num }}
 
         <a href="{{ route('objectives.create', $goal->g_id) }}"
            class="inline-flex items-center justify-center w-8 h-8 bg-[#1F2937] text-white rounded-full shadow hover:bg-gray-700 transition"

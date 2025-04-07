@@ -9,16 +9,44 @@
             @method('PUT')
 
             <div class="mb-4">
-                <label for="sp_institution" class="block text-gray-700 font-bold">Año del Plan Estratégico</label>
-                <input type="text" id="sp_institution" name="sp_institution" value="{{ old('sp_institution', $strategicplan->sp_institution) }}"
-                       class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
-                @error('sp_institution')
+                <label class="block text-gray-700 font-bold">Años del Plan Estratégico</label>
+
+                <!-- Hidden input to store concatenated years -->
+                <input type="hidden" id="sp_years" name="sp_years" value="{{ old('sp_years', $strategicplan->sp_years) }}">
+
+                <div class="flex gap-4">
+                    <!-- Start Year Dropdown -->
+                    <div>
+                        <label for="start_year" class="block text-sm text-gray-700">Año Inicio</label>
+                        <select id="start_year" class="w-full px-4 py-2 border rounded-lg" onchange="updateYears()">
+                            @for($year = 2020; $year <= 2050; $year++)
+                                <option value="{{ $year }}" {{ (explode('-', $strategicplan->sp_years)[0] ?? '') == $year ? 'selected' : '' }}>
+                                    {{ $year }}
+                                </option>
+                            @endfor
+                        </select>
+                    </div>
+
+                    <!-- End Year Dropdown -->
+                    <div>
+                        <label for="end_year" class="block text-sm text-gray-700">Año Fin</label>
+                        <select id="end_year" class="w-full px-4 py-2 border rounded-lg" onchange="updateYears()">
+                            @for($year = 2025; $year <= 2060; $year++)
+                                <option value="{{ $year }}" {{ (explode('-', $strategicplan->sp_years)[1] ?? '') == $year ? 'selected' : '' }}>
+                                    {{ $year }}
+                                </option>
+                            @endfor
+                        </select>
+                    </div>
+                </div>
+
+                @error('sp_years')
                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
             </div>
 
             <div class="flex justify-end gap-3">
-                <a href="{{ route('strategicplans.index') }}" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition">
+                <a href="{{ route('strategicplans.index', ['institution' => $strategicplan->sp_institution]) }}" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition">
                     Cancelar
                 </a>
                 <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
@@ -26,5 +54,43 @@
                 </button>
             </div>
         </form>
+        <div id="year-error-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 hidden">
+            <div class="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full">
+                <h2 class="text-lg font-bold text-red-600 mb-4">¡Error de Rango de Años!</h2>
+                <p class="text-gray-700 mb-4">El año de fin debe ser mayor que el año de inicio.</p>
+                <div class="flex justify-end gap-3">
+                    <button onclick="closeYearErrorModal()" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition">
+                        Cerrar
+                    </button>
+                </div>
+            </div>
+        </div>
+
     </div>
 </x-layout>
+
+<!-- Script to combine years -->
+<script>
+    function updateYears() {
+        const startYear = parseInt(document.getElementById('start_year').value);
+        const endYear = parseInt(document.getElementById('end_year').value);
+        const yearsField = document.getElementById('sp_years');
+
+        if (endYear <= startYear || (endYear - startYear < 5) ) {
+            openYearErrorModal();
+            document.getElementById('end_year').value = startYear + 5; // auto-correct
+        }
+
+        yearsField.value = `${startYear}-${document.getElementById('end_year').value}`;
+    }
+
+    function openYearErrorModal() {
+        document.getElementById('year-error-modal').classList.remove('hidden');
+    }
+
+    function closeYearErrorModal() {
+        document.getElementById('year-error-modal').classList.add('hidden');
+    }
+
+    document.addEventListener('DOMContentLoaded', updateYears);
+</script>

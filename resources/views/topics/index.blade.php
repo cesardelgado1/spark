@@ -20,7 +20,7 @@
             <div class="flex justify-between items-center">
                 <!-- Título alineado a la izquierda -->
                 <h1 class="text-3xl font-bold tracking-tight text-gray-900">
-                    Planes Estratégicos de UPRM - Asuntos del {{ $strategicplan->sp_institution }}
+                    Asuntos del Plan Estratégico {{ $strategicplan->sp_institution }} : {{$strategicplan->sp_years}}
                 </h1>
                 <div class="flex gap-3 items-center ml-10">
                     <a href="{{ route('topics.create', $strategicplan) }}"

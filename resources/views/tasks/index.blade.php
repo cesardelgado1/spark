@@ -16,7 +16,7 @@
                 <option value="">-- Ver todos --</option>
                 @foreach($strategicPlans as $plan)
                     <option value="{{ $plan->sp_id }}" {{ $planId == $plan->sp_id ? 'selected' : '' }}>
-                        {{ $plan->sp_institution }}
+                        {{ $plan->sp_institution }}: {{$plan->sp_years}}
                     </option>
                 @endforeach
             </select>
@@ -45,6 +45,8 @@
                 <div class="text-sm text-gray-600">
                     <p><strong>Meta:</strong> #{{ $assignment->objective->goal->g_num }}</p>
                     <p><strong>Asunto:</strong> #{{ $assignment->objective->goal->topic->t_num }}</p>
+                    <p><strong>Plan:</strong>{{ $assignment->objective->goal->topic->strategicplan->sp_institution }}-{{$plan->sp_years}}</p>
+
                     <p><strong>Asignado
                             por:</strong> {{ $assignment->assignedBy->u_fname }} {{ $assignment->assignedBy->u_lname }}
                     </p>

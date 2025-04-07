@@ -1,6 +1,6 @@
 <x-layout>
     <x-slot:heading>
-        Planes Estratégicos de UPRM - Indicadores del Objetivo #{{ $objective->o_num }}
+        Plan Estratégico {{$objective->goal->topic->strategicplan->sp_institution}} : Indicadores del Objetivo #{{ $objective->o_num }}
 
         <a href="{{ route('indicators.create', $objective->o_id) }}"
            class="inline-flex items-center justify-center w-8 h-8 bg-[#1F2937] text-white rounded-full shadow hover:bg-gray-700 transition"

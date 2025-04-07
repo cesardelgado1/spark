@@ -10,7 +10,7 @@ class StrategicPlanController extends Controller
     public function index(Request $request)
     {
         $query = StrategicPlan::query();
-
+        $institution = null;
         // Check if the request has a filter for institution
         if ($request->has('institution')) {
             $query->where('sp_institution', $request->input('institution'));
@@ -18,7 +18,7 @@ class StrategicPlanController extends Controller
         }
 
         // Paginate the filtered (or unfiltered) list
-        $strategicplans = $query->latest()->simplePaginate(5);
+        $strategicplans = $query->latest()->simplePaginate(10);
 
         return view('strategicplans.index', compact('strategicplans','institution'));
     }
@@ -73,13 +73,20 @@ class StrategicPlanController extends Controller
     public function update(Request $request, StrategicPlan $strategicplan)
     {
         $validated = $request->validate([
-            'sp_institution' => 'required|string|max:255'
+            'sp_years' => ['required', 'regex:/^\d{4}-\d{4}$/', function ($attribute, $value, $fail) {
+                [$start, $end] = explode('-', $value);
+                if ((int)$start >= (int)$end) {
+                    $fail('El año de inicio debe ser menor que el año de fin.');
+                }
+            }]
         ]);
 
+        $strategicplan->update([
+            'sp_years' => $validated['sp_years'],
+        ]);
 
-        $strategicplan->update($validated);
-
-        return redirect()->route('strategicplans.index');
+        return redirect()->route('strategicplans.index', ['institution' => $strategicplan->sp_institution])
+            ->with('success', 'Plan Estratégico actualizado correctamente.');
     }
 
     public function destroy(StrategicPlan $strategicplan)
