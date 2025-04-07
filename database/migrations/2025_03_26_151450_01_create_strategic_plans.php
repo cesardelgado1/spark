@@ -11,6 +11,7 @@ return new class extends Migration {
         Schema::create('strategic_plans', function (Blueprint $table) {
             $table->id('sp_id');
             $table->string('sp_institution');
+            $table->string('sp_years');
             $table->timestamps();
         });
     }

@@ -13,7 +13,7 @@ class StrategicPlan extends Model {
 
     protected $table = 'strategic_plans';
     protected $primaryKey = 'sp_id';
-    protected $fillable = ['sp_institution'];
+    protected $fillable = ['sp_institution', 'sp_years'];
 
     public function topics(): HasMany {
         return $this->hasMany(Topic::class, 'sp_id');

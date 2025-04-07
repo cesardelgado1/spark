@@ -10,6 +10,7 @@ class StrategicPlanFactory extends Factory
     {
         return [
             'sp_institution' => $this->faker->company,
+            'sp_years' => $this->faker->year,
         ];
     }
 }
