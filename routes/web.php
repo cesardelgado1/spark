@@ -93,7 +93,7 @@ Route::middleware(['auth', 'isPlanner'])->group(function () {
 });
 
 //ADMIN
-Route::middleware(['auth', 'isAdmin'])->group(function () {
+Route::middleware(['auth', 'adminOrPlanner'])->group(function () {
     Route::get('/configuracion', [SettingsController::class, 'index'])->name('settings.index');
     Route::patch('/configuracion/role-usuario/{user}', [SettingsController::class, 'updateRole'])->name('settings.updateRole');
 });

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\AdminOrPlanner;
 use App\Http\Middleware\IsAdmin;
 use App\Http\Middleware\IsAssignee;
 use App\Http\Middleware\IsContributor;
@@ -20,6 +21,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'isPlanner' => IsPlanner::class,
             'isContributor' => IsContributor::class,
             'isAssignee' => IsAssignee::class,
+            'adminOrPlanner' => AdminOrPlanner::class,
+
         ]);    })
     ->withExceptions(function (Exceptions $exceptions) {
         //
