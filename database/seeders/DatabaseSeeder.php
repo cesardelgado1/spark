@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\AssignObjectives;
+use App\Models\RoleRequest;
 use App\Models\StrategicPlan;
 use App\Models\Topic;
 use App\Models\Goal;
@@ -53,6 +54,27 @@ class DatabaseSeeder extends Seeder
             'password' => bcrypt('password'),
             'u_type' => 'Contributor',
         ]);
+        User::create([
+            'u_fname' => 'Pepo',
+            'u_lname' => 'Del Barrio',
+            'email' => 'pepo.delbarrio@upr.edu',
+            'password' => bcrypt('password'),
+            'u_type' => 'Viewer',
+        ]);
+        User::create([
+            'u_fname' => 'Ignacio',
+            'u_lname' => 'Del Nacho',
+            'email' => 'ignacio.delnacho@upr.edu',
+            'password' => bcrypt('password'),
+            'u_type' => 'Viewer',
+        ]);
+        User::create([
+            'u_fname' => 'Manzana',
+            'u_lname' => 'Manzanita',
+            'email' => 'manzana.manzana@upr.edu',
+            'password' => bcrypt('password'),
+            'u_type' => 'Viewer',
+        ]);
 
         // Strategic Plans
         $this->insertPlan('UPR', '2025-2030');
@@ -62,6 +84,32 @@ class DatabaseSeeder extends Seeder
             'ao_ObjToFill' => '1',
             'ao_assigned_to' => '2',
             'ao_assigned_by' => '1',
+        ]);
+
+        AssignObjectives::create([
+            'ao_ObjToFill' => '1',
+            'ao_assigned_to' => '3',
+            'ao_assigned_by' => '1',
+        ]);
+        RoleRequest::create([
+            'user_id' => '6',
+            'department' => 'Rectoría',
+            'requested_role' => 'Assignee',
+            'status' => 'Pending'
+        ]);
+
+        RoleRequest::create([
+            'user_id' => '7',
+            'department' => 'Rectoría',
+            'requested_role' => 'Assignee',
+            'status' => 'Pending'
+        ]);
+
+        RoleRequest::create([
+            'user_id' => '8',
+            'department' => 'Rectoría',
+            'requested_role' => 'Assignee',
+            'status' => 'Pending'
         ]);
     }
 
