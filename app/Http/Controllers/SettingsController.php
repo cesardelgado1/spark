@@ -23,7 +23,7 @@ class SettingsController extends Controller
         $users = $query->paginate(5)->withQueryString();
 
         // Roles
-        $roles = ['Admin', 'Planner', 'Contributor', 'Assignee'];
+        $roles = ['Admin', 'Planner', 'Contributor', 'Assignee', 'Viewer'];
 
         // All users for filter dropdown
         $allUsers = User::orderBy('email')->get();
@@ -63,7 +63,7 @@ class SettingsController extends Controller
     {
 
         $validated = $request->validate([
-            'u_type' => 'required|in:Admin,Planner,Contributor,Assignee',
+            'u_type' => 'required|in:Admin,Planner,Contributor,Assignee,Viewer',
         ]);
 
         $user->update([
