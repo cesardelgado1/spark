@@ -58,7 +58,7 @@
 
     <div class="px-6 py-4">
         @if(count($strategicplans) > 0)
-            <form id="delete-form" action="{{ route('strategicplans.bulkDelete') }}" method="POST">
+            <form id="delete-form" action="{{ route('strategicplans.bulkDelete',['institution' => $institution]) }}" method="POST">
                 @csrf
                 @method('DELETE')
 

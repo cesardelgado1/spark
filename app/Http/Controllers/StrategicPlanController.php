@@ -98,14 +98,14 @@ class StrategicPlanController extends Controller
     public function bulkDelete(Request $request)
     {
         $ids = $request->input('strategicplans');
-
+        $institution = $request->query('institution');
         if (!$ids || !is_array($ids)) {
             return redirect()->route('strategicplans.index')->with('error', 'No se seleccionó ningún plan para eliminar.');
         }
 
         StrategicPlan::whereIn('sp_id', $ids)->delete();
 
-        return redirect()->route('strategicplans.index')->with('success', 'Planes estratégicos eliminados correctamente.');
+        return redirect()->route('strategicplans.index',['institution' => $institution])->with('success', 'Planes estratégicos eliminados correctamente.');
     }
 
 }
