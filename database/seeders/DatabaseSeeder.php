@@ -183,7 +183,7 @@ class DatabaseSeeder extends Seeder
                 'text' => 'Innovación y transformación digital para la eficiencia institucional',
                 'goals' => [
                     [
-                        'number' => 1,
+                        'number' => 4,
                         'text' => 'Implementar plataformas tecnológicas integradas.',
                         'objectives' => [
                             [
@@ -216,7 +216,7 @@ class DatabaseSeeder extends Seeder
                         ],
                     ],
                     [
-                        'number' => 2,
+                        'number' => 5,
                         'text' => 'Promover el uso de datos para la toma de decisiones.',
                         'objectives' => [
                             [
@@ -255,7 +255,7 @@ class DatabaseSeeder extends Seeder
                 'text' => 'Fomento de la investigación, creación y vinculación comunitaria',
                 'goals' => [
                     [
-                        'number' => 1,
+                        'number' => 6,
                         'text' => 'Incrementar la producción científica de alto impacto.',
                         'objectives' => [
                             [
