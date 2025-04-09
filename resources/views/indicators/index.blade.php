@@ -105,7 +105,7 @@
             </div>
 
             {{-- Formulario de eliminación separado y al final --}}
-            <form id="delete-indicators-form" action="{{ route('indicators.bulkDelete') }}" method="POST">
+            <form id="delete-indicators-form" action="{{ route('indicators.bulkDelete') }}" method="POST" onsubmit="return confirmarBorrado()">
                 @csrf
                 @method('DELETE')
 
@@ -136,6 +136,18 @@
         @else
             <p class="text-gray-500">No hay indicadores relacionados con este objetivo.</p>
         @endif
+    </div>
+
+    <div id="indicator-warning-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 hidden">
+        <div class="bg-white w-1/3 rounded-lg shadow-lg p-6">
+            <h2 class="text-lg font-bold text-red-600 mb-4">¡Atención!</h2>
+            <p class="text-gray-700 mb-4">Por favor, selecciona al menos un indicador antes de continuar.</p>
+            <div class="flex justify-end gap-3">
+                <button onclick="closeIndicatorWarningModal()" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition">
+                    Entendido
+                </button>
+            </div>
+        </div>
     </div>
 
 
@@ -202,6 +214,7 @@
             }
         }
 
+
         function cancelIndicatorDelete() {
             let checkboxes = document.querySelectorAll('.indicator-checkbox');
             let deleteButtonContainer = document.getElementById('delete-indicators-button-container');
@@ -217,10 +230,14 @@
         function showIndicatorConfirmModal() {
             let selected = document.querySelectorAll('.indicator-checkbox:checked');
             if (selected.length === 0) {
-                alert('Por favor, selecciona al menos un indicador para borrar.');
+                document.getElementById('indicator-warning-modal').classList.remove('hidden');
             } else {
                 document.getElementById('confirm-indicator-modal').classList.remove('hidden');
             }
+        }
+
+        function closeIndicatorWarningModal() {
+            document.getElementById('indicator-warning-modal').classList.add('hidden');
         }
 
         function closeIndicatorConfirmModal() {
