@@ -51,7 +51,7 @@
             <div class="mt-6 flex items-center justify-end gap-x-6">
                 <a href="{{ route('objectives.indicators', $objective->o_id) }}" class="text-sm font-semibold text-gray-900">Cancelar</a>
                 <button type="submit" class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500">
-                    Guardar
+                    Crear
                 </button>
             </div>
         </form>
