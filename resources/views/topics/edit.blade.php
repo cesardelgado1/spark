@@ -1,8 +1,6 @@
 <x-layout>
     <x-slot:heading>
-        <h1 class="text-3xl font-bold tracking-tight text-gray-900">
             Editar Asunto #{{ $topic->t_num }}
-        </h1>
     </x-slot:heading>
 
     <div class="bg-white border border-gray-300 rounded-lg shadow-md px-6 py-4">
@@ -13,11 +11,18 @@
             <div class="mb-4">
                 <label for="t_num" class="block text-gray-700 font-bold">Número del Asunto</label>
                 <input type="text" id="t_num" name="t_num" value="{{ $topic->t_num }}" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                @error('t_num')
+                <p class="text-sm text-red-500 mt-1">{{ $message }}</p>
+                @enderror
+
             </div>
 
             <div class="mb-4">
                 <label for="t_text" class="block text-gray-700 font-bold">Texto del Asunto</label>
                 <textarea id="t_text" name="t_text" rows="3" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>{{ $topic->t_text }}</textarea>
+                @error('t_text')
+                <p class="text-sm text-red-500 mt-1">{{ $message }}</p>
+                @enderror
             </div>
 
             <div class="flex justify-end gap-3">

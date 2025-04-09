@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Goal;
 use App\Models\Topic;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class GoalController extends Controller
 {
@@ -26,12 +27,20 @@ class GoalController extends Controller
     public function store(Request $request, Topic $topic)
     {
         $validated = $request->validate([
-            'g_num' => 'required|integer|min:1',
-            'g_text' => 'required|string',
+            'g_num' => [
+                'required',
+                'integer',
+                'min:1',
+                Rule::unique('goals')->where(function ($query) use ($request) {
+                    return $query->where('t_id', $request->t_id);
+                }),
+            ],
+            'g_text' => 'required|string|max:255',
             't_id' => 'required|exists:topics,t_id',
+        ], [
+            'g_num.unique' => 'Ya existe una meta con ese número en este asunto.',
         ]);
 
-        // Crear la meta vinculada al asunto
         $goal = new Goal([
             'g_num' => $validated['g_num'],
             'g_text' => $validated['g_text'],
@@ -40,7 +49,7 @@ class GoalController extends Controller
 
         $goal->save();
 
-        return redirect()->route('topics.goals', ['topic' => $topic->t_id])
+        return redirect()->route('topics.goals', $topic->t_id)
             ->with('success', 'Meta creada correctamente.');
     }
 
@@ -61,16 +70,22 @@ class GoalController extends Controller
 
     public function update(Request $request, Goal $goal)
     {
-        $request->validate([
-            'g_num' => 'required|string|max:255',
-            'g_text' => 'required|string',
+        $validated = $request->validate([
+            'g_num' => [
+                'required',
+                'integer',
+                'min:1',
+                Rule::unique('goals')->where(function ($query) use ($goal) {
+                    return $query->where('t_id', $goal->t_id);
+                })->ignore($goal->g_id, 'g_id'),
+            ],
+            'g_text' => 'required|string|max:255',
+        ], [
+            'g_num.unique' => 'Ya existe una meta con ese número en este asunto.',
         ]);
 
-        $goal->g_num = $request->g_num;
-        $goal->g_text = $request->g_text;
-        $goal->save();
+        $goal->update($validated);
 
-        // Redirige correctamente a la página de metas del asunto
         return redirect()->route('topics.goals', ['topic' => $goal->t_id])
             ->with('success', 'Meta actualizada correctamente.');
     }

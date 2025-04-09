@@ -13,6 +13,9 @@
                 <label for="i_num" class="block font-bold text-gray-700">Número del Indicador</label>
                 <input type="number" name="i_num" id="i_num" min="1" required
                        class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 no-spinner">
+                @error('i_num')
+                <p class="text-sm text-red-500 mt-1">{{ $message }}</p>
+                @enderror
             </div>
 
             <style>

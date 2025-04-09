@@ -7,6 +7,7 @@ use App\Models\Goal;
 use App\Models\Objective;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class ObjectiveController extends Controller
 {
@@ -27,12 +28,20 @@ class ObjectiveController extends Controller
     public function store(Request $request, Goal $goal)
     {
         $validated = $request->validate([
-            'o_num' => 'required|integer|min:1',
+            'o_num' => [
+                'required',
+                'integer',
+                'min:1',
+                Rule::unique('objectives')->where(function ($query) use ($request) {
+                    return $query->where('g_id', $request->g_id);
+                }),
+            ],
             'o_text' => 'required|string|max:255',
             'g_id'   => 'required|exists:goals,g_id',
+        ], [
+            'o_num.unique' => 'Ya existe un objetivo con ese número en esta meta.',
         ]);
 
-        // Crear el objetivo vinculado a la meta
         Objective::create([
             'o_num' => $validated['o_num'],
             'o_text' => $validated['o_text'],
@@ -59,14 +68,21 @@ class ObjectiveController extends Controller
 
     public function update(Request $request, Objective $objective)
     {
-        $request ->validate([
-            'o_num' => 'required|string|max:255',
-            'o_text' => 'required|string',
+        $validated = $request->validate([
+            'o_num' => [
+                'required',
+                'integer',
+                'min:1',
+                Rule::unique('objectives')->where(function ($query) use ($objective) {
+                    return $query->where('g_id', $objective->g_id);
+                })->ignore($objective->o_id, 'o_id'),
+            ],
+            'o_text' => 'required|string|max:255',
+        ], [
+            'o_num.unique' => 'Ya existe un objetivo con ese número en esta meta.',
         ]);
 
-        $objective->o_num = $request->o_num;
-        $objective->o_text = $request->o_text;
-        $objective->save();
+        $objective->update($validated);
 
         return redirect()->route('goals.objectives', ['goal' => $objective->g_id])
             ->with('success', 'Objetivo actualizado correctamente.');

@@ -1,8 +1,6 @@
 <x-layout>
     <x-slot:heading>
-        <h1 class="text-3xl font-bold tracking-tight text-gray-900">
             Editar Objetivo #{{ $objective->o_num }}
-        </h1>
     </x-slot:heading>
 
     <div class="bg-white border border-gray-300 rounded-lg shadow-md px-6 py-4">
@@ -12,12 +10,19 @@
 
             <div class="mb-4">
                 <label for="o_num" class="block text-gray-700 font-bold">Número del Objetivo</label>
-                <input type="text" id="o_num" name="o_num" value="{{ $objective->o_num }}" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                <input type="number" id="o_num" name="o_num" value="{{ $objective->o_num }}" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                @error('o_num')
+                <p class="text-sm text-red-500 mt-1">{{ $message }}</p>
+                @enderror
             </div>
+
 
             <div class="mb-4">
                 <label for="o_text" class="block text-gray-700 font-bold">Texto del Objectivo</label>
                 <textarea id="o_text" name="o_text" rows="3" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>{{ $objective->o_text }}</textarea>
+                @error('o_text')
+                <p class="text-sm text-red-500 mt-1">{{ $message }}</p>
+                @enderror
             </div>
 
             <div class="flex justify-end gap-3">

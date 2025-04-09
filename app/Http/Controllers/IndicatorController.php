@@ -6,6 +6,7 @@ use App\Models\AuditLogs;
 use App\Models\Indicator;
 use App\Models\Objective;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class IndicatorController extends Controller
 {
@@ -22,14 +23,22 @@ class IndicatorController extends Controller
     {
         return view('indicators.create', compact('objective'));
     }
-
     public function store(Request $request, Objective $objective)
     {
         $validated = $request->validate([
-            'i_num' => 'required|integer|min:1',
+            'i_num' => [
+                'required',
+                'integer',
+                'min:1',
+                Rule::unique('indicators')->where(function ($query) use ($request) {
+                    return $query->where('o_id', $request->o_id);
+                }),
+            ],
             'i_text' => 'required|string',
             'i_type' => 'required|in:string,integer,document',
             'o_id'   => 'required|exists:objectives,o_id',
+        ], [
+            'i_num.unique' => 'Ya existe un indicador con ese número en este objetivo.',
         ]);
 
         Indicator::create([
@@ -42,6 +51,7 @@ class IndicatorController extends Controller
         return redirect()->route('objectives.indicators', ['objective' => $objective->o_id])
             ->with('success', 'Indicador creado correctamente.');
     }
+
 
     public function show(Indicator $indicator)
     {
@@ -58,17 +68,22 @@ class IndicatorController extends Controller
 
     public function update(Request $request, Indicator $indicator)
     {
-        $request->validate([
-            'i_num' => 'required|integer|min:1',
-            'i_text' => 'required|string',
+        $validated = $request->validate([
+            'i_num' => [
+                'required',
+                'integer',
+                'min:1',
+                Rule::unique('indicators')->where(function ($query) use ($indicator) {
+                    return $query->where('o_id', $indicator->o_id);
+                })->ignore($indicator->i_id, 'i_id'),
+            ],
+            'i_text' => 'required|string|max:255',
             'i_type' => 'required|in:string,integer,document',
+        ], [
+            'i_num.unique' => 'Ya existe un indicador con ese número en este objetivo.',
         ]);
 
-        $indicator->update([
-            'i_num' => $request->i_num,
-            'i_text' => $request->i_text,
-            'i_type' => $request->i_type,
-        ]);
+        $indicator->update($validated);
 
         return redirect()->route('objectives.indicators', ['objective' => $indicator->o_id])
             ->with('success', 'Indicador actualizado correctamente.');
@@ -78,7 +93,7 @@ class IndicatorController extends Controller
     {
         if ($indicator->i_type === 'document') {
             $request->validate([
-                'i_value' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png|max:2048',
+                'i_value' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx|max:2048',
             ]);
 
             if ($request->hasFile('i_value')) {

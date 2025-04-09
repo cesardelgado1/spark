@@ -70,24 +70,29 @@ class StrategicPlanController extends Controller
         return view('strategicplans.edit', compact('strategicplan'));
     }
 
-    public function update(Request $request, StrategicPlan $strategicplan)
+    public function update(Request $request, $id)
     {
         $validated = $request->validate([
-            'sp_years' => ['required', 'regex:/^\d{4}-\d{4}$/', function ($attribute, $value, $fail) {
-                [$start, $end] = explode('-', $value);
-                if ((int)$start >= (int)$end) {
-                    $fail('El año de inicio debe ser menor que el año de fin.');
-                }
-            }]
+            'start_year' => 'required|integer|digits:4',
+            'end_year' => 'required|integer|digits:4|gt:start_year',
+        ], [
+            'end_year.gt' => 'El año final debe ser mayor que el año inicial.',
         ]);
 
-        $strategicplan->update([
-            'sp_years' => $validated['sp_years'],
-        ]);
+        if (($validated['end_year'] - $validated['start_year']) !== 5) {
+            return redirect()->back()
+                ->withErrors(['end_year' => 'El plan estratégico debe durar exactamente 5 años.'])
+                ->withInput();
+        }
+
+        $strategicplan = StrategicPlan::findOrFail($id);
+        $strategicplan->sp_years = $validated['start_year'] . '-' . $validated['end_year'];
+        $strategicplan->save();
 
         return redirect()->route('strategicplans.index', ['institution' => $strategicplan->sp_institution])
             ->with('success', 'Plan Estratégico actualizado correctamente.');
     }
+
 
     public function destroy(StrategicPlan $strategicplan)
     {

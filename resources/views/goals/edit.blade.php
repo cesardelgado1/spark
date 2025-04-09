@@ -12,8 +12,12 @@
 
             <div class="mb-4">
                 <label for="g_num" class="block text-gray-700 font-bold">Número de la Meta</label>
-                <input type="text" id="g_num" name="g_num" value="{{ $goal->g_num }}" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                <input type="number" id="g_num" name="g_num" value="{{ $goal->g_num }}" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
             </div>
+            @error('g_num')
+            <p class="text-sm text-red-500 mt-1">{{ $message }}</p>
+            @enderror
+
 
             <div class="mb-4">
                 <label for="g_text" class="block text-gray-700 font-bold">Texto de la Meta</label>

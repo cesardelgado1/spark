@@ -6,6 +6,7 @@ use App\Models\AuditLogs;
 use App\Models\StrategicPlan;
 use App\Models\Topic;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class TopicController extends Controller
 {
@@ -32,16 +33,21 @@ class TopicController extends Controller
 
     public function store(Request $request, StrategicPlan $strategicplan)
     {
-//        // Verifica que los datos lleguen correctamente
-//        dd($request->all());
-
         $validated = $request->validate([
-            't_num' => 'required|integer|min:1',
+            't_num' => [
+                'required',
+                'integer',
+                'min:1',
+                Rule::unique('topics')->where(function ($query) use ($request) {
+                    return $query->where('sp_id', $request->sp_id);
+                }),
+            ],
             't_text' => 'required|string',
             'sp_id'  => 'required|exists:strategic_plans,sp_id',
+        ], [
+            't_num.unique' => 'Ya existe un asunto con ese número dentro de este plan estratégico.',
         ]);
 
-        // Crear el asunto vinculado al plan estratégico
         $topic = new Topic([
             't_num' => $validated['t_num'],
             't_text' => $validated['t_text'],
@@ -50,8 +56,7 @@ class TopicController extends Controller
 
         $topic->save();
 
-
-        return redirect()->route('strategicplans.topics', ['strategicplan' => $strategicplan->sp_id])
+        return redirect()->route('strategicplans.topics', $strategicplan->sp_id)
             ->with('success', 'Asunto creado correctamente.');
     }
 
@@ -70,19 +75,27 @@ class TopicController extends Controller
         return view('topics.edit', compact('topic', 'strategicplan'));
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, Topic $topic)
     {
-        $request->validate([
-            't_num' => 'required|string|max:255',
-            't_text' => 'required|string',
+        $validated = $request->validate([
+            't_num' => [
+                'required',
+                'integer',
+                'min:1',
+                Rule::unique('topics')->where(function ($query) use ($topic) {
+                    return $query->where('sp_id', $topic->sp_id);
+                })->ignore($topic->t_id, 't_id'),
+            ],
+            't_text' => 'required|string|max:255',
+        ], [
+            't_num.unique' => 'Ya existe un asunto con ese número dentro de este plan estratégico.',
         ]);
 
-        $topic = Topic::findOrFail($id);
-        $topic->t_num = $request->t_num;
-        $topic->t_text = $request->t_text;
-        $topic->save();
+        $topic->update([
+            't_num' => $validated['t_num'],
+            't_text' => $validated['t_text'],
+        ]);
 
-        // Asegúrate de redirigir correctamente pasando el strategicplan id
         return redirect()->route('topics.index', ['strategicplan' => $topic->sp_id])
             ->with('success', 'Asunto actualizado correctamente.');
     }

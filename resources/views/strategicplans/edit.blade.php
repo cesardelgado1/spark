@@ -4,8 +4,8 @@
     </x-slot:heading>
 
     <div class="bg-white border border-gray-300 rounded-lg shadow-md px-6 py-4">
-        <form method="POST" action="{{ route('strategicplans.update', $strategicplan->sp_id) }}">
-            @csrf
+        <form method="POST" action="{{ route('strategicplans.update', $strategicplan->sp_id) }}" onsubmit="return validateForm()">
+        @csrf
             @method('PUT')
 
             <div class="mb-4">
@@ -39,6 +39,8 @@
                         </select>
                     </div>
                 </div>
+
+                <p id="year-error" class="text-red-500 text-sm mt-2"></p>
 
                 @error('sp_years')
                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
@@ -74,14 +76,14 @@
     function updateYears() {
         const startYear = parseInt(document.getElementById('start_year').value);
         const endYear = parseInt(document.getElementById('end_year').value);
-        const yearsField = document.getElementById('sp_years');
+        const errorContainer = document.getElementById('year-error');
 
-        if (endYear <= startYear || (endYear - startYear < 5) ) {
-            openYearErrorModal();
-            document.getElementById('end_year').value = startYear + 5; // auto-correct
+        if ((endYear - startYear) !== 5) {
+            errorContainer.innerText = 'El plan estratégico debe durar exactamente 5 años.';
+        } else {
+            errorContainer.innerText = '';
+            document.getElementById('sp_years').value = `${startYear}-${endYear}`;
         }
-
-        yearsField.value = `${startYear}-${document.getElementById('end_year').value}`;
     }
 
     function openYearErrorModal() {
@@ -93,4 +95,17 @@
     }
 
     document.addEventListener('DOMContentLoaded', updateYears);
+
+    function validateForm() {
+        const startYear = parseInt(document.getElementById('start_year').value);
+        const endYear = parseInt(document.getElementById('end_year').value);
+        const errorContainer = document.getElementById('year-error');
+
+        if ((endYear - startYear) !== 5) {
+            errorContainer.innerText = 'El plan estratégico debe durar exactamente 5 años.';
+            return false; // bloquear envío
+        }
+
+        return true;
+    }
 </script>

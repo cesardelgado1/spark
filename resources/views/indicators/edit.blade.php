@@ -14,7 +14,10 @@
 
             <div class="mb-4">
                 <label for="i_num" class="block text-gray-700 font-bold">Número del Indicador</label>
-                <input type="text" id="i_num" name="i_num" value="{{ $indicator->i_num }}" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                <input type="number" id="i_num" name="i_num" value="{{ $indicator->i_num }}" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                @error('i_num')
+                <p class="text-sm text-red-500 mt-1">{{ $message }}</p>
+                @enderror
             </div>
 
             <div class="mb-4">
