@@ -7,6 +7,7 @@ use App\Models\Objective;
 use App\Models\Indicator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class IndicatorEntryController extends Controller
 {
@@ -26,13 +27,30 @@ class IndicatorEntryController extends Controller
 
         return view('indicators.fill', compact('objective', 'indicators'));
     }
-    public function updateValues(Request $request)
-    {
-        foreach ($request->indicators as $id => $value) {
-            Indicator::where('i_id', $id)->update(['i_value' => $value]);
+public function updateValues(Request $request)
+{
+    foreach ($request->indicators as $id => $value) {
+        $indicator = Indicator::findOrFail($id);
+
+        if ($indicator->i_type === 'document') {
+            if (is_object($value) && $value->isValid()) {
+                // Delete the old document if it exists
+                if ($indicator->i_value && Storage::disk('public')->exists($indicator->i_value)) {
+                    Storage::disk('public')->delete($indicator->i_value);
+                }
+
+                // Store the new document
+                $path = $value->store('indicators/documents', 'public');
+                $indicator->i_value = $path;
+            }
+        } else {
+            $indicator->i_value = $value;
         }
 
-        return redirect()->route('tasks.index')->with('success', 'Indicadores actualizados correctamente.');
+        $indicator->save();
     }
+
+    return redirect()->route('tasks.index')->with('success', 'Indicadores actualizados correctamente.');
+}
 
 }
