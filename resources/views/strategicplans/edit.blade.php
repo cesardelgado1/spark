@@ -13,7 +13,7 @@
 
                 <!-- Hidden input to store concatenated years -->
                 <input type="hidden" id="sp_years" name="sp_years" value="{{ old('sp_years', $strategicplan->sp_years) }}">
-
+                <input type="hidden" name="sp_institution" value="{{ $strategicplan->sp_institution }}">
                 <div class="flex gap-4">
                     <!-- Start Year Dropdown -->
                     <div>
