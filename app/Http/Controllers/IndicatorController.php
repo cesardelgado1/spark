@@ -93,7 +93,7 @@ class IndicatorController extends Controller
     {
         if ($indicator->i_type === 'document') {
             $request->validate([
-                'i_value' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx|max:2048',
+                'i_value' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx', //add txt,csv
             ]);
 
             if ($request->hasFile('i_value')) {
