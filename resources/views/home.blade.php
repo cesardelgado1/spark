@@ -22,13 +22,14 @@
                     </p>
                 </div>
                 <div>
-                    <h2 class="text-xl font-semibold text-gray-800 mb-2">Áreas Claves de Enfoque:</h2>
-                    <ul class="list-disc list-inside text-gray-700 space-y-2">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-2">Asuntos Estratégicos:</h2>
+                    <ol class="list-decimal list-inside text-gray-700 space-y-2">
                         <li><strong>Innovación Académica</strong> – Modernizar los planes de estudio y los métodos de enseñanza.</li>
-                        <li><strong>Efiencia Institucional</strong> – Optimizar la administración y la asignación de recursos.</li>
+                        <li><strong>Eficiencia Institucional</strong> – Optimizar la administración y la asignación de recursos.</li>
                         <li><strong>Investigación e Impacto</strong> – Fortalecer los avances científicos y tecnológicos.</li>
                         <li><strong>Ética y Cultura</strong> – Promover la diversidad, la inclusión y la integridad institucional.</li>
-                    </ul>
+                    </ol>
+
                 </div>
             </div>
 
