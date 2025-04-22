@@ -12,8 +12,10 @@ use Illuminate\Support\Collection;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use Maatwebsite\Excel\Concerns\WithTitle;
 
-class StrategicPlanExport implements FromCollection, WithHeadings, WithStyles, WithEvents
+class StrategicPlanExport implements FromCollection, WithHeadings, WithStyles, WithEvents, WithTitle
+//class StrategicPlanExport implements FromCollection, WithHeadings, WithStyles, WithEvents
 {
     protected $sp_id;
     protected $fy; // ✅ Nueva propiedad
@@ -158,5 +160,11 @@ class StrategicPlanExport implements FromCollection, WithHeadings, WithStyles, W
             }
         ];
     }
+
+    public function title(): string
+    {
+        return $this->fy; // This sets the sheet name as the Fiscal Year (FY)
+    }
+
 }
 
