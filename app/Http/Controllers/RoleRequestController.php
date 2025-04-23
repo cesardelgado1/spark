@@ -32,23 +32,30 @@ class RoleRequestController extends Controller
     }
     public function index()
     {
-        $requests = RoleRequest::where('status', 'Pending')->with('user')->get();
+        $requests = RoleRequest::where('status', 'pending')->with('user')->get();
+
         return view('roles.index', compact('requests'));
     }
 
+
     public function approve(RoleRequest $request)
     {
-        DB::transaction(function () use ($request) {
-            $user = $request->user;
-            $user->u_type = $request->requested_role;
-            $user->save();
+        $user = $request->user; // Should be loaded from with('user')
 
-            $request->status = 'approved';
-            $request->save();
-        });
+        if (!$user) {
+            return redirect()->back()->with('error', 'No se pudo encontrar el usuario para esta solicitud.');
+        }
 
-        return redirect()->back()->with('success', 'Solicitud aprobada correctamente.');
+        $user->u_type = $request->requested_role;
+        $user->save();
+
+        $request->status = 'approved';
+        $request->save();
+
+        return redirect()->back()->with('success', 'Rol aprobado exitosamente.');
     }
+
+
 
     public function reject(RoleRequest $request)
     {
@@ -57,4 +64,35 @@ class RoleRequestController extends Controller
 
         return redirect()->back()->with('success', 'Solicitud rechazada correctamente.');
     }
+
+    public function approveBulk(Request $request)
+    {
+        $ids = $request->input('selected_requests', []);
+
+        foreach ($ids as $id) {
+            $req = RoleRequest::findOrFail($id);
+            $user = $req->user;
+            $user->u_type = $req->requested_role;
+            $user->save();
+
+            $req->status = 'approved';
+            $req->save();
+        }
+
+        return redirect()->back()->with('success', 'Solicitudes aprobadas correctamente.');
+    }
+    public function bulkReject(Request $request)
+    {
+        $ids = $request->input('selected_requests', []);
+
+        foreach ($ids as $id) {
+            $req = RoleRequest::findOrFail($id);
+            $req->status = 'rejected';
+            $req->save();
+        }
+
+        return redirect()->back()->with('success', 'Solicitudes rechazadas correctamente.');
+    }
+
+
 }

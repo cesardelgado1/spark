@@ -46,13 +46,14 @@
                             <td class="px-4 py-3">{{ $user->u_lname }}</td>
                             <td class="px-4 py-3">{{ $user->email }}</td>
                             <td class="px-4 py-3">
-                                <select class="border rounded px-2 py-1"
-                                        data-user-id="{{ $user->id }}"
-                                        onchange="updateRole(this)">
-                                    @foreach ($roles as $role)
-                                        <option value="{{ $role }}" {{ $user->u_type === $role ? 'selected' : '' }}>
-                                            {{ $role }}
-                                        </option>
+                                <select
+                                    id="role-select-{{ $user->id }}"
+                                    data-current-role="{{ $user->u_type }}"
+                                    onchange="handleRoleChange('{{ $user->id }}', this.dataset.currentRole, '{{ $user->u_fname }} {{ $user->u_lname }}')"
+                                    class="border border-gray-300 rounded px-2 py-1"
+                                >
+                                    @foreach(['Admin', 'Planner', 'Contributor', 'Assignee'] as $role)
+                                        <option value="{{ $role }}" @if($user->u_type === $role) selected @endif>{{ $role }}</option>
                                     @endforeach
                                 </select>
                             </td>
@@ -150,36 +151,110 @@
         </div>
     </div>
 
-    {{-- JS for Role Update --}}
-    <script>
-        function updateRole(select) {
-            const userId = select.dataset.userId;
-            const newRole = select.value;
-
-            fetch(`/configuracion/role-usuario/${userId}`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                body: JSON.stringify({u_type: newRole})
-            })
-                .then(res => {
-                    if (!res.ok) throw new Error('Failed to update role');
-                    return res.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        console.log('Role updated successfully');
-                    }
-                })
-                .catch(err => {
-                    alert('Failed to update role. Please try again.');
-                    console.error(err);
-                });
-        }
-    </script>
-
-    {{-- AlpineJS CDN (if not already included) --}}
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 </x-layout>
+<!-- Success Toast (Centered Top) -->
+<div id="success-toast"
+     class="fixed top-6 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg hidden z-50">
+    <span id="success-toast-message">¡Rol actualizado correctamente!</span>
+</div>
+
+<!-- Confirmation Modal -->
+<div id="role-confirm-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-2xl shadow-lg max-w-md w-full p-6">
+        <h2 class="text-lg font-bold text-gray-800 mb-4">Confirmar cambio de rol</h2>
+        <p class="text-gray-700 mb-2">
+            Estás a punto de cambiar el rol de
+            <span class="font-semibold" id="confirm-user-name"></span>
+            de
+            <span class="font-semibold text-red-500" id="current-role"></span>
+            a
+            <span class="font-semibold text-green-600" id="new-role"></span>.
+        </p>
+        <div class="flex justify-end gap-3 mt-6">
+            <button onclick="cancelRoleChange()" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition">
+                Cancelar
+            </button>
+            <button onclick="confirmRoleChange()" class="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition">
+                Confirmar
+            </button>
+        </div>
+    </div>
+</div>
+<script>
+    let selectedUserId = null;
+    let newRole = null;
+    let currentRole = null;
+    let userName = null;
+
+    function handleRoleChange(userId, current, fullName) {
+        const select = document.getElementById(`role-select-${userId}`);
+        const selectedValue = select.value;
+
+        selectedUserId = userId;
+        newRole = selectedValue;
+        currentRole = current;
+        userName = fullName;
+
+        // Update modal text
+        document.getElementById('confirm-user-name').textContent = userName;
+        document.getElementById('current-role').textContent = currentRole;
+        document.getElementById('new-role').textContent = newRole;
+
+        // Show modal
+        document.getElementById('role-confirm-modal').classList.remove('hidden');
+    }
+
+    function cancelRoleChange() {
+        document.getElementById('role-confirm-modal').classList.add('hidden');
+        const select = document.getElementById(`role-select-${selectedUserId}`);
+        select.value = currentRole; // Reset dropdown
+        selectedUserId = null;
+        newRole = null;
+        currentRole = null;
+    }
+
+    function confirmRoleChange() {
+        document.getElementById('role-confirm-modal').classList.add('hidden');
+
+        fetch(`/configuracion/role-usuario/${selectedUserId}`, {
+            method: 'PATCH',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ u_type: newRole })
+        }).then(response => {
+            if (response.ok) {
+                // Update memory and dataset
+                const select = document.getElementById(`role-select-${selectedUserId}`);
+                select.setAttribute('data-current-role', newRole);
+                currentRole = newRole;
+
+                // ✅ Show toast
+                showSuccessToast(`Rol de ${userName} cambiado a ${newRole}`);
+            } else {
+                alert('Hubo un error al actualizar el rol.');
+            }
+
+            // Reset
+            selectedUserId = null;
+            newRole = null;
+        });
+    }
+    function showSuccessToast(message) {
+        const toast = document.getElementById('success-toast');
+        const toastMsg = document.getElementById('success-toast-message');
+
+        toastMsg.textContent = message;
+        toast.classList.remove('hidden');
+
+        setTimeout(() => {
+            toast.classList.add('hidden');
+        }, 4000);
+    }
+
+</script>
+
+
+{{-- AlpineJS CDN (if not already included) --}}
+<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>

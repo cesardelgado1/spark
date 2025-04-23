@@ -116,6 +116,10 @@ Route::middleware(['auth', 'isPlanner'])->group(function () {
     Route::get('/roles/requests', [RoleRequestController::class, 'index'])->name('roles.requests.index');
     Route::post('/roles/requests/{request}/approve', [RoleRequestController::class, 'approve'])->name('roles.requests.approve');
     Route::post('/roles/requests/{request}/reject', [RoleRequestController::class, 'reject'])->name('roles.requests.reject');
+    Route::post('/solicitudes/approve-bulk', [RoleRequestController::class, 'approveBulk'])->name('role-requests.approveBulk');
+    Route::post('/solicitudes/rechazar-multiples', [RoleRequestController::class, 'bulkReject'])->name('role-requests.rejectBulk');
+
+
 });
 
 # CAUTION THESE WILL PROBABLY GENEATE SOME CONFLICTS WILL REMOVE SOON!!!
