@@ -101,7 +101,7 @@
 
             <div id="confirm-objective-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 hidden">
                 <div class="bg-white w-1/3 rounded-lg shadow-lg p-6">
-                    <h2 class="text-lg font-bold mb-4">¿Estás seguro de borrar estos objetivos?</h2>
+                    <h2 class="text-lg font-bold mb-4">¿Estás seguro de borrar este(os) objetivo(s)?</h2>
                     <div class="flex justify-end gap-3">
                         <button onclick="closeObjectiveConfirmModal()" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition">
                             Cancelar

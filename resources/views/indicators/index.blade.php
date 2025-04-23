@@ -72,9 +72,9 @@
                                 <div class="text-gray-500">
                                     {{ $indicator->i_text }}
                                 </div>
-                                <div class="text-sm text-gray-700 font-semibold mt-1">
-                                    Tipo: {{ $indicator->i_type }}
-                                </div>
+{{--                                <div class="text-sm text-gray-700 font-semibold mt-1">--}}
+{{--                                    Tipo: {{ $indicator->i_type }}--}}
+{{--                                </div>--}}
 
                                 {{-- Este form es independiente, para updateValue --}}
                                 <form action="{{ route('indicators.updateValue', $indicator->i_id) }}"
@@ -122,7 +122,7 @@
             {{-- Modal de confirmación --}}
             <div id="confirm-indicator-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 hidden">
                 <div class="bg-white w-1/3 rounded-lg shadow-lg p-6">
-                    <h2 class="text-lg font-bold mb-4">¿Estás seguro de borrar estos indicadores?</h2>
+                    <h2 class="text-lg font-bold mb-4">¿Estás seguro de borrar este(os) indicador(es)?</h2>
                     <div class="flex justify-end gap-3">
                         <button onclick="closeIndicatorConfirmModal()" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition">
                             Cancelar

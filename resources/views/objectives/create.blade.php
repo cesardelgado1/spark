@@ -43,7 +43,7 @@
 
             <!-- Botones -->
             <div class="mt-6 flex items-center justify-end gap-x-6">
-                <a href="{{ route('goals.objectives', $goal->g_id) }}" class="text-sm/6 font-semibold text-gray-900">Cancelar</a>
+                <a href="{{ route('goals.objectives', $goal->g_id) }}" class="rounded-md bg-gray-500 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500">Cancelar</a>
                 <button type="submit" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500">
                     Crear
                 </button>
