@@ -5,13 +5,16 @@ namespace App\Http\Controllers;
 use App\Models\RoleRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class RoleRequestController extends Controller
 {
     public function create()
     {
-        return view('roles.request');
+        $existingRequest = RoleRequest::where('user_id', Auth::id())
+            ->where('status', 'pending')
+            ->first();
+
+        return view('roles.request', compact('existingRequest'));
     }
 
     public function store(Request $request)
@@ -25,22 +28,41 @@ class RoleRequestController extends Controller
             'user_id' => Auth::id(),
             'department' => $request->department,
             'requested_role' => $request->requested_role,
-            'status' => 'pending', // Default status
+            'status' => 'pending',
         ]);
 
         return redirect()->route('roles.request')->with('success', '¡Solicitud enviada exitosamente!');
     }
+
+    public function update(Request $request, RoleRequest $roleRequest)
+    {
+        // Ensure user is only updating their own request and it's still pending
+        if ($roleRequest->user_id !== Auth::id() && $roleRequest->status !== 'pending') {
+            abort(403, 'No autorizado para editar esta solicitud.');
+        }
+
+        $request->validate([
+            'department' => 'required|string|max:255',
+            'requested_role' => 'required|in:Assignee,Contributor,Planner',
+        ]);
+
+        $roleRequest->update([
+            'department' => $request->department,
+            'requested_role' => $request->requested_role,
+        ]);
+
+        return redirect()->route('roles.request')->with('success', 'Solicitud actualizada correctamente.');
+    }
+
     public function index()
     {
         $requests = RoleRequest::where('status', 'pending')->with('user')->get();
-
         return view('roles.index', compact('requests'));
     }
 
-
     public function approve(RoleRequest $request)
     {
-        $user = $request->user; // Should be loaded from with('user')
+        $user = $request->user;
 
         if (!$user) {
             return redirect()->back()->with('error', 'No se pudo encontrar el usuario para esta solicitud.');
@@ -55,8 +77,6 @@ class RoleRequestController extends Controller
         return redirect()->back()->with('success', 'Rol aprobado exitosamente.');
     }
 
-
-
     public function reject(RoleRequest $request)
     {
         $request->status = 'rejected';
@@ -70,10 +90,12 @@ class RoleRequestController extends Controller
         $ids = $request->input('selected_requests', []);
 
         foreach ($ids as $id) {
-            $req = RoleRequest::findOrFail($id);
-            $user = $req->user;
-            $user->u_type = $req->requested_role;
-            $user->save();
+            $req = RoleRequest::with('user')->findOrFail($id);
+
+            if ($req->user) {
+                $req->user->u_type = $req->requested_role;
+                $req->user->save();
+            }
 
             $req->status = 'approved';
             $req->save();
@@ -81,6 +103,7 @@ class RoleRequestController extends Controller
 
         return redirect()->back()->with('success', 'Solicitudes aprobadas correctamente.');
     }
+
     public function bulkReject(Request $request)
     {
         $ids = $request->input('selected_requests', []);
@@ -93,6 +116,4 @@ class RoleRequestController extends Controller
 
         return redirect()->back()->with('success', 'Solicitudes rechazadas correctamente.');
     }
-
-
 }

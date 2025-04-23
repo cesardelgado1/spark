@@ -112,14 +112,14 @@ Route::delete('/assignments/{assignment}', [AssignObjectiveController::class, 'd
 //ROLE REQUESTS
 Route::get('/solicitar-acceso', [RoleRequestController::class, 'create'])->name('roles.request');
 Route::post('/solicitar-acceso', [RoleRequestController::class, 'store'])->name('roles.request.submit');
+Route::put('/solicitar-acceso/{roleRequest}', [RoleRequestController::class, 'update'])->name('roles.requests.update');
+
 Route::middleware(['auth', 'isPlanner'])->group(function () {
     Route::get('/roles/requests', [RoleRequestController::class, 'index'])->name('roles.requests.index');
     Route::post('/roles/requests/{request}/approve', [RoleRequestController::class, 'approve'])->name('roles.requests.approve');
     Route::post('/roles/requests/{request}/reject', [RoleRequestController::class, 'reject'])->name('roles.requests.reject');
     Route::post('/solicitudes/approve-bulk', [RoleRequestController::class, 'approveBulk'])->name('role-requests.approveBulk');
     Route::post('/solicitudes/rechazar-multiples', [RoleRequestController::class, 'bulkReject'])->name('role-requests.rejectBulk');
-
-
 });
 
 # CAUTION THESE WILL PROBABLY GENEATE SOME CONFLICTS WILL REMOVE SOON!!!
