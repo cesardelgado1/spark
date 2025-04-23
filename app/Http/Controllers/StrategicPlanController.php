@@ -40,14 +40,6 @@ class StrategicPlanController extends Controller
             'end_year.gt' => 'El año final debe ser mayor que el año inicial.',
         ]);
 
-        // Check if the span is exactly 5 years
-        if (($validated['end_year'] - $validated['start_year']) !== 5) {
-            return redirect()->back()
-                ->withErrors(['end_year' => 'El plan estratégico debe durar exactamente 5 años.'])
-                ->withInput();
-        }
-
-        // Concatenate into 2025-2030
         $sp_years = $validated['start_year'] . '-' . $validated['end_year'];
 
         StrategicPlan::create([
@@ -58,6 +50,7 @@ class StrategicPlanController extends Controller
         return redirect()->route('strategicplans.index', ['institution' => $validated['sp_institution']])
             ->with('success', 'Plan Estratégico creado correctamente.');
     }
+
 
 
     public function show(StrategicPlan $strategicplan)
