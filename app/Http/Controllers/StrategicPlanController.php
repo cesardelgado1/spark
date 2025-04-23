@@ -42,6 +42,16 @@ class StrategicPlanController extends Controller
 
         $sp_years = $validated['start_year'] . '-' . $validated['end_year'];
 
+        $exists = StrategicPlan::where('sp_institution', $validated['sp_institution'])
+            ->where('sp_years', $sp_years)
+            ->exists();
+
+        if ($exists) {
+            return redirect()->back()
+                ->withErrors(['sp_years' => 'Ya existe un plan estratégico para ese rango de años en esta institución.'])
+                ->withInput();
+        }
+
         StrategicPlan::create([
             'sp_institution' => $validated['sp_institution'],
             'sp_years' => $sp_years,
@@ -50,6 +60,7 @@ class StrategicPlanController extends Controller
         return redirect()->route('strategicplans.index', ['institution' => $validated['sp_institution']])
             ->with('success', 'Plan Estratégico creado correctamente.');
     }
+
 
 
 
