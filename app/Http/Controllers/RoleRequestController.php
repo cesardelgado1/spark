@@ -10,12 +10,15 @@ class RoleRequestController extends Controller
 {
     public function create()
     {
-        $existingRequest = RoleRequest::where('user_id', Auth::id())
-            ->where('status', 'pending')
+        $latestRequest = RoleRequest::where('user_id', Auth::id())
+            ->latest()
             ->first();
 
-        return view('roles.request', compact('existingRequest'));
+        return view('roles.request', [
+            'existingRequest' => $latestRequest
+        ]);
     }
+
 
     public function store(Request $request)
     {

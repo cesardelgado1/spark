@@ -37,7 +37,7 @@
                         </th>
                         <th class="px-4 py-2">Nombre</th>
                         <th class="px-4 py-2">Correo</th>
-                        <th class="px-4 py-2">Departamento</th>
+                        <th class="px-4 py-2">Decanato</th>
                         <th class="px-4 py-2">Rol Solicitado</th>
                         <th class="px-4 py-2">Acciones</th>
                     </tr>

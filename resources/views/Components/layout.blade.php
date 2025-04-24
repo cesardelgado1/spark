@@ -159,21 +159,33 @@
                 @endguest
                 @auth
                     <div class="flex items-center ml-auto mr-4 space-x-4 text-white">
-                        <div class="text-right">
-                            <div class="font-semibold">
-                                {{ Auth::user()->u_fname }} {{ Auth::user()->u_lname }}
+                        <div class="flex items-center ml-auto mr-4 space-x-4 text-white">
+                            <div class="text-right">
+                                <div class="font-semibold">
+                                    {{ Auth::user()->u_fname }} {{ Auth::user()->u_lname }}
+                                </div>
+                                <div class="text-sm text-gray-300">
+                                    @php
+                                        $roleTranslations = [
+                                            'Admin' => 'Administrador',
+                                            'Planner' => 'Planificador',
+                                            'Contributor' => 'Contribuidor',
+                                            'Assignee' => 'Asignado',
+                                            'Viewer' => 'Visor',
+                                        ];
+                                        $translatedRole = $roleTranslations[Auth::user()->u_type] ?? Auth::user()->u_type;
+                                    @endphp
+                                    {{ $translatedRole }}
+                                </div>
                             </div>
-                            <div class="text-sm text-gray-300">
-                                {{ Auth::user()->u_type }}
-                            </div>
+                            <form action="{{ route('logout') }}" method="POST">
+                                @csrf
+                                <button type="submit" class="border border-white px-4 py-2 rounded hover:bg-gray-700 transition">
+                                    Cerrar Sesión
+                                </button>
+                            </form>
                         </div>
-                        <form action="{{ route('logout') }}" method="POST">
-                            @csrf
-                            <button type="submit" class="border border-white px-4 py-2 rounded hover:bg-gray-700 transition">
-                                Cerrar Sesión
-                            </button>
-                        </form>
-                    </div>
+
                 @endauth
 
 

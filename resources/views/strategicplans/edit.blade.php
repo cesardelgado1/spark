@@ -78,8 +78,8 @@
         const endYear = parseInt(document.getElementById('end_year').value);
         const errorContainer = document.getElementById('year-error');
 
-        if ((endYear - startYear) !== 5) {
-            errorContainer.innerText = 'El plan estratégico debe durar exactamente 5 años.';
+        if (startYear > endYear || (startYear === endYear)) {
+            errorContainer.innerText = 'El plan estratégico debe tener un rango válido de años.';
         } else {
             errorContainer.innerText = '';
             document.getElementById('sp_years').value = `${startYear}-${endYear}`;
@@ -101,8 +101,8 @@
         const endYear = parseInt(document.getElementById('end_year').value);
         const errorContainer = document.getElementById('year-error');
 
-        if ((endYear - startYear) !== 5) {
-            errorContainer.innerText = 'El plan estratégico debe durar exactamente 5 años.';
+        if (startYear > endYear || (startYear === endYear)) {
+            errorContainer.innerText = 'El plan estratégico debe tener un rango válido de años.';
             return false; // bloquear envío
         }
 
