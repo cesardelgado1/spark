@@ -104,6 +104,7 @@ class ExportController extends Controller
         return response()->json($objectives);
     }
 
+//    1st version
 //    public function export(Request $request)
 //    {
 //        $sp_id = $request->input('sp_id');
@@ -117,30 +118,8 @@ class ExportController extends Controller
 //            'strategic_plan_export.xlsx'
 //        );
 //    }
-    public function export(Request $request)
-    {
-        $sp_id = $request->input('sp_id');
-        $fy = $request->input('i_FY');
-        $topicIds = $request->input('topics', []);
-        $goalIds = $request->input('goals', []);
-        $objectiveIds = $request->input('objectives', []);
 
-        // Get the Strategic Plan info from the database
-        $strategicPlan = \App\Models\StrategicPlan::find($sp_id);
-
-        if (!$strategicPlan) {
-            return back()->with('error', 'Strategic Plan not found.');
-        }
-
-        // Generate the file name dynamically
-        $filename = 'Plan Estrategico ' . $strategicPlan->sp_institution
-            . ' (' . $strategicPlan->sp_years . ') - [Año Fiscal ' . $fy . '].xlsx';
-
-        return Excel::download(
-            new StrategicPlanExport($sp_id, $fy, $topicIds, $goalIds, $objectiveIds),
-            $filename
-        );
-    }
+//    2nd version
 //    public function export(Request $request)
 //    {
 //        $sp_id = $request->input('sp_id');
@@ -148,22 +127,53 @@ class ExportController extends Controller
 //        $topicIds = $request->input('topics', []);
 //        $goalIds = $request->input('goals', []);
 //        $objectiveIds = $request->input('objectives', []);
-//        $department = $request->input('department', null); // Get department from the form
 //
+//        // Get the Strategic Plan info from the database
 //        $strategicPlan = \App\Models\StrategicPlan::find($sp_id);
 //
 //        if (!$strategicPlan) {
 //            return back()->with('error', 'Strategic Plan not found.');
 //        }
 //
+//        // Generate the file name dynamically
 //        $filename = 'Plan Estrategico ' . $strategicPlan->sp_institution
 //            . ' (' . $strategicPlan->sp_years . ') - [Año Fiscal ' . $fy . '].xlsx';
 //
 //        return Excel::download(
-//            new StrategicPlanExport($sp_id, $fy, $topicIds, $goalIds, $objectiveIds, $department),
+//            new StrategicPlanExport($sp_id, $fy, $topicIds, $goalIds, $objectiveIds),
 //            $filename
 //        );
 //    }
+
+//    WORK IN PROGRESS
+    public function export(Request $request)
+    {
+        $sp_id = $request->input('sp_id');
+        $fy = $request->input('i_FY');
+        $department = $request->input('department'); // ✅ ADD THIS LINE
+        $topicIds = $request->input('topics', []);
+        $goalIds = $request->input('goals', []);
+        $objectiveIds = $request->input('objectives', []);
+
+        $strategicPlan = \App\Models\StrategicPlan::find($sp_id);
+
+        if (!$strategicPlan) {
+            return back()->with('error', 'Strategic Plan not found.');
+        }
+
+        if ($department === "Todos") {
+            $filename = 'Plan Estrategico ' . $strategicPlan->sp_institution
+                . ' (' . $strategicPlan->sp_years . ') - [Año Fiscal ' . $fy . '].xlsx';
+        }else{
+            $filename = 'Plan Estrategico ' . $strategicPlan->sp_institution
+                . ' (' . $strategicPlan->sp_years . ') - ['. $department .', Año Fiscal ' . $fy . '].xlsx';
+        }
+
+        return Excel::download(
+            new StrategicPlanExport($sp_id, $fy, $department, $topicIds, $goalIds, $objectiveIds), // ✅ PASS $department HERE
+            $filename
+        );
+    }
 
 
 
