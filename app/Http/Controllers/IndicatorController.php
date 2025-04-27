@@ -91,58 +91,6 @@ class IndicatorController extends Controller
             ->with('success', 'Indicador actualizado correctamente.');
     }
 
-//    public function updateValue(Request $request, Indicator $indicator)
-//    {
-//        if ($indicator->i_type === 'document') {
-//            $request->validate([
-//                'i_value' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx', //add txt,csv
-//            ]);
-//
-//            if ($request->hasFile('i_value')) {
-//                $path = $request->file('i_value')->store('documents', 'public');
-//                $indicator->i_value = $path;
-//            }
-//        } else {
-//            $request->validate([
-//                'i_value' => 'nullable|string',
-//            ]);
-//            $indicator->i_value = $request->i_value;
-//        }
-//
-//        $indicator->save();
-//
-//        return redirect()->back()->with('success', 'Valor del indicador actualizado.');
-//    }
-
-//    public function updateValue(Request $request, Indicator $indicator)
-//    {
-//        if ($indicator->i_type === 'document') {
-//            $request->validate([
-//                'i_value' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx',
-//            ]);
-//
-//            if ($request->hasFile('i_value')) {
-//                $path = $request->file('i_value')->store('documents', 'public');
-//
-//                // Check if there's an existing value and concatenate
-//                if (!empty($indicator->i_value)) {
-//                    $indicator->i_value .= ', ' . $path;
-//                } else {
-//                    $indicator->i_value = $path;
-//                }
-//            }
-//        } else {
-//            $request->validate([
-//                'i_value' => 'nullable|string',
-//            ]);
-//            $indicator->i_value = $request->i_value;
-//        }
-//
-//        $indicator->save();
-//
-//        return redirect()->back()->with('success', 'Valor del indicador actualizado.');
-//    }
-
     public function updateValue(Request $request, Indicator $indicator)
     {
         if ($indicator->i_type === 'document') {

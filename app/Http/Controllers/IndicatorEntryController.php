@@ -86,55 +86,6 @@ class IndicatorEntryController extends Controller
         return view('indicators.fill', compact('objective', 'indicators'));
     }
 
-
-//    public function updateValues(Request $request)
-//    {
-//        $userId = Auth::id();
-//
-//        foreach ($request->indicators as $id => $value) {
-//            $indicator = Indicator::findOrFail($id);
-//
-//            if ($indicator->i_type === 'document') {
-//                if (is_object($value) && $value->isValid()) {
-//                    $path = $value->store('indicators/documents', 'public');
-//                    $iv_value = $path;
-//                } else {
-//                    continue;
-//                }
-//            } else {
-//                $iv_value = $value;
-//            }
-//
-//            // Save the individual entry for the user
-//            IndicatorValues::updateOrCreate(
-//                ['iv_u_id' => $userId, 'iv_ind_id' => $id],
-//                ['iv_value' => $iv_value]
-//            );
-//        }
-//
-//        // ✅ Now determine the action (sum or concatenate) based on i_type:
-//        $indicatorIds = array_keys($request->indicators);
-//
-//        foreach ($indicatorIds as $indicatorId) {
-//            $indicator = Indicator::findOrFail($indicatorId);
-//
-//            if ($indicator->i_type === 'integer') {
-//                $result = IndicatorValues::where('iv_ind_id', $indicatorId)->sum('iv_value');
-//            } elseif ($indicator->i_type === 'string' || $indicator->i_type === 'document') {
-//                $result = IndicatorValues::where('iv_ind_id', $indicatorId)
-//                    ->pluck('iv_value')
-//                    ->filter()                      // Remove null/empty values if needed
-//                    ->implode(', ');                // Join values with comma and space
-//            } else {
-//                $result = null; // Optional: handle unexpected types here
-//            }
-//
-//            // Update the result back into the indicators table
-//            Indicator::where('i_id', $indicatorId)->update(['i_value' => $result]);
-//        }
-//
-//        return redirect()->route('tasks.index')->with('success', 'Indicadores actualizados correctamente.');
-//    }
     public function updateValues(Request $request)
     {
         $userId = Auth::id();

@@ -72,9 +72,6 @@
                                 <div class="text-gray-500">
                                     {{ $indicator->i_text }}
                                 </div>
-{{--                                <div class="text-sm text-gray-700 font-semibold mt-1">--}}
-{{--                                    Tipo: {{ $indicator->i_type }}--}}
-{{--                                </div>--}}
 
                                 {{-- Este form es independiente, para updateValue --}}
                                 <form action="{{ route('indicators.updateValue', $indicator->i_id) }}"
@@ -88,31 +85,6 @@
                                     @elseif($indicator->i_type === 'string')
                                         <input type="text" name="i_value" value="{{ $indicator->i_value }}" class="border rounded px-2 py-1 w-full">
                                     @elseif($indicator->i_type === 'document')
-{{--                                    OG version--}}
-{{--                                        @if(!empty($indicator->i_value))--}}
-{{--                                            <a href="{{ asset('storage/' . $indicator->i_value) }}" target="_blank" class="text-blue-500 underline">Ver documento actual</a><br>--}}
-{{--                                        @endif--}}
-{{--                                    2nd version--}}
-{{--                                            @if(!empty($indicator->i_value))--}}
-{{--                                                @php--}}
-{{--                                                    $documents = explode(',', $indicator->i_value);--}}
-{{--                                                @endphp--}}
-{{--                                                <div class="mb-2">--}}
-{{--                                                    <p class="font-semibold text-gray-700">Documentos actuales:</p>--}}
-{{--                                                    <ul class="list-disc pl-5">--}}
-{{--                                                        @foreach($documents as $doc)--}}
-{{--                                                            @php--}}
-{{--                                                                $doc = trim($doc);--}}
-{{--                                                            @endphp--}}
-{{--                                                            <li class="flex items-center justify-between">--}}
-{{--                                                                <a href="{{ asset('storage/' . $doc) }}" target="_blank" class="text-blue-500 underline">--}}
-{{--                                                                    {{ basename($doc) }}--}}
-{{--                                                                </a>--}}
-{{--                                                            </li>--}}
-{{--                                                        @endforeach--}}
-{{--                                                    </ul>--}}
-{{--                                                </div>--}}
-{{--                                            @endif--}}
                                         @if(!empty($indicator->i_value))
                                             @php
                                                 $documents = explode(',', $indicator->i_value);
@@ -124,18 +96,6 @@
                                                         @php
                                                             $doc = trim($doc);
                                                         @endphp
-{{--                                                        <li class="flex items-center justify-between">--}}
-{{--                                                            <a href="{{ asset('storage/documents/' . $doc) }}" target="_blank" class="text-blue-500 underline">--}}
-{{--                                                                {{ basename($doc) }}--}}
-{{--                                                            </a>--}}
-{{--                                                            <button--}}
-{{--                                                                type="button"--}}
-{{--                                                                onclick="confirmDeleteDocument('{{ $indicator->i_id }}', '{{ $doc }}')"--}}
-{{--                                                                class="text-red-500 hover:text-red-700 ml-3 font-bold"--}}
-{{--                                                                title="Eliminar documento">--}}
-{{--                                                                ✖--}}
-{{--                                                            </button>--}}
-{{--                                                        </li>--}}
                                                         <li class="flex items-center gap-2">
                                                             <a href="{{ asset('storage/documents/' . $doc) }}" target="_blank" class="text-blue-500 underline">
                                                                 {{ basename($doc) }}
