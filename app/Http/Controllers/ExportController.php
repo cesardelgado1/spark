@@ -141,6 +141,30 @@ class ExportController extends Controller
             $filename
         );
     }
+//    public function export(Request $request)
+//    {
+//        $sp_id = $request->input('sp_id');
+//        $fy = $request->input('i_FY');
+//        $topicIds = $request->input('topics', []);
+//        $goalIds = $request->input('goals', []);
+//        $objectiveIds = $request->input('objectives', []);
+//        $department = $request->input('department', null); // Get department from the form
+//
+//        $strategicPlan = \App\Models\StrategicPlan::find($sp_id);
+//
+//        if (!$strategicPlan) {
+//            return back()->with('error', 'Strategic Plan not found.');
+//        }
+//
+//        $filename = 'Plan Estrategico ' . $strategicPlan->sp_institution
+//            . ' (' . $strategicPlan->sp_years . ') - [Año Fiscal ' . $fy . '].xlsx';
+//
+//        return Excel::download(
+//            new StrategicPlanExport($sp_id, $fy, $topicIds, $goalIds, $objectiveIds, $department),
+//            $filename
+//        );
+//    }
+
 
 
 }

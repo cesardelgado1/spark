@@ -90,6 +90,7 @@ Route::middleware(['auth', 'isPlanner'])->group(function () {
     Route::put('/indicators/{indicator}', [IndicatorController::class, 'update'])->name('indicators.update');
     Route::get('/objectives/{objective}/indicators', [IndicatorController::class, 'index'])->name('objectives.indicators');
     Route::put('/indicators/{indicator}/update-value', [IndicatorController::class, 'updateValue'])->name('indicators.updateValue');
+    Route::post('/indicators/remove-document', [IndicatorController::class, 'removeDocument'])->name('indicators.removeDocument');
 });
 
 //ADMIN
@@ -149,8 +150,6 @@ Route::get('/reportes/sp/{sp_id}/fys', [ExportController::class, 'getFYsForSP'])
 Route::get('/reportes/{sp_id}/{fy}/topics', [ExportController::class, 'getTopicsForSPandFY']);
 Route::get('/reportes/topics/{topic_id}/goals/{fy}', [ExportController::class, 'getGoalsForTopicAndFY']);
 Route::get('/reportes/goals/{goal_id}/objectives/{fy}', [ExportController::class, 'getObjectivesForGoalAndFY']);
-
-
 
 
 require __DIR__.'/saml2.php';

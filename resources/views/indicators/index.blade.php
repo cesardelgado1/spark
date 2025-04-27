@@ -88,9 +88,73 @@
                                     @elseif($indicator->i_type === 'string')
                                         <input type="text" name="i_value" value="{{ $indicator->i_value }}" class="border rounded px-2 py-1 w-full">
                                     @elseif($indicator->i_type === 'document')
+{{--                                    OG version--}}
+{{--                                        @if(!empty($indicator->i_value))--}}
+{{--                                            <a href="{{ asset('storage/' . $indicator->i_value) }}" target="_blank" class="text-blue-500 underline">Ver documento actual</a><br>--}}
+{{--                                        @endif--}}
+{{--                                    2nd version--}}
+{{--                                            @if(!empty($indicator->i_value))--}}
+{{--                                                @php--}}
+{{--                                                    $documents = explode(',', $indicator->i_value);--}}
+{{--                                                @endphp--}}
+{{--                                                <div class="mb-2">--}}
+{{--                                                    <p class="font-semibold text-gray-700">Documentos actuales:</p>--}}
+{{--                                                    <ul class="list-disc pl-5">--}}
+{{--                                                        @foreach($documents as $doc)--}}
+{{--                                                            @php--}}
+{{--                                                                $doc = trim($doc);--}}
+{{--                                                            @endphp--}}
+{{--                                                            <li class="flex items-center justify-between">--}}
+{{--                                                                <a href="{{ asset('storage/' . $doc) }}" target="_blank" class="text-blue-500 underline">--}}
+{{--                                                                    {{ basename($doc) }}--}}
+{{--                                                                </a>--}}
+{{--                                                            </li>--}}
+{{--                                                        @endforeach--}}
+{{--                                                    </ul>--}}
+{{--                                                </div>--}}
+{{--                                            @endif--}}
                                         @if(!empty($indicator->i_value))
-                                            <a href="{{ asset('storage/' . $indicator->i_value) }}" target="_blank" class="text-blue-500 underline">Ver documento actual</a><br>
+                                            @php
+                                                $documents = explode(',', $indicator->i_value);
+                                            @endphp
+                                            <div class="mb-2">
+                                                <p class="font-semibold text-gray-700">Documentos actuales:</p>
+                                                <ul class="list-disc pl-5">
+                                                    @foreach($documents as $doc)
+                                                        @php
+                                                            $doc = trim($doc);
+                                                        @endphp
+{{--                                                        <li class="flex items-center justify-between">--}}
+{{--                                                            <a href="{{ asset('storage/documents/' . $doc) }}" target="_blank" class="text-blue-500 underline">--}}
+{{--                                                                {{ basename($doc) }}--}}
+{{--                                                            </a>--}}
+{{--                                                            <button--}}
+{{--                                                                type="button"--}}
+{{--                                                                onclick="confirmDeleteDocument('{{ $indicator->i_id }}', '{{ $doc }}')"--}}
+{{--                                                                class="text-red-500 hover:text-red-700 ml-3 font-bold"--}}
+{{--                                                                title="Eliminar documento">--}}
+{{--                                                                ✖--}}
+{{--                                                            </button>--}}
+{{--                                                        </li>--}}
+                                                        <li class="flex items-center gap-2">
+                                                            <a href="{{ asset('storage/documents/' . $doc) }}" target="_blank" class="text-blue-500 underline">
+                                                                {{ basename($doc) }}
+                                                            </a>
+                                                            <!-- Delete (X) Button -->
+                                                            <button
+                                                                type="button"
+                                                                onclick="confirmDeleteDocument('{{ $indicator->i_id }}', '{{ $doc }}')"
+                                                                class="text-red-500 hover:text-red-700 text-sm font-bold px-2 py-0 rounded focus:outline-none"
+                                                                title="Eliminar documento">
+                                                                x
+                                                            </button>
+                                                        </li>
+
+                                                    @endforeach
+                                                </ul>
+                                            </div>
                                         @endif
+
                                         <input type="file" name="i_value" class="border rounded px-2 py-1 w-full">
                                     @endif
 
@@ -98,11 +162,46 @@
                                         Guardar
                                     </button>
                                 </form>
+
                             </div>
                         </div>
                     </div>
                 @endforeach
             </div>
+
+            <!-- Delete Document Modal (Pop Up)-->
+            <div id="deleteDocumentModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <h2 class="text-lg font-bold mb-4">¿Estás seguro de que quieres eliminar este documento?</h2>
+                    <form id="deleteDocumentForm" method="POST" action="{{ route('indicators.removeDocument') }}">
+                        @csrf
+                        @method('POST')
+                        <input type="hidden" name="indicator_id" id="indicatorIdInput">
+                        <input type="hidden" name="document_name" id="documentNameInput">
+                        <div class="flex justify-end gap-4">
+                            <button type="button" onclick="closeDeleteModal()" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">
+                                Cancelar
+                            </button>
+                            <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">
+                                Sí, Eliminar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+{{--        Control Delete Document (Pop Up)--}}
+            <script>
+                function confirmDeleteDocument(indicatorId, documentName) {
+                    document.getElementById('indicatorIdInput').value = indicatorId;
+                    document.getElementById('documentNameInput').value = documentName;
+                    document.getElementById('deleteDocumentModal').classList.remove('hidden');
+                }
+
+                function closeDeleteModal() {
+                    document.getElementById('deleteDocumentModal').classList.add('hidden');
+                }
+            </script>
 
             {{-- Formulario de eliminación separado y al final --}}
             <form id="delete-indicators-form" action="{{ route('indicators.bulkDelete') }}" method="POST" onsubmit="return confirmarBorrado()">

@@ -6,6 +6,7 @@ use App\Models\AuditLogs;
 use App\Models\Indicator;
 use App\Models\Objective;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
 class IndicatorController extends Controller
@@ -23,6 +24,7 @@ class IndicatorController extends Controller
     {
         return view('indicators.create', compact('objective'));
     }
+
     public function store(Request $request, Objective $objective)
     {
         $validated = $request->validate([
@@ -36,7 +38,7 @@ class IndicatorController extends Controller
             ],
             'i_text' => 'required|string',
             'i_type' => 'required|in:string,integer,document',
-            'o_id'   => 'required|exists:objectives,o_id',
+            'o_id' => 'required|exists:objectives,o_id',
         ], [
             'i_num.unique' => 'Ya existe un indicador con ese número en este objetivo.',
         ]);
@@ -89,16 +91,76 @@ class IndicatorController extends Controller
             ->with('success', 'Indicador actualizado correctamente.');
     }
 
+//    public function updateValue(Request $request, Indicator $indicator)
+//    {
+//        if ($indicator->i_type === 'document') {
+//            $request->validate([
+//                'i_value' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx', //add txt,csv
+//            ]);
+//
+//            if ($request->hasFile('i_value')) {
+//                $path = $request->file('i_value')->store('documents', 'public');
+//                $indicator->i_value = $path;
+//            }
+//        } else {
+//            $request->validate([
+//                'i_value' => 'nullable|string',
+//            ]);
+//            $indicator->i_value = $request->i_value;
+//        }
+//
+//        $indicator->save();
+//
+//        return redirect()->back()->with('success', 'Valor del indicador actualizado.');
+//    }
+
+//    public function updateValue(Request $request, Indicator $indicator)
+//    {
+//        if ($indicator->i_type === 'document') {
+//            $request->validate([
+//                'i_value' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx',
+//            ]);
+//
+//            if ($request->hasFile('i_value')) {
+//                $path = $request->file('i_value')->store('documents', 'public');
+//
+//                // Check if there's an existing value and concatenate
+//                if (!empty($indicator->i_value)) {
+//                    $indicator->i_value .= ', ' . $path;
+//                } else {
+//                    $indicator->i_value = $path;
+//                }
+//            }
+//        } else {
+//            $request->validate([
+//                'i_value' => 'nullable|string',
+//            ]);
+//            $indicator->i_value = $request->i_value;
+//        }
+//
+//        $indicator->save();
+//
+//        return redirect()->back()->with('success', 'Valor del indicador actualizado.');
+//    }
+
     public function updateValue(Request $request, Indicator $indicator)
     {
         if ($indicator->i_type === 'document') {
             $request->validate([
-                'i_value' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx', //add txt,csv
+                'i_value' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx',
             ]);
 
             if ($request->hasFile('i_value')) {
-                $path = $request->file('i_value')->store('documents', 'public');
-                $indicator->i_value = $path;
+                // Save the file with the original name
+                $originalName = $request->file('i_value')->getClientOriginalName();
+                $path = $request->file('i_value')->storeAs('documents', $originalName, 'public');
+
+                // Concatenate the new document name
+                if (!empty($indicator->i_value)) {
+                    $indicator->i_value .= ', ' . $originalName;
+                } else {
+                    $indicator->i_value = $originalName;
+                }
             }
         } else {
             $request->validate([
@@ -112,7 +174,6 @@ class IndicatorController extends Controller
         return redirect()->back()->with('success', 'Valor del indicador actualizado.');
     }
 
-
     public function destroy(Indicator $indicator)
     {
         $indicator->delete();
@@ -120,10 +181,11 @@ class IndicatorController extends Controller
             ->with('success', 'Indicador eliminado correctamente.');
     }
 
+
     public function showIndicators(Objective $objective)
     {
         $indicators = $objective->indicators;
-        return view('indicators.index', compact('indicators','objective'));
+        return view('indicators.index', compact('indicators', 'objective'));
     }
 
     public function bulkDelete(Request $request)
@@ -138,4 +200,25 @@ class IndicatorController extends Controller
         Indicator::whereIn('i_id', $indicatorIds)->delete();
         return redirect()->back()->with('success', 'Indicadores eliminados correctamente.');
     }
+
+    public function removeDocument(Request $request)
+    {
+        $request->validate([
+            'indicator_id' => 'required|exists:indicators,i_id',
+            'document_name' => 'required|string',
+        ]);
+
+        $indicator = Indicator::findOrFail($request->indicator_id);
+
+        if ($indicator->i_type === 'document') {
+            $documents = array_map('trim', explode(',', $indicator->i_value));
+            $documents = array_filter($documents, fn($doc) => $doc !== $request->document_name);
+
+            $indicator->i_value = implode(', ', $documents);
+            $indicator->save();
+        }
+
+        return redirect()->back()->with('success', 'Documento eliminado correctamente.');
+    }
+
 }
