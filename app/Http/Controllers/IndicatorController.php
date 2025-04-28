@@ -39,20 +39,27 @@ class IndicatorController extends Controller
             'i_text' => 'required|string',
             'i_type' => 'required|in:string,integer,document',
             'o_id' => 'required|exists:objectives,o_id',
+            'fy_start' => 'required|integer',
+            'fy_end' => 'required|integer|gt:fy_start',
         ], [
             'i_num.unique' => 'Ya existe un indicador con ese número en este objetivo.',
+            'fy_end.gt' => 'El año fiscal de fin debe ser mayor que el año fiscal de inicio.'
         ]);
+
+        $fy_range = $request->input('fy_start') . '-' . $request->input('fy_end');
 
         Indicator::create([
             'i_num' => $validated['i_num'],
             'i_text' => $validated['i_text'],
             'i_type' => $validated['i_type'],
             'o_id' => $validated['o_id'],
+            'i_FY' => $fy_range,
         ]);
 
         return redirect()->route('objectives.indicators', ['objective' => $objective->o_id])
             ->with('success', 'Indicador creado correctamente.');
     }
+
 
 
     public function show(Indicator $indicator)
@@ -81,11 +88,31 @@ class IndicatorController extends Controller
             ],
             'i_text' => 'required|string|max:255',
             'i_type' => 'required|in:string,integer,document',
+            'fy_start' => 'required|integer',
+            'fy_end' => [
+                'required',
+                'integer',
+                function ($attribute, $value, $fail) use ($request) {
+                    if ($value != ($request->input('fy_start') + 1)) {
+                        $fail('El año fiscal de fin debe ser exactamente un año después del año de inicio.');
+                    }
+                },
+            ],
         ], [
             'i_num.unique' => 'Ya existe un indicador con ese número en este objetivo.',
         ]);
 
-        $indicator->update($validated);
+
+
+        $fy_range = $request->input('fy_start') . '-' . $request->input('fy_end');
+
+        $indicator->update([
+            'i_num' => $validated['i_num'],
+            'i_text' => $validated['i_text'],
+            'i_type' => $validated['i_type'],
+            'i_FY' => $fy_range,
+        ]);
+
 
         return redirect()->route('objectives.indicators', ['objective' => $indicator->o_id])
             ->with('success', 'Indicador actualizado correctamente.');
