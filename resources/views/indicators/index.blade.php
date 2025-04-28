@@ -51,7 +51,7 @@
     </div>
     {{-- NEW: Fiscal Year Tabs --}}
     @if(count($fiscalYears) > 0)
-        <div class="flex space-x-2 mb-4">
+        <div class="flex space-x-2 mb-4 ml-6">
             @foreach($fiscalYears as $fy)
                 <button onclick="showFiscalYear('{{ $fy }}')" id="tab-{{ $fy }}" class="py-2 px-4 bg-gray-200 hover:bg-gray-300 rounded">
                     {{ $fy }}
@@ -63,7 +63,7 @@
         <form action="{{ route('indicators.copyFiscalYear', $objective->o_id) }}" method="POST" onsubmit="return confirmCopy()">
             @csrf
             <input type="hidden" name="current_fy" id="currentFiscalYear" value="">
-            <button type="submit" class="mb-6 py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-600">
+            <button type="submit" class="mb-6 ml-6 py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-600">
                 Copiar indicadores al próximo año fiscal
             </button>
         </form>
