@@ -203,7 +203,7 @@ class IndicatorController extends Controller
         return redirect()->back()->with('success', 'Documento eliminado correctamente.');
     }
 
-    // 🔥 NEW: Deep Copy Fiscal Year Method
+    //Deep Copy Fiscal Year Method
     public function copyFiscalYear(Request $request, Objective $objective)
     {
         $request->validate([
@@ -212,6 +212,16 @@ class IndicatorController extends Controller
 
         $currentFiscalYear = $request->input('current_fy');
         $nextFiscalYear = $this->generateNextFiscalYear($currentFiscalYear);
+
+        //Prevent copying if indicators already exist for next FY
+        $exists = Indicator::where('o_id', $objective->o_id)
+            ->where('i_FY', $nextFiscalYear)
+            ->exists();
+
+        if ($exists) {
+            return redirect()->route('objectives.indicators', ['objective' => $objective->o_id])
+                ->with('error', "Ya existen indicadores para el año fiscal $nextFiscalYear. No se puede copiar.");
+        }
 
         $indicators = Indicator::where('o_id', $objective->o_id)
             ->where('i_FY', $currentFiscalYear)
@@ -232,7 +242,8 @@ class IndicatorController extends Controller
             ->with('success', "Indicadores copiados para el año fiscal $nextFiscalYear.");
     }
 
-    // 🔥 NEW: Helper
+
+    // NEW: Helper
     private function generateNextFiscalYear($currentFiscalYear)
     {
         [$start, $end] = explode('-', $currentFiscalYear);

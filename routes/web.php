@@ -34,20 +34,14 @@ Route::view('/reportes', 'reportes/index');
 Route::view('/topics', 'topics.index');
 
 
-
-// Implementar en un controlador
-Route::get('/strategicplans/{strategicplan}/topics', [TopicController::class, 'showTopics'])->name('strategicplans.topics');
-
-Route::get('/topics/{topic}/goals', [GoalController::class, 'showGoals'])->name('topics.goals');
-
-Route::get('/goals/{goal}/objectives', [ObjectiveController::class, 'showObjectives'])->name('goals.objectives');
-
-Route::get('/objectives/{objective}/indicators', [IndicatorController::class, 'showIndicators'])->name('objectives.indicators');
-
-// ESTAS RUTAS SON JUNTO CON EL STRATEGIC PLAN, CREO QUE ESTA ES LA FORMA.
-
-// STRATEGIC PLANS
-Route::delete('/strategicplans/bulk-delete', [StrategicPlanController::class, 'bulkDelete'])->name('strategicplans.bulkDelete');
+//Planner routes
+Route::middleware(['auth', 'isPlanner'])->group(function () {
+    Route::get('/strategicplans/{strategicplan}/topics', [TopicController::class, 'showTopics'])->name('strategicplans.topics');
+    Route::get('/topics/{topic}/goals', [GoalController::class, 'showGoals'])->name('topics.goals');
+    Route::get('/goals/{goal}/objectives', [ObjectiveController::class, 'showObjectives'])->name('goals.objectives');
+    Route::get('/objectives/{objective}/indicators', [IndicatorController::class, 'showIndicators'])->name('objectives.indicators');
+    Route::delete('/strategicplans/bulk-delete', [StrategicPlanController::class, 'bulkDelete'])->name('strategicplans.bulkDelete');
+});
 
 
 // TOPICS
@@ -102,16 +96,24 @@ Route::middleware(['auth', 'adminOrPlanner'])->group(function () {
 });
 
 // ASSIGNMENT
-Route::get('/tareas', [\App\Http\Controllers\TaskController::class, 'index'])->name('tasks.index');
-Route::get('/objectives/{objective}/assign', [AssignObjectiveController::class, 'showAssigneeForm'])->name('roles.assignView');
-Route::post('/objectives/{objective}/assign', [AssignObjectiveController::class, 'assignToAssignee'])->name('roles.assign');
-Route::get('/objectives/{objective}/indicators/fill', [IndicatorEntryController::class, 'showForEntry'])->name('indicators.fill');
-Route::post('/indicators/update-values', [IndicatorEntryController::class, 'updateValues'])->name('indicators.updateValues');
-Route::get('/objectives/{objective}/assigned-users', [ObjectiveController::class, 'getAssignedContributors']);
-Route::get('/tareas/{objective}/assign', [TaskController::class, 'assignAssigneesForm'])->name('tasks.assignView');
-Route::post('/tareas/assign', [TaskController::class, 'assignAssigneesStore'])->name('tasks.assignStore');
-Route::delete('/assignments/{assignment}', [AssignObjectiveController::class, 'destroy'])->name('roles.destroy');
-
+Route::middleware(['auth', 'isAssignee'])->group(function () {
+    Route::post('/tareas/assign', [TaskController::class, 'assignAssigneesStore'])->name('tasks.assignStore');
+    Route::get('/objectives/{objective}/indicators/fill', [IndicatorEntryController::class, 'showForEntry'])->name('indicators.fill');
+    Route::post('/indicators/update-values', [IndicatorEntryController::class, 'updateValues'])->name('indicators.updateValues');
+});
+Route::middleware(['auth', 'isContributor'])->group(function () {
+    Route::get('/tareas/{objective}/assign', [TaskController::class, 'assignAssigneesForm'])->name('tasks.assignView');
+    Route::get('/objectives/{objective}/assign', [AssignObjectiveController::class, 'showAssigneeForm'])->name('roles.assignView');
+    Route::post('/objectives/{objective}/assign', [AssignObjectiveController::class, 'assignToAssignee'])->name('roles.assign');
+    Route::post('assign-indicators', [AssignIndicatorController::class, 'store'])->name('assignindicators.store');
+    Route::delete('assign-indicators/{assignment}', [AssignIndicatorController::class, 'destroy'])->name('assignindicators.destroy');
+});
+Route::middleware(['auth', 'isPlanner'])->group(function () {
+    Route::get('/objectives/{objective}/assigned-users', [ObjectiveController::class, 'getAssignedContributors']);
+    Route::delete('/assignments/{assignment}', [AssignObjectiveController::class, 'destroy'])->name('roles.destroy');
+    Route::get('/goals/{goal}/assign', [ObjectiveController::class, 'showAssignForm'])->name('objective.assign.view');
+    Route::post('/assign-objectives', [AssignObjectiveController::class, 'store'])->name('assignobjectives.store');
+});
 //ROLE REQUESTS
 Route::get('/solicitar-acceso', [RoleRequestController::class, 'create'])->name('roles.request');
 Route::post('/solicitar-acceso', [RoleRequestController::class, 'store'])->name('roles.request.submit');
@@ -124,34 +126,66 @@ Route::middleware(['auth', 'isPlanner'])->group(function () {
     Route::post('/solicitudes/approve-bulk', [RoleRequestController::class, 'approveBulk'])->name('role-requests.approveBulk');
     Route::post('/solicitudes/rechazar-multiples', [RoleRequestController::class, 'bulkReject'])->name('role-requests.rejectBulk');
 });
+//Shared with contributor and planner routes:
+Route::middleware(['auth', 'PlannerOrContributor'])->group(function () {
+    Route::get('/tareas', [TaskController::class, 'index'])->name('tasks.index');
+    Route::delete('/assignments/{assignment}', [AssignObjectiveController::class, 'destroy'])->name('roles.destroy');
+    Route::post('/export', [ExportController::class, 'export'])->name('export');
+    Route::get('/reportes', [ExportController::class, 'getAllSP'])->name('reportes.index');
+    Route::get('/reportes/sp/{sp_id}/fys', [ExportController::class, 'getFYsForSP']);
+    Route::get('/reportes/{sp_id}/{fy}/topics', [ExportController::class, 'getTopicsForSPandFY']);
+    Route::get('/reportes/topics/{topic_id}/goals/{fy}', [ExportController::class, 'getGoalsForTopicAndFY']);
+    Route::get('/reportes/goals/{goal_id}/objectives/{fy}', [ExportController::class, 'getObjectivesForGoalAndFY']);
+});
+//Route::get('/tareas', [TaskController::class, 'index'])->name('tasks.index');
+//Route::delete('/assignments/{assignment}', [AssignObjectiveController::class, 'destroy'])->name('roles.destroy');
+//Route::post('/export', [ExportController::class, 'export'])->name('export');
+//Route::get('/reportes', [ExportController::class, 'getAllSP'])->name('reportes.index');
+//Route::get('/reportes/sp/{sp_id}/fys', [ExportController::class, 'getFYsForSP']);
+//Route::get('/reportes/{sp_id}/{fy}/topics', [ExportController::class, 'getTopicsForSPandFY']);
+//Route::get('/reportes/topics/{topic_id}/goals/{fy}', [ExportController::class, 'getGoalsForTopicAndFY']);
+//Route::get('/reportes/goals/{goal_id}/objectives/{fy}', [ExportController::class, 'getObjectivesForGoalAndFY']);
+
+#Route::get('/tareas', [TaskController::class, 'index'])->name('tasks.index');
+#Route::get('/objectives/{objective}/assign', [AssignObjectiveController::class, 'showAssigneeForm'])->name('roles.assignView');
+#Route::post('/objectives/{objective}/assign', [AssignObjectiveController::class, 'assignToAssignee'])->name('roles.assign');
+#Route::delete('/assignments/{assignment}', [AssignObjectiveController::class, 'destroy'])->name('roles.destroy');
+
+#Route::get('/objectives/{objective}/indicators/fill', [IndicatorEntryController::class, 'showForEntry'])->name('indicators.fill');
+#Route::post('/indicators/update-values', [IndicatorEntryController::class, 'updateValues'])->name('indicators.updateValues');
+
+#Route::get('/objectives/{objective}/assigned-users', [ObjectiveController::class, 'getAssignedContributors']);
+
+#Route::get('/tareas/{objective}/assign', [TaskController::class, 'assignAssigneesForm'])->name('tasks.assignView');
+#Route::post('/tareas/assign', [TaskController::class, 'assignAssigneesStore'])->name('tasks.assignStore');
+
+#Route::delete('/assignments/{assignment}', [AssignObjectiveController::class, 'destroy'])->name('roles.destroy');
 
 # CAUTION THESE WILL PROBABLY GENEATE SOME CONFLICTS WILL REMOVE SOON!!!
 Route::resource('strategicplans', StrategicPlanController::class);
+Route::resource('users', UserController::class);
 #Route::resource('topics', TopicController::class);
 #Route::resource('goals', GoalController::class);
 #Route::resource('objectives', ObjectiveController::class);
 #Route::resource('indicators', IndicatorController::class);
-Route::resource('users', UserController::class);
 
 
-Route::get('auditlogs', [AuditLogController::class, 'index'])->name('auditlogs.index');
-Route::get('auditlogs/{auditlog}', [AuditLogController::class, 'show'])->name('auditlogs.show');
+#Route::get('auditlogs', [AuditLogController::class, 'index'])->name('auditlogs.index');
+#Route::get('auditlogs/{auditlog}', [AuditLogController::class, 'show'])->name('auditlogs.show');
 
-Route::get('/goals/{goal}/assign', [ObjectiveController::class, 'showAssignForm'])->name('objective.assign.view');
-Route::post('/assign-objectives', [AssignObjectiveController::class, 'store'])->name('assignobjectives.store');
-#Route::post('assign-objectives', [AssignObjectiveController::class, 'store'])->name('assignobjectives.store');
-#Route::delete('assign-objectives/{assignment}', [AssignObjectiveController::class, 'destroy'])->name('assignobjectives.destroy');
+#Route::get('/goals/{goal}/assign', [ObjectiveController::class, 'showAssignForm'])->name('objective.assign.view');
+#Route::post('/assign-objectives', [AssignObjectiveController::class, 'store'])->name('assignobjectives.store');
 
-Route::post('assign-indicators', [AssignIndicatorController::class, 'store'])->name('assignindicators.store');
-Route::delete('assign-indicators/{assignment}', [AssignIndicatorController::class, 'destroy'])->name('assignindicators.destroy');
+#Route::post('assign-indicators', [AssignIndicatorController::class, 'store'])->name('assignindicators.store');
+#Route::delete('assign-indicators/{assignment}', [AssignIndicatorController::class, 'destroy'])->name('assignindicators.destroy');
 
 
-Route::post('/export', [ExportController::class, 'export'])->name('export');
-Route::get('/reportes', [ExportController::class, 'getAllSP'])->name('reportes.index');
-Route::get('/reportes/sp/{sp_id}/fys', [ExportController::class, 'getFYsForSP']);
-Route::get('/reportes/{sp_id}/{fy}/topics', [ExportController::class, 'getTopicsForSPandFY']);
-Route::get('/reportes/topics/{topic_id}/goals/{fy}', [ExportController::class, 'getGoalsForTopicAndFY']);
-Route::get('/reportes/goals/{goal_id}/objectives/{fy}', [ExportController::class, 'getObjectivesForGoalAndFY']);
+#Route::post('/export', [ExportController::class, 'export'])->name('export');
+//Route::get('/reportes', [ExportController::class, 'getAllSP'])->name('reportes.index');
+//Route::get('/reportes/sp/{sp_id}/fys', [ExportController::class, 'getFYsForSP']);
+//Route::get('/reportes/{sp_id}/{fy}/topics', [ExportController::class, 'getTopicsForSPandFY']);
+//Route::get('/reportes/topics/{topic_id}/goals/{fy}', [ExportController::class, 'getGoalsForTopicAndFY']);
+//Route::get('/reportes/goals/{goal_id}/objectives/{fy}', [ExportController::class, 'getObjectivesForGoalAndFY']);
 
 
 require __DIR__.'/saml2.php';
