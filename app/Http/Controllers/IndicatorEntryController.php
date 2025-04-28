@@ -70,21 +70,38 @@ class IndicatorEntryController extends Controller
             abort(403, 'No estás asignado a este objetivo.');
         }
 
-        // Get the indicators for the objective
-        $indicators = $objective->indicators;
+        // Calculate the current Fiscal Year
+        $year = date('Y');
+        $month = date('n');
+
+        if ($month >= 7) {
+            $fyStart = $year;
+            $fyEnd = $year + 1;
+        } else {
+            $fyStart = $year - 1;
+            $fyEnd = $year;
+        }
+
+        $currentFiscalYear = "$fyStart-$fyEnd";
+
+        // Get only indicators for the current Fiscal Year
+        $indicators = $objective->indicators()
+            ->where('i_FY', $currentFiscalYear)
+            ->get();
 
         // Get the current user's values for those indicators
         $userIndicatorValues = IndicatorValues::where('iv_u_id', $userId)
             ->whereIn('iv_ind_id', $indicators->pluck('i_id'))
             ->pluck('iv_value', 'iv_ind_id'); // Key: indicator ID, Value: user’s value
 
-        // Add the user's value to each indicator object (you can use a custom attribute)
+        // Attach the user's value to each indicator object
         foreach ($indicators as $indicator) {
             $indicator->user_value = $userIndicatorValues[$indicator->i_id] ?? null;
         }
 
         return view('indicators.fill', compact('objective', 'indicators'));
     }
+
 
     public function updateValues(Request $request)
     {
@@ -99,7 +116,7 @@ class IndicatorEntryController extends Controller
                     $originalName = $value->getClientOriginalName();
                     // Save the file with the original name
                     $path = $value->storeAs('documents', $originalName, 'public');
-                    $iv_value = $originalName; // ✅ Store only the original name in DB
+                    $iv_value = $originalName; // Store only the original name in DB
                 } else {
                     continue;
                 }
@@ -114,7 +131,7 @@ class IndicatorEntryController extends Controller
             );
         }
 
-        // ✅ Determine action (sum or concatenate) based on i_type:
+        // Determine action (sum or concatenate) based on i_type:
         $indicatorIds = array_keys($request->indicators);
 
         foreach ($indicatorIds as $indicatorId) {

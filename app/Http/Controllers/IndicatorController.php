@@ -13,11 +13,18 @@ class IndicatorController extends Controller
 {
     public function index(Objective $objective)
     {
+        // GROUP indicators by Fiscal Year for tab system
+        $fiscalYears = Indicator::where('o_id', $objective->o_id)
+            ->select('i_FY')
+            ->distinct()
+            ->pluck('i_FY');
+
         $indicators = Indicator::where('o_id', $objective->o_id)
             ->orderBy('i_num', 'asc')
-            ->get();
+            ->get()
+            ->groupBy('i_FY');
 
-        return view('indicators.index', compact('indicators', 'objective'));
+        return view('indicators.index', compact('fiscalYears', 'indicators', 'objective'));
     }
 
     public function create(Objective $objective)
@@ -33,7 +40,8 @@ class IndicatorController extends Controller
                 'integer',
                 'min:1',
                 Rule::unique('indicators')->where(function ($query) use ($request) {
-                    return $query->where('o_id', $request->o_id);
+                    return $query->where('o_id', $request->o_id)
+                        ->where('i_FY', $request->fy_start . '-' . $request->fy_end);
                 }),
             ],
             'i_text' => 'required|string',
@@ -42,9 +50,10 @@ class IndicatorController extends Controller
             'fy_start' => 'required|integer',
             'fy_end' => 'required|integer|gt:fy_start',
         ], [
-            'i_num.unique' => 'Ya existe un indicador con ese número en este objetivo.',
+            'i_num.unique' => 'Ya existe un indicador con ese número en este objetivo y año fiscal.',
             'fy_end.gt' => 'El año fiscal de fin debe ser mayor que el año fiscal de inicio.'
         ]);
+
 
         $fy_range = $request->input('fy_start') . '-' . $request->input('fy_end');
 
@@ -59,8 +68,6 @@ class IndicatorController extends Controller
         return redirect()->route('objectives.indicators', ['objective' => $objective->o_id])
             ->with('success', 'Indicador creado correctamente.');
     }
-
-
 
     public function show(Indicator $indicator)
     {
@@ -82,8 +89,9 @@ class IndicatorController extends Controller
                 'required',
                 'integer',
                 'min:1',
-                Rule::unique('indicators')->where(function ($query) use ($indicator) {
-                    return $query->where('o_id', $indicator->o_id);
+                Rule::unique('indicators', 'i_num')->where(function ($query) use ($indicator, $request) {
+                    return $query->where('o_id', $indicator->o_id)
+                        ->where('i_FY', $request->fy_start . '-' . $request->fy_end);
                 })->ignore($indicator->i_id, 'i_id'),
             ],
             'i_text' => 'required|string|max:255',
@@ -99,9 +107,8 @@ class IndicatorController extends Controller
                 },
             ],
         ], [
-            'i_num.unique' => 'Ya existe un indicador con ese número en este objetivo.',
+            'i_num.unique' => 'Ya existe un indicador con ese número en este objetivo y año fiscal.',
         ]);
-
 
 
         $fy_range = $request->input('fy_start') . '-' . $request->input('fy_end');
@@ -113,9 +120,10 @@ class IndicatorController extends Controller
             'i_FY' => $fy_range,
         ]);
 
-
         return redirect()->route('objectives.indicators', ['objective' => $indicator->o_id])
-            ->with('success', 'Indicador actualizado correctamente.');
+            ->with('success', 'Valor del indicador actualizado.')
+            ->with('active_fy', $indicator->i_FY);
+
     }
 
     public function updateValue(Request $request, Indicator $indicator)
@@ -126,11 +134,9 @@ class IndicatorController extends Controller
             ]);
 
             if ($request->hasFile('i_value')) {
-                // Save the file with the original name
                 $originalName = $request->file('i_value')->getClientOriginalName();
                 $path = $request->file('i_value')->storeAs('documents', $originalName, 'public');
 
-                // Concatenate the new document name
                 if (!empty($indicator->i_value)) {
                     $indicator->i_value .= ', ' . $originalName;
                 } else {
@@ -146,16 +152,17 @@ class IndicatorController extends Controller
 
         $indicator->save();
 
-        return redirect()->back()->with('success', 'Valor del indicador actualizado.');
+        return redirect()->route('objectives.indicators', ['objective' => $indicator->o_id])
+            ->with('success', 'Valor del indicador actualizado.')
+            ->with('active_fy', $indicator->i_FY);
     }
 
     public function destroy(Indicator $indicator)
     {
         $indicator->delete();
         return redirect()->route('objectives.indicators', ['objective' => $indicator->o_id])
-            ->with('success', 'Indicador eliminado correctamente.');
+            ->with('success', 'Indicador eliminado correctamente.')->with('active_fy', $indicator->i_FY);
     }
-
 
     public function showIndicators(Objective $objective)
     {
@@ -196,4 +203,41 @@ class IndicatorController extends Controller
         return redirect()->back()->with('success', 'Documento eliminado correctamente.');
     }
 
+    // 🔥 NEW: Deep Copy Fiscal Year Method
+    public function copyFiscalYear(Request $request, Objective $objective)
+    {
+        $request->validate([
+            'current_fy' => 'required|string',
+        ]);
+
+        $currentFiscalYear = $request->input('current_fy');
+        $nextFiscalYear = $this->generateNextFiscalYear($currentFiscalYear);
+
+        $indicators = Indicator::where('o_id', $objective->o_id)
+            ->where('i_FY', $currentFiscalYear)
+            ->get();
+
+        foreach ($indicators as $indicator) {
+            Indicator::create([
+                'i_num' => $indicator->i_num,
+                'i_text' => $indicator->i_text,
+                'i_type' => $indicator->i_type,
+                'o_id' => $objective->o_id,
+                'i_FY' => $nextFiscalYear,
+                'i_value' => null,
+            ]);
+        }
+
+        return redirect()->route('objectives.indicators', ['objective' => $objective->o_id])
+            ->with('success', "Indicadores copiados para el año fiscal $nextFiscalYear.");
+    }
+
+    // 🔥 NEW: Helper
+    private function generateNextFiscalYear($currentFiscalYear)
+    {
+        [$start, $end] = explode('-', $currentFiscalYear);
+        $newStart = (int) $start + 1;
+        $newEnd = (int) $end + 1;
+        return "$newStart-$newEnd";
+    }
 }

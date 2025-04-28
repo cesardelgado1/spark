@@ -3,6 +3,16 @@
         Solicitudes de Acceso
     </x-slot:heading>
 
+    @php
+        $roleTranslations = [
+            'Admin' => 'Administrador',
+            'Planner' => 'Planificador',
+            'Contributor' => 'Colaborador',
+            'Assignee' => 'Asignado',
+            'Viewer' => 'Visitante',
+        ];
+    @endphp
+
     @if(session('success'))
         <div id="success-message"
              class="fixed top-5 left-1/2 transform -translate-x-1/2 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded shadow-lg z-50">
@@ -56,7 +66,7 @@
                             <td class="px-4 py-2">{{ $request->user->u_fname }} {{ $request->user->u_lname }}</td>
                             <td class="px-4 py-2">{{ $request->user->email }}</td>
                             <td class="px-4 py-2">{{ $request->department }}</td>
-                            <td class="px-4 py-2">{{ $request->requested_role }}</td>
+                            <td class="px-4 py-2">{{ $roleTranslations[$request->requested_role] ?? $request->requested_role }}</td>
                             <td class="px-4 py-2 flex gap-2">
                                 <form action="{{ route('roles.requests.approve', $request) }}" method="POST">
                                     @csrf
@@ -123,7 +133,19 @@
         </div>
     </div>
 
+
     {{-- Scripts --}}
+    <script>
+        const roleTranslations = {!! json_encode([
+        'Admin' => 'Administrador',
+        'Planner' => 'Planificador',
+        'Contributor' => 'Colaborador',
+        'Assignee' => 'Asignado',
+        'Viewer' => 'Visualizador',
+    ]) !!};
+    </script>
+
+
     <script>
         function toggleAll(masterCheckbox) {
             const checkboxes = document.querySelectorAll('input[name="selected_requests[]"]');
@@ -143,13 +165,15 @@
             selected.forEach(cb => {
                 const name = cb.dataset.user;
                 const role = cb.dataset.role;
+                const translatedRole = roleTranslations[role] ?? role;
                 const li = document.createElement('li');
-                li.textContent = `${name} - ${role}`;
+                li.textContent = `${name} - ${translatedRole}`;
                 list.appendChild(li);
             });
 
             document.getElementById('confirm-modal').classList.remove('hidden');
         }
+
 
         function hideConfirmModal() {
             document.getElementById('confirm-modal').classList.add('hidden');
@@ -173,8 +197,9 @@
             selected.forEach(cb => {
                 const name = cb.dataset.user;
                 const role = cb.dataset.role;
+                const translatedRole = roleTranslations[role] ?? role;
                 const li = document.createElement('li');
-                li.textContent = `${name} - ${role}`;
+                li.textContent = `${name} - ${translatedRole}`;
                 list.appendChild(li);
 
                 const input = document.createElement('input');
@@ -186,6 +211,7 @@
 
             document.getElementById('reject-modal').classList.remove('hidden');
         }
+
 
         function hideRejectModal() {
             document.getElementById('reject-modal').classList.add('hidden');

@@ -91,6 +91,8 @@ Route::middleware(['auth', 'isPlanner'])->group(function () {
     Route::get('/objectives/{objective}/indicators', [IndicatorController::class, 'index'])->name('objectives.indicators');
     Route::put('/indicators/{indicator}/update-value', [IndicatorController::class, 'updateValue'])->name('indicators.updateValue');
     Route::post('/indicators/remove-document', [IndicatorController::class, 'removeDocument'])->name('indicators.removeDocument');
+    Route::post('/objectives/{objective}/indicators/copy-fiscal-year', [IndicatorController::class, 'copyFiscalYear'])->name('indicators.copyFiscalYear');
+
 });
 
 //ADMIN

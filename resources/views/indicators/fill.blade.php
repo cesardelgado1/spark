@@ -4,7 +4,13 @@
     </x-slot:heading>
 
     <div class="px-6">
-        <form method="POST" action="{{ route('indicators.updateValues') }}" enctype="multipart/form-data"
+        @if($indicators->isEmpty())
+            <div class="mb-6 p-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 rounded shadow">
+                <p class="font-semibold">Actualmente no hay indicadores disponibles para este objetivo en este año fiscal.</p>
+            </div>
+        @endif
+        @if(!$indicators->isEmpty())
+            <form method="POST" action="{{ route('indicators.updateValues') }}" enctype="multipart/form-data"
               class="bg-white border border-gray-300 rounded-lg shadow-md p-6 space-y-6 max-w-4xl mx-auto">
             @csrf
 
@@ -62,11 +68,14 @@
                     Cancelar
                 </a>
                 <button type="submit"
+                        id="submit-button"
                         class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition">
                     Guardar Valores
                 </button>
+
             </div>
         </form>
+            @endif
     </div>
 
     {{-- Modal --}}
@@ -112,7 +121,14 @@
             if (!valid) {
                 e.preventDefault();
                 document.getElementById('error-modal').classList.remove('hidden');
+            } else {
+                // If the form is valid, disable the submit button immediately
+                const submitButton = document.getElementById('submit-button');
+                submitButton.disabled = true;
+                submitButton.classList.add('opacity-50', 'cursor-not-allowed');
+                submitButton.innerText = 'Guardando...';
             }
         });
+
     </script>
 </x-layout>

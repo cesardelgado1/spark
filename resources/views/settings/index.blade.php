@@ -3,7 +3,7 @@
         Usuario y Roles
     </x-slot:heading>
     <div class="max-w-7xl mx-auto px-4 py-6" x-data="{ tab: '{{ $activeTab }}' }">
-        <h1 class="text-3xl font-bold text-gray-800 mb-6">Settings</h1>
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">Configuraciones</h1>
         {{-- Tabs --}}
         <div class="flex border-b mb-4">
             <button @click="tab = 'roles'" class="px-4 py-2 font-medium border-b-2"
@@ -33,8 +33,8 @@
                 <table class="min-w-full text-sm text-left">
                     <thead class="bg-gray-100 text-gray-700 uppercase tracking-wider">
                     <tr>
-                        <th class="px-4 py-3">First Name</th>
-                        <th class="px-4 py-3">Last Name</th>
+                        <th class="px-4 py-3">Nombre</th>
+                        <th class="px-4 py-3">Apellido</th>
                         <th class="px-4 py-3">Email</th>
                         <th class="px-4 py-3">Role</th>
                     </tr>
@@ -46,16 +46,29 @@
                             <td class="px-4 py-3">{{ $user->u_lname }}</td>
                             <td class="px-4 py-3">{{ $user->email }}</td>
                             <td class="px-4 py-3">
+                                @php
+                                    $roleTranslations = [
+                                        'Admin' => 'Administrador',
+                                        'Planner' => 'Planificador',
+                                        'Contributor' => 'Colaborador',
+                                        'Assignee' => 'Asignado',
+                                        'Viewer' => 'Visitante',
+                                    ];
+                                @endphp
+
                                 <select
                                     id="role-select-{{ $user->id }}"
                                     data-current-role="{{ $user->u_type }}"
                                     onchange="handleRoleChange('{{ $user->id }}', this.dataset.currentRole, '{{ $user->u_fname }} {{ $user->u_lname }}')"
                                     class="border border-gray-300 rounded px-2 py-1"
                                 >
-                                    @foreach(['Admin', 'Planner', 'Contributor', 'Assignee'] as $role)
-                                        <option value="{{ $role }}" @if($user->u_type === $role) selected @endif>{{ $role }}</option>
+                                    @foreach($roleTranslations as $english => $spanish)
+                                        <option value="{{ $english }}" @if($user->u_type === $english) selected @endif>
+                                            {{ $spanish }}
+                                        </option>
                                     @endforeach
                                 </select>
+
                             </td>
                         </tr>
                     @endforeach
@@ -75,7 +88,7 @@
             {{-- Filter by email --}}
             <form method="GET" action="{{ route('settings.index') }}" class="mb-4">
                 <input type="hidden" name="tab" value="logs">
-                <label class="mr-2 font-medium">Search logs by user email:</label>
+                <label class="mr-2 font-medium">Busca en el registro por email:</label>
                 <input type="text" name="log_search" placeholder="e.g. user@example.com"
                        value="{{ $logSearch }}"
                        class="border rounded px-2 py-1 w-64">
@@ -85,15 +98,15 @@
             </form>
             {{-- Audit Logs --}}
             <div class="mt-6">
-                <h2 class="text-xl font-semibold mb-2">Recent Activity (Audit Logs)</h2>
+                <h2 class="text-xl font-semibold mb-2">Actividad Reciente (Audit Logs)</h2>
                 <div class="overflow-x-auto bg-white shadow rounded-lg">
                     <table class="min-w-full text-sm text-left">
                         <thead class="bg-gray-100 text-gray-700 uppercase tracking-wider">
                         <tr>
-                            <th class="px-4 py-3">User</th>
-                            <th class="px-4 py-3">Action</th>
-                            <th class="px-4 py-3">Parameter</th>
-                            <th class="px-4 py-3">Created At</th>
+                            <th class="px-4 py-3">Usuario</th>
+                            <th class="px-4 py-3">Actión</th>
+                            <th class="px-4 py-3">Parametro</th>
+                            <th class="px-4 py-3">Creado</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -116,15 +129,15 @@
 
             {{-- Active Sessions --}}
             <div class="mt-8">
-                <h2 class="text-xl font-semibold mb-2">Active Sessions</h2>
+                <h2 class="text-xl font-semibold mb-2">Sesiones Activas</h2>
                 <div class="overflow-x-auto bg-white shadow rounded-lg">
                     <table class="min-w-full text-sm text-left">
                         <thead class="bg-gray-100 text-gray-700 uppercase tracking-wider">
                         <tr>
                             <th class="px-4 py-3">Email</th>
                             <th class="px-4 py-3">IP Address</th>
-                            <th class="px-4 py-3">User Agent</th>
-                            <th class="px-4 py-3">Last Activity</th>
+                            <th class="px-4 py-3">Agente de Usuario</th>
+                            <th class="px-4 py-3">Ultima Actividad</th>
                         </tr>
                         </thead>
                         <tbody>
