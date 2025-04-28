@@ -131,9 +131,18 @@
                                                         <ul class="list-disc pl-5">
                                                             @foreach($documents as $doc)
                                                                 <li class="flex items-center gap-2">
+
                                                                     <a href="{{ asset('storage/documents/' . trim($doc)) }}" target="_blank" class="text-blue-500 underline">
                                                                         {{ basename(trim($doc)) }}
                                                                     </a>
+                                                                    <!-- Delete (X) Button -->
+                                                                    <button
+                                                                        type="button"
+                                                                        onclick="confirmDeleteDocument('{{ $indicator->i_id }}', '{{ $doc }}')"
+                                                                        class="text-red-500 hover:text-red-700 text-sm font-bold px-2 py-0 rounded focus:outline-none"
+                                                                        title="Eliminar documento">
+                                                                        x
+                                                                    </button>
                                                                 </li>
                                                             @endforeach
                                                         </ul>
@@ -178,6 +187,18 @@
         </div>
     </div>
 
+    {{--        Control Delete Document (Pop Up)--}}
+    <script>
+        function confirmDeleteDocument(indicatorId, documentName) {
+            document.getElementById('indicatorIdInput').value = indicatorId;
+            document.getElementById('documentNameInput').value = documentName;
+            document.getElementById('deleteDocumentModal').classList.remove('hidden');
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteDocumentModal').classList.add('hidden');
+        }
+    </script>
     {{--        Control Delete Document (Pop Up)--}}
     <script>
         function confirmDeleteDocument(indicatorId, documentName) {
