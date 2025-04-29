@@ -4,10 +4,24 @@
     </x-slot:heading>
 
     <div class="px-6 py-4">
+
+        @php
+            $strategicPlan = $objective->goal->topic->strategicPlan;
+            $isUPRM = $strategicPlan->sp_institution === 'UPRM';
+
+            if ($isUPRM) {
+                [$startYear, $endYear] = explode('-', $strategicPlan->sp_years);
+                $validYears = range((int)$startYear, (int)$endYear);
+            } else {
+                $validYears = range(2020, 2100);
+            }
+        @endphp
+
         <form action="{{ route('indicators.store', $objective->o_id) }}" method="POST">
             @csrf
             <input type="hidden" name="o_id" value="{{ $objective->o_id }}">
 
+            <!-- Rango del Año Fiscal -->
             <!-- Rango del Año Fiscal -->
             <div class="mb-4">
                 <label class="block font-bold text-gray-700">Seleccionar Años Fiscales del Indicador</label>
@@ -17,11 +31,12 @@
                     <div class="flex-1">
                         <label for="fy_start" class="block text-sm text-gray-700">Año de Inicio</label>
                         <select name="fy_start" id="fy_start" required class="w-full px-4 py-2 border rounded-lg">
-                            @for ($year = 2020; $year <= 2100; $year++)
+                            <option value="">--Selecciona año de inicio--</option>
+                            @foreach ($validYears as $year)
                                 <option value="{{ $year }}" {{ old('fy_start') == $year ? 'selected' : '' }}>
                                     {{ $year }}
                                 </option>
-                            @endfor
+                            @endforeach
                         </select>
                     </div>
 
@@ -29,16 +44,22 @@
                     <div class="flex-1">
                         <label for="fy_end" class="block text-sm text-gray-700">Año de Fin</label>
                         <select name="fy_end" id="fy_end" required class="w-full px-4 py-2 border rounded-lg">
-                            @for ($year = 2020; $year <= 2100; $year++)
+                            <option value="">--Selecciona año de fin--</option>
+                            @foreach ($validYears as $year)
                                 <option value="{{ $year }}" {{ old('fy_end') == $year ? 'selected' : '' }}>
                                     {{ $year }}
                                 </option>
-                            @endfor
+                            @endforeach
                         </select>
                     </div>
                 </div>
 
-                <p id="fy-error" class="text-red-500 text-sm mt-2 hidden">Los años fiscales deben tener una duración de un año. Verifica el año de inicio y el año de finalización.</p>
+                <!-- Mensaje de error si es UPRM -->
+                @if ($isUPRM)
+                    <p id="fy-error" class="text-red-500 text-sm mt-2 hidden">
+                        Los años fiscales deben ser consecutivos (ej. 2025-2026, 2026-2027). Verifica el año de inicio y finalización.
+                    </p>
+                @endif
 
                 @error('fy_start')
                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
@@ -103,34 +124,37 @@
 
         <script>
             document.addEventListener('DOMContentLoaded', function () {
+
                 const fyStart = document.getElementById('fy_start');
                 const fyEnd = document.getElementById('fy_end');
                 const fyError = document.getElementById('fy-error');
                 const form = document.querySelector('form');
 
                 function validateFiscalYears() {
+
                     const start = parseInt(fyStart.value);
                     const end = parseInt(fyEnd.value);
 
-                    if (end < start) {
-                        fyError.classList.remove('hidden');
+                    if (isNaN(start) || isNaN(end) || end !== start + 1) {
+                        fyError?.classList.remove('hidden');
                         return false;
                     } else {
-                        fyError.classList.add('hidden');
+                        fyError?.classList.add('hidden');
                         return true;
                     }
                 }
 
-                fyStart.addEventListener('change', validateFiscalYears);
-                fyEnd.addEventListener('change', validateFiscalYears);
+                fyStart?.addEventListener('change', validateFiscalYears);
+                fyEnd?.addEventListener('change', validateFiscalYears);
 
-                form.addEventListener('submit', function (e) {
+                form?.addEventListener('submit', function (e) {
                     if (!validateFiscalYears()) {
                         e.preventDefault();
                     }
                 });
             });
         </script>
+
 
 
     </div>

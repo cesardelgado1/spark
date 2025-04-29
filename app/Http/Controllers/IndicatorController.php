@@ -17,6 +17,7 @@ class IndicatorController extends Controller
         $fiscalYears = Indicator::where('o_id', $objective->o_id)
             ->select('i_FY')
             ->distinct()
+            ->orderBy('i_FY', 'asc')
             ->pluck('i_FY');
 
         $indicators = Indicator::where('o_id', $objective->o_id)
@@ -51,11 +52,32 @@ class IndicatorController extends Controller
             'fy_end' => 'required|integer|gt:fy_start',
         ], [
             'i_num.unique' => 'Ya existe un indicador con ese número en este objetivo y año fiscal.',
-            'fy_end.gt' => 'El año fiscal de fin debe ser mayor que el año fiscal de inicio.'
+            'fy_end.gt' => 'El año fiscal de fin debe ser mayor que el año de inicio.',
         ]);
 
+        $strategicPlan = $objective->goal->topic->strategicPlan;
+        $fy_range = $request->fy_start . '-' . $request->fy_end;
 
-        $fy_range = $request->input('fy_start') . '-' . $request->input('fy_end');
+        if ($request->fy_end != $request->fy_start + 1) {
+            return back()->withErrors(['fy_start' => 'Los años fiscales deben ser consecutivos (ej. 2025-2026).'])
+                ->withInput();
+        }
+
+        if ($strategicPlan->sp_institution === 'UPRM') {
+            [$startYear, $endYear] = explode('-', $strategicPlan->sp_years);
+            $validFiscalYears = [];
+            for ($year = (int)$startYear; $year < (int)$endYear; $year++) {
+                $validFiscalYears[] = "$year-" . ($year + 1);
+            }
+
+            $fy_range = $request->fy_start . '-' . $request->fy_end;
+
+            if (!in_array($fy_range, $validFiscalYears)) {
+                return back()->withErrors(['fy_start' => "En UPRM, el año fiscal debe estar dentro del rango del plan estratégico ($strategicPlan->sp_years)."])
+                    ->withInput();
+            }
+        }
+
 
         Indicator::create([
             'i_num' => $validated['i_num'],
@@ -97,21 +119,35 @@ class IndicatorController extends Controller
             'i_text' => 'required|string|max:255',
             'i_type' => 'required|in:string,integer,document',
             'fy_start' => 'required|integer',
-            'fy_end' => [
-                'required',
-                'integer',
-                function ($attribute, $value, $fail) use ($request) {
-                    if ($value != ($request->input('fy_start') + 1)) {
-                        $fail('El año fiscal de fin debe ser exactamente un año después del año de inicio.');
-                    }
-                },
-            ],
+            'fy_end' => 'required|integer|gt:fy_start',
         ], [
             'i_num.unique' => 'Ya existe un indicador con ese número en este objetivo y año fiscal.',
+            'fy_end.gt' => 'El año fiscal de fin debe ser mayor que el año de inicio.',
         ]);
 
+        $objective = $indicator->objective;
+        $strategicPlan = $objective->goal->topic->strategicPlan;
+        $fy_range = $request->fy_start . '-' . $request->fy_end;
 
-        $fy_range = $request->input('fy_start') . '-' . $request->input('fy_end');
+        if ($request->fy_end != $request->fy_start + 1) {
+            return back()->withErrors(['fy_start' => 'Los años fiscales deben ser consecutivos (ej. 2025-2026).'])
+                ->withInput();
+        }
+
+        if ($strategicPlan->sp_institution === 'UPRM') {
+            [$startYear, $endYear] = explode('-', $strategicPlan->sp_years);
+            $validFiscalYears = [];
+            for ($year = (int)$startYear; $year < (int)$endYear; $year++) {
+                $validFiscalYears[] = "$year-" . ($year + 1);
+            }
+
+            $fy_range = $request->fy_start . '-' . $request->fy_end;
+
+            if (!in_array($fy_range, $validFiscalYears)) {
+                return back()->withErrors(['fy_start' => "En UPRM, el año fiscal debe estar dentro del rango del plan estratégico ($strategicPlan->sp_years)."])
+                    ->withInput();
+            }
+        }
 
         $indicator->update([
             'i_num' => $validated['i_num'],
@@ -123,7 +159,6 @@ class IndicatorController extends Controller
         return redirect()->route('objectives.indicators', ['objective' => $indicator->o_id])
             ->with('success', 'Valor del indicador actualizado.')
             ->with('active_fy', $indicator->i_FY);
-
     }
 
     public function updateValue(Request $request, Indicator $indicator)
