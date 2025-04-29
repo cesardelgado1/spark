@@ -94,7 +94,7 @@ class IndicatorController extends Controller
                         ->where('i_FY', $request->fy_start . '-' . $request->fy_end);
                 })->ignore($indicator->i_id, 'i_id'),
             ],
-            'i_text' => 'required|string|max:255',
+            'i_text' => 'required|string',
             'i_type' => 'required|in:string,integer,document',
             'fy_start' => 'required|integer',
             'fy_end' => [
