@@ -137,6 +137,10 @@ Route::middleware(['auth', 'PlannerOrContributor'])->group(function () {
     Route::get('/reportes/topics/{topic_id}/goals/{fy}', [ExportController::class, 'getGoalsForTopicAndFY']);
     Route::get('/reportes/goals/{goal_id}/objectives/{fy}', [ExportController::class, 'getObjectivesForGoalAndFY']);
 });
+
+Route::middleware(['auth', 'ContributorOrAssignee'])->group(function () {
+    Route::get('/tareas', [TaskController::class, 'index'])->name('tasks.index');
+});
 //Route::get('/tareas', [TaskController::class, 'index'])->name('tasks.index');
 //Route::delete('/assignments/{assignment}', [AssignObjectiveController::class, 'destroy'])->name('roles.destroy');
 //Route::post('/export', [ExportController::class, 'export'])->name('export');
