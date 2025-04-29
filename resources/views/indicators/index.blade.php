@@ -120,7 +120,11 @@
                                             @if($indicator->i_type === 'integer')
                                                 <input type="number" name="i_value" value="{{ old('i_value', $indicator->i_value) }}" class="border rounded px-2 py-1 w-full">
                                             @elseif($indicator->i_type === 'string')
-                                                <input type="text" name="i_value" value="{{ old('i_value', $indicator->i_value) }}" class="border rounded px-2 py-1 w-full">
+                                                <textarea
+                                                    name="i_value"
+                                                    rows="3"
+                                                    class="border rounded px-2 py-1 w-full resize-none overflow-hidden auto-grow min-h-[3rem]"
+                                                >{{ old('i_value', $indicator->i_value) }}</textarea>
                                             @elseif($indicator->i_type === 'document')
                                                 @if(!empty($indicator->i_value))
                                                     @php
@@ -398,5 +402,24 @@
                 document.getElementById('delete-indicators-form').submit();
             }
         </script>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const textareas = document.querySelectorAll('textarea.auto-grow');
+
+            textareas.forEach(textarea => {
+                textarea.addEventListener('input', function () {
+                    this.style.height = 'auto'; // Reset height
+                    this.style.height = (this.scrollHeight) + 'px'; // Set height based on content
+                });
+
+                // Trigger auto-grow on page load for prefilled text
+                textarea.style.height = 'auto';
+                textarea.style.height = (textarea.scrollHeight) + 'px';
+            });
+        });
+    </script>
+
 
 </x-layout>

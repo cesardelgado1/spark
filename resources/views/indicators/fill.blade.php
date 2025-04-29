@@ -38,12 +38,12 @@
                                placeholder="Ingrese un número entero"
                                class="w-full border px-4 py-2 rounded-lg focus:ring-indigo-500 focus:outline-none">
                     @elseif ($indicator->i_type === 'string')
-                        <input type="text"
-                               name="indicators[{{ $indicator->i_id }}]"
-                               id="indicator_{{ $indicator->i_id }}"
-                               value="{{ old("indicators.{$indicator->i_id}", $indicator->user_value) }}"
-                               placeholder="Ingrese un texto"
-                               class="w-full border px-4 py-2 rounded-lg focus:ring-indigo-500 focus:outline-none">
+                        <textarea
+                            name="indicators[{{ $indicator->i_id }}]"
+                            id="indicator_{{ $indicator->i_id }}"
+                            placeholder="Ingrese un texto"
+                            class="w-full border px-4 py-2 rounded-lg focus:ring-indigo-500 focus:outline-none auto-grow resize-none overflow-hidden"
+                        >{{ old("indicators.{$indicator->i_id}", $indicator->user_value) }}</textarea>
                     @elseif ($indicator->i_type === 'document')
                         @if ($indicator->user_value)
                             <p class="text-sm text-blue-600 mb-2">Documento actual:
@@ -131,4 +131,24 @@
         });
 
     </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const textareas = document.querySelectorAll('textarea.auto-grow');
+
+            textareas.forEach(textarea => {
+                const autoResize = (el) => {
+                    el.style.height = 'auto';
+                    el.style.height = (el.scrollHeight) + 'px';
+                };
+
+                // Resize on input
+                textarea.addEventListener('input', () => autoResize(textarea));
+
+                // Resize on load (for prefilled content)
+                autoResize(textarea);
+            });
+        });
+    </script>
+
 </x-layout>
