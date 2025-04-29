@@ -86,7 +86,7 @@ Route::middleware(['auth', 'isPlanner'])->group(function () {
     Route::put('/indicators/{indicator}/update-value', [IndicatorController::class, 'updateValue'])->name('indicators.updateValue');
     Route::post('/indicators/remove-document', [IndicatorController::class, 'removeDocument'])->name('indicators.removeDocument');
     Route::post('/objectives/{objective}/indicators/copy-fiscal-year', [IndicatorController::class, 'copyFiscalYear'])->name('indicators.copyFiscalYear');
-
+    Route::put('/indicators/{indicator}/toggle-lock', [IndicatorController::class, 'toggleLock'])->name('indicators.toggleLock');
 });
 
 //ADMIN
@@ -136,6 +136,10 @@ Route::middleware(['auth', 'PlannerOrContributor'])->group(function () {
     Route::get('/reportes/{sp_id}/{fy}/topics', [ExportController::class, 'getTopicsForSPandFY']);
     Route::get('/reportes/topics/{topic_id}/goals/{fy}', [ExportController::class, 'getGoalsForTopicAndFY']);
     Route::get('/reportes/goals/{goal_id}/objectives/{fy}', [ExportController::class, 'getObjectivesForGoalAndFY']);
+});
+
+Route::middleware(['auth', 'ContributorOrAssignee'])->group(function () {
+    Route::get('/tareas', [TaskController::class, 'index'])->name('tasks.index');
 });
 //Route::get('/tareas', [TaskController::class, 'index'])->name('tasks.index');
 //Route::delete('/assignments/{assignment}', [AssignObjectiveController::class, 'destroy'])->name('roles.destroy');

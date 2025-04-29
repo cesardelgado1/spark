@@ -36,7 +36,7 @@ class ObjectiveController extends Controller
                     return $query->where('g_id', $request->g_id);
                 }),
             ],
-            'o_text' => 'required|string|max:255',
+            'o_text' => 'required|string',
             'g_id'   => 'required|exists:goals,g_id',
         ], [
             'o_num.unique' => 'Ya existe un objetivo con ese número en esta meta.',
@@ -77,7 +77,7 @@ class ObjectiveController extends Controller
                     return $query->where('g_id', $objective->g_id);
                 })->ignore($objective->o_id, 'o_id'),
             ],
-            'o_text' => 'required|string|max:255',
+            'o_text' => 'required|string',
         ], [
             'o_num.unique' => 'Ya existe un objetivo con ese número en esta meta.',
         ]);

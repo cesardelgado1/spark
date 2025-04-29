@@ -89,7 +89,7 @@
 
         <div class="mt-6">
             <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                Generar Excel
+                Generar Reporte
             </button>
         </div>
     </form>

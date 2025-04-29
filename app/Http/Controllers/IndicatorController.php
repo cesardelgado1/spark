@@ -116,7 +116,7 @@ class IndicatorController extends Controller
                         ->where('i_FY', $request->fy_start . '-' . $request->fy_end);
                 })->ignore($indicator->i_id, 'i_id'),
             ],
-            'i_text' => 'required|string|max:255',
+            'i_text' => 'required|string',
             'i_type' => 'required|in:string,integer,document',
             'fy_start' => 'required|integer',
             'fy_end' => 'required|integer|gt:fy_start',
@@ -286,4 +286,13 @@ class IndicatorController extends Controller
         $newEnd = (int) $end + 1;
         return "$newStart-$newEnd";
     }
+
+    public function toggleLock(Indicator $indicator)
+    {
+        $indicator->i_locked = !$indicator->i_locked;
+        $indicator->save();
+
+        return back()->with('success', 'El estado de edición del indicador ha sido actualizado.');
+    }
+
 }

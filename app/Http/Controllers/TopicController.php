@@ -86,7 +86,7 @@ class TopicController extends Controller
                     return $query->where('sp_id', $topic->sp_id);
                 })->ignore($topic->t_id, 't_id'),
             ],
-            't_text' => 'required|string|max:255',
+            't_text' => 'required|string',
         ], [
             't_num.unique' => 'Ya existe un asunto con ese número dentro de este plan estratégico.',
         ]);

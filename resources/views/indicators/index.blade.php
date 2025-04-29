@@ -53,7 +53,7 @@
     @if(count($fiscalYears) > 0)
         <div class="flex space-x-2 mb-4">
             @foreach($fiscalYears as $fy)
-                <button onclick="showFiscalYear('{{ $fy }}')" id="tab-{{ $fy }}" class="py-2 px-4 bg-gray-200 hover:bg-gray-300 rounded">
+                <button onclick="showFiscalYear('{{ $fy }}')" id="tab-{{ $fy }}" class="mt-2 ml-6 py-2 px-4 bg-gray-700 hover:bg-gray-600 rounded ">
                     {{ $fy }}
                 </button>
             @endforeach
@@ -63,7 +63,7 @@
         <form action="{{ route('indicators.copyFiscalYear', $objective->o_id) }}" method="POST" onsubmit="return confirmCopy()">
             @csrf
             <input type="hidden" name="current_fy" id="currentFiscalYear" value="">
-            <button type="submit" class="mb-6 py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-600">
+            <button type="submit" class="ml-6 mb-6 py-2 px-4 bg-gray-700 text-white border border-white rounded hover:bg-gray-600 focus:outline-none">
                 Copiar indicadores al próximo año fiscal
             </button>
         </form>
@@ -112,6 +112,20 @@
                                             {{ $indicator->i_text }}
                                         </div>
 
+                                        {{-- Block/Unblock an Indicator --}}
+                                        <form method="POST" action="{{ route('indicators.toggleLock', $indicator->i_id) }}" onClick="event.stopPropagation()">
+                                            @csrf
+                                            @method('PUT')
+                                            <button type="submit" class="mt-1 ">
+                                                @if($indicator->i_locked)
+                                                    <p class="text-red-500 font-bold text-sm mb-2" title="Desbloquear indicador para los asignados">🔒 Bloqueado</p>
+                                                @else
+                                                    <p class="text-green-500 font-bold text-sm mb-2" title="Bloquear indicador para los asignados">🔓 Editable</p>
+                                                @endif
+                                            </button>
+                                        </form>
+
+
                                         {{-- (Input forms for updating value — untouched) --}}
                                         <form action="{{ route('indicators.updateValue', $indicator->i_id) }}" method="POST" enctype="multipart/form-data" onClick="event.stopPropagation()" class="mt-3">
                                             @csrf
@@ -120,7 +134,11 @@
                                             @if($indicator->i_type === 'integer')
                                                 <input type="number" name="i_value" value="{{ old('i_value', $indicator->i_value) }}" class="border rounded px-2 py-1 w-full">
                                             @elseif($indicator->i_type === 'string')
-                                                <input type="text" name="i_value" value="{{ old('i_value', $indicator->i_value) }}" class="border rounded px-2 py-1 w-full">
+                                                <textarea
+                                                    name="i_value"
+                                                    rows="3"
+                                                    class="border rounded px-2 py-1 w-full resize-none overflow-hidden auto-grow min-h-[3rem]"
+                                                >{{ old('i_value', $indicator->i_value) }}</textarea>
                                             @elseif($indicator->i_type === 'document')
                                                 @if(!empty($indicator->i_value))
                                                     @php
@@ -398,5 +416,24 @@
                 document.getElementById('delete-indicators-form').submit();
             }
         </script>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const textareas = document.querySelectorAll('textarea.auto-grow');
+
+            textareas.forEach(textarea => {
+                textarea.addEventListener('input', function () {
+                    this.style.height = 'auto'; // Reset height
+                    this.style.height = (this.scrollHeight) + 'px'; // Set height based on content
+                });
+
+                // Trigger auto-grow on page load for prefilled text
+                textarea.style.height = 'auto';
+                textarea.style.height = (textarea.scrollHeight) + 'px';
+            });
+        });
+    </script>
+
 
 </x-layout>

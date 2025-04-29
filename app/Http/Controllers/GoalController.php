@@ -35,7 +35,7 @@ class GoalController extends Controller
                     return $query->where('t_id', $request->t_id);
                 }),
             ],
-            'g_text' => 'required|string|max:255',
+            'g_text' => 'required|string',
             't_id' => 'required|exists:topics,t_id',
         ], [
             'g_num.unique' => 'Ya existe una meta con ese número en este asunto.',
@@ -79,7 +79,7 @@ class GoalController extends Controller
                     return $query->where('t_id', $goal->t_id);
                 })->ignore($goal->g_id, 'g_id'),
             ],
-            'g_text' => 'required|string|max:255',
+            'g_text' => 'required|string',
         ], [
             'g_num.unique' => 'Ya existe una meta con ese número en este asunto.',
         ]);
