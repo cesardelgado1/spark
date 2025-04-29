@@ -112,6 +112,20 @@
                                             {{ $indicator->i_text }}
                                         </div>
 
+                                        {{-- Block/Unblock an Indicator --}}
+                                        <form method="POST" action="{{ route('indicators.toggleLock', $indicator->i_id) }}" onClick="event.stopPropagation()">
+                                            @csrf
+                                            @method('PUT')
+                                            <button type="submit" class="mt-1 ">
+                                                @if($indicator->i_locked)
+                                                    <p class="text-red-500 font-bold text-sm mb-2" title="Desbloquear indicador para los asignados">🔒 Bloqueado</p>
+                                                @else
+                                                    <p class="text-green-500 font-bold text-sm mb-2" title="Bloquear indicador para los asignados">🔓 Editable</p>
+                                                @endif
+                                            </button>
+                                        </form>
+
+
                                         {{-- (Input forms for updating value — untouched) --}}
                                         <form action="{{ route('indicators.updateValue', $indicator->i_id) }}" method="POST" enctype="multipart/form-data" onClick="event.stopPropagation()" class="mt-3">
                                             @csrf

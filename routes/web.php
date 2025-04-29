@@ -86,7 +86,7 @@ Route::middleware(['auth', 'isPlanner'])->group(function () {
     Route::put('/indicators/{indicator}/update-value', [IndicatorController::class, 'updateValue'])->name('indicators.updateValue');
     Route::post('/indicators/remove-document', [IndicatorController::class, 'removeDocument'])->name('indicators.removeDocument');
     Route::post('/objectives/{objective}/indicators/copy-fiscal-year', [IndicatorController::class, 'copyFiscalYear'])->name('indicators.copyFiscalYear');
-
+    Route::put('/indicators/{indicator}/toggle-lock', [IndicatorController::class, 'toggleLock'])->name('indicators.toggleLock');
 });
 
 //ADMIN

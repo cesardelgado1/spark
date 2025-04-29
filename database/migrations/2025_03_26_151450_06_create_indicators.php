@@ -14,6 +14,7 @@ return new class extends Migration {
             $table->text('i_text');
             $table->enum('i_type', ['integer', 'string', 'document']);
             $table->text('i_value')->nullable();
+            $table->boolean('i_locked')->default(false);
             $table->string('i_FY')->nullable();
             $table->unsignedBigInteger('o_id');
             $table->foreign('o_id')->references('o_id')->on('objectives')->onDelete('cascade');

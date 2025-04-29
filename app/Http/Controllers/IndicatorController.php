@@ -251,4 +251,13 @@ class IndicatorController extends Controller
         $newEnd = (int) $end + 1;
         return "$newStart-$newEnd";
     }
+
+    public function toggleLock(Indicator $indicator)
+    {
+        $indicator->i_locked = !$indicator->i_locked;
+        $indicator->save();
+
+        return back()->with('success', 'El estado de edición del indicador ha sido actualizado.');
+    }
+
 }
