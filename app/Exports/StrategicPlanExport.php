@@ -52,28 +52,36 @@ class StrategicPlanExport implements FromCollection, WithHeadings, WithStyles, W
                     'I.i_id', 'I.i_num', 'I.i_text', 'I.i_type', 'I.i_value', 'I.i_FY',
                     DB::raw('NULL as iv_value') // No iv_value when Todos is selected
                 );
-        } else {
-            // If department is NOT "Todos", join with indicator_values and role_requests
-            $query = DB::table('strategic_plans as SP')
-                ->join('topics as T', 'SP.sp_id', '=', 'T.sp_id')
-                ->join('goals as G', 'T.t_id', '=', 'G.t_id')
-                ->join('objectives as O', 'G.g_id', '=', 'O.g_id')
-                ->join('indicators as I', 'O.o_id', '=', 'I.o_id')
-                ->join('indicator_values as IV', 'I.i_id', '=', 'IV.iv_ind_id')
-                ->join('role_requests as RR', 'IV.iv_u_id', '=', 'RR.user_id')
-                ->where('SP.sp_id', $this->sp_id)
-                ->where('I.i_FY', $this->fy)
-                ->where('RR.department', $this->department)
-                ->select(
-                    'SP.sp_id', 'SP.sp_institution',
-                    'T.t_id', 'T.t_num', 'T.t_text',
-                    'G.g_id', 'G.g_num', 'G.g_text',
-                    'O.o_id', 'O.o_num', 'O.o_text',
-                    'I.i_id', 'I.i_num', 'I.i_text', 'I.i_type', 'I.i_value', 'I.i_FY', 'IV.iv_value'
-                );
-        }
+        }else {
+                $query = DB::table('strategic_plans as SP')
+                    ->join('topics as T', 'SP.sp_id', '=', 'T.sp_id')
+                    ->join('goals as G', 'T.t_id', '=', 'G.t_id')
+                    ->join('objectives as O', 'G.g_id', '=', 'O.g_id')
+                    ->join('indicators as I', 'O.o_id', '=', 'I.o_id')
+                    ->join('indicator_values as IV', 'I.i_id', '=', 'IV.iv_ind_id')
+                    ->join('role_requests as RR', 'IV.iv_u_id', '=', 'RR.user_id')
+                    ->where('SP.sp_id', $this->sp_id)
+                    ->where('I.i_FY', $this->fy)
+                    ->where('RR.department', $this->department)
+                    ->select(
+                        'SP.sp_id', 'SP.sp_institution',
+                        'T.t_id', 'T.t_num', 'T.t_text',
+                        'G.g_id', 'G.g_num', 'G.g_text',
+                        'O.o_id', 'O.o_num', 'O.o_text',
+                        'I.i_id', 'I.i_num', 'I.i_text', 'I.i_type', 'I.i_value', 'I.i_FY',
+                        DB::raw("GROUP_CONCAT(DISTINCT IV.iv_value SEPARATOR ', ') as iv_value")
+                    )
+                    ->groupBy(
+                        'SP.sp_id', 'SP.sp_institution',
+                        'T.t_id', 'T.t_num', 'T.t_text',
+                        'G.g_id', 'G.g_num', 'G.g_text',
+                        'O.o_id', 'O.o_num', 'O.o_text',
+                        'I.i_id', 'I.i_num', 'I.i_text', 'I.i_type', 'I.i_value', 'I.i_FY'
+                    );
+            }
 
-        // Filters for objectives, goals, topics
+
+            // Filters for objectives, goals, topics
         if (!empty($this->objectives)) {
             $query->whereIn('O.o_id', $this->objectives);
         } elseif (!empty($this->goals)) {
