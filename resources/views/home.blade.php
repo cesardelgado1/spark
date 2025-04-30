@@ -37,7 +37,7 @@
             <div class="flex flex-col items-center justify-start text-center">
                 <h3 class="text-md font-semibold text-gray-800 mb-4 leading-snug">
                     Progreso de Indicadores<br>
-                    del Plan Estratégico de UPRM 2025-2030
+                    del Plan Estratégico de UPRM {{ $latestPlan->sp_years }}
                 </h3>
                 <div class="relative w-52 h-52">
                     <canvas id="circularProgress"></canvas>
