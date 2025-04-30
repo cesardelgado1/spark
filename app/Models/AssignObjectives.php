@@ -24,5 +24,9 @@ class AssignObjectives extends Model
     public function objective(): BelongsTo {
         return $this->belongsTo(Objective::class, 'ao_ObjToFill');
     }
+    public function assignee(): BelongsTo {
+        return $this->belongsTo(User::class, 'ao_assigned_to');
+    }
+
 }
 

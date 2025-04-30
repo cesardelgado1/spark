@@ -6,6 +6,7 @@ use App\Models\AssignObjectives;
 use App\Models\Objective;
 use App\Models\StrategicPlan;
 use App\Models\User;
+use App\Models\IndicatorValues;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -19,25 +20,50 @@ class TaskController extends Controller
             $q->where('ao_assigned_to', $userId);
         })->get();
 
-
         $planId = $request->input('sp_id');
 
         $assignedObjectivesQuery = AssignObjectives::with([
-            'objective.indicators', // <-- add this
+            'objective.indicators',
             'objective.goal.topic.strategicplan',
+            'objective.assignments.assignedTo',
             'assignedBy'
-        ])
-            ->where('ao_assigned_to', $userId);
-
+        ])->where('ao_assigned_to', $userId);
 
         if ($planId) {
             $assignedObjectivesQuery->whereHas('objective.goal.topic', function ($q) use ($planId) {
                 $q->where('sp_id', $planId);
             });
         }
-        $assignedObjectives = $assignedObjectivesQuery->get();
 
-        #dd($strategicPlans);
-        return view('tasks.index', compact('assignedObjectives', 'strategicPlans', 'planId'));
+        $assignedObjectives = $assignedObjectivesQuery->get()->unique('ao_ObjToFill')->values();
+
+        // Build assignee completion map for contributors
+        $assigneeCompletion = [];
+        foreach ($assignedObjectives as $assignment) {
+            $objective = $assignment->objective;
+            $indicators = $objective->indicators;
+
+            foreach ($objective->assignments as $assigneeAssignment) {
+                $assignee = $assigneeAssignment->assignedTo;
+
+                if (!$assignee || $assignee->u_type !== 'Assignee') continue;
+
+                $completed = $indicators->every(function ($indicator) use ($assignee) {
+                    return IndicatorValues::where('iv_ind_id', $indicator->i_id)
+                        ->where('iv_u_id', $assignee->id)
+                        ->whereNotNull('iv_value')
+                        ->where('iv_value', '!=', '')
+                        ->exists();
+                });
+
+                $assigneeCompletion[$objective->o_id][] = [
+                    'assignee' => $assignee,
+                    'completed' => $completed
+                ];
+            }
+        }
+
+        return view('tasks.index', compact('assignedObjectives', 'strategicPlans', 'planId', 'assigneeCompletion'));
     }
+
 }

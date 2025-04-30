@@ -1,4 +1,4 @@
-@php use Illuminate\Support\Facades\Auth; @endphp
+@php use Illuminate\Support\Facades\Auth; use App\Models\IndicatorValues; @endphp
 <x-layout>
     <x-slot:heading>
         Mis Tareas Asignadas
@@ -29,10 +29,14 @@
             <div class="p-4 border border-gray-300 rounded-lg bg-white shadow">
                 @php
                     $userId = Auth::id();
-                    $indicators = $assignment->objective->indicators;
+                    $year = date('Y');
+                    $month = date('n');
+                    $fy = ($month >= 7) ? "$year-" . ($year + 1) : ($year - 1) . "-$year";
+
+                    $indicators = $assignment->objective->indicators->where('i_FY', $fy);
 
                     $filled = $indicators->every(function($indicator) use ($userId) {
-                        return \App\Models\IndicatorValues::where('iv_u_id', $userId)
+                        return IndicatorValues::where('iv_u_id', $userId)
                                 ->where('iv_ind_id', $indicator->i_id)
                                 ->whereNotNull('iv_value')
                                 ->where('iv_value', '!=', '')
@@ -58,7 +62,6 @@
                     <p><strong>Meta:</strong> #{{ $assignment->objective->goal->g_num }}</p>
                     <p><strong>Asunto:</strong> #{{ $assignment->objective->goal->topic->t_num }}</p>
                     <p><strong>Plan:</strong> {{ $assignment->objective->goal->topic->strategicplan->sp_institution }} - {{ $assignment->objective->goal->topic->strategicplan->sp_years }}</p>
-
                     <p><strong>Asignado por:</strong> {{ $assignment->assignedBy->u_fname }} {{ $assignment->assignedBy->u_lname }}</p>
                     <p><strong>Fecha de asignación:</strong> {{ $assignment->created_at->format('d/m/Y') }}</p>
 
@@ -75,6 +78,36 @@
                     </a>
                     @endrole
                 </div>
+
+                @role('Contributor')
+                @if($assignment->objective->assignedUsers->count())
+                    <div class="mt-4 text-sm text-gray-700">
+                        <strong>Estado de los asignados:</strong>
+                        <ul class="ml-4 list-disc">
+                            @foreach($assignment->objective->assignedUsers->filter(fn($user) => $user->u_type === 'Assignee')->unique('id') as $assignee)
+                                @php
+                                    $completed = $assignment->objective->indicators
+                                        ->where('i_FY', $fy)
+                                        ->every(function ($indicator) use ($assignee) {
+                                            return IndicatorValues::where('iv_ind_id', $indicator->i_id)
+                                                ->where('iv_u_id', $assignee->id)
+                                                ->whereNotNull('iv_value')
+                                                ->where('iv_value', '!=', '')
+                                                ->exists();
+                                        });
+                                @endphp
+                                <li>
+                                    {{ $assignee->u_fname }} {{ $assignee->u_lname }} –
+                                    <span class="{{ $completed ? 'text-green-600' : 'text-red-600' }}">
+                                        {{ $completed ? 'Completo' : 'Incompleto' }}
+                                    </span>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+                @endrole
+
             </div>
         @empty
             <p class="text-gray-600">No tienes tareas asignadas por el momento.</p>
@@ -92,4 +125,3 @@
         });
     </script>
 </x-layout>
-

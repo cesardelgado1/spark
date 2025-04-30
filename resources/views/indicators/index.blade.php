@@ -116,13 +116,18 @@
                                         <form method="POST" action="{{ route('indicators.toggleLock', $indicator->i_id) }}" onClick="event.stopPropagation()">
                                             @csrf
                                             @method('PUT')
-                                            <button type="submit" class="mt-1 ">
+                                            <button type="submit" class="mt-1 flex items-center gap-2 text-sm font-bold mb-2">
                                                 @if($indicator->i_locked)
-                                                    <p class="text-red-500 font-bold text-sm mb-2" title="Desbloquear indicador para los asignados">🔒 Bloqueado</p>
+                                                    {{-- 🔒 Locked --}}
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                                                    <span class="text-red-500" title="Desbloquear indicador para los asignados">Cerrado</span>
                                                 @else
-                                                    <p class="text-green-500 font-bold text-sm mb-2" title="Bloquear indicador para los asignados">🔓 Editable</p>
+                                                    {{-- 🔓 Unlocked --}}
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 9.9-1"></path></svg>
+                                                    <span class="text-green-500" title="Bloquear indicador para los asignados">Editable</span>
                                                 @endif
                                             </button>
+
                                         </form>
 
 
@@ -133,12 +138,32 @@
 
                                             @if($indicator->i_type === 'integer')
                                                 <input type="number" name="i_value" value="{{ old('i_value', $indicator->i_value) }}" class="border rounded px-2 py-1 w-full">
-                                            @elseif($indicator->i_type === 'string')
+                                            @elseif($indicator->i_type === 'string')<div class="relative group">
                                                 <textarea
                                                     name="i_value"
                                                     rows="3"
-                                                    class="border rounded px-2 py-1 w-full resize-none overflow-hidden auto-grow min-h-[3rem]"
+                                                    class="border rounded px-2 py-1 w-full resize-none overflow-hidden auto-grow min-h-[3rem] transition-all duration-200"
+                                                    id="textarea-{{ $indicator->i_id }}"
                                                 >{{ old('i_value', $indicator->i_value) }}</textarea>
+                                                {{-- Expand/Collapse Button --}}
+                                                <button
+                                                    type="button"
+                                                    class="absolute right-2 top-2 text-gray-500 hover:text-gray-800 hidden group-hover:block z-10"
+                                                    onclick="toggleExpandTextarea(this, 'textarea-{{ $indicator->i_id }}')"
+                                                    title="Expandir texto"
+                                                >
+                                                    {{-- Down Arrow (default) --}}
+                                                    <svg class="w-6 h-6 expand-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                                    </svg>
+
+                                                    {{-- Up Arrow (hidden initially) --}}
+                                                    <svg class="w-6 h-6 collapse-icon hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                                                    </svg>
+                                                </button>
+
+                                            </div>
                                             @elseif($indicator->i_type === 'document')
                                                 @if(!empty($indicator->i_value))
                                                     @php
@@ -422,18 +447,53 @@
         document.addEventListener('DOMContentLoaded', function () {
             const textareas = document.querySelectorAll('textarea.auto-grow');
 
-            textareas.forEach(textarea => {
-                textarea.addEventListener('input', function () {
-                    this.style.height = 'auto'; // Reset height
-                    this.style.height = (this.scrollHeight) + 'px'; // Set height based on content
-                });
+            const autoResize = (el) => {
+                el.style.height = 'auto'; // Reset height
+                el.style.height = el.scrollHeight + 'px'; // Set to scrollHeight
+            };
 
-                // Trigger auto-grow on page load for prefilled text
-                textarea.style.height = 'auto';
-                textarea.style.height = (textarea.scrollHeight) + 'px';
+            // Wait for paint (this is the real fix)
+            window.requestAnimationFrame(() => {
+                setTimeout(() => {
+                    textareas.forEach(autoResize);
+                }, 0); // <-- Defer until scrollHeight is accurate
+            });
+
+            // Recalculate on input
+            textareas.forEach(textarea => {
+                textarea.addEventListener('input', () => autoResize(textarea));
             });
         });
     </script>
+    <script>
+        function toggleExpandTextarea(button, textareaId) {
+            const textarea = document.getElementById(textareaId);
+            const expandIcon = button.querySelector('.expand-icon');
+            const collapseIcon = button.querySelector('.collapse-icon');
+
+            if (!textarea) return;
+
+            // Toggle expand/collapse
+            if (textarea.dataset.expanded === 'true') {
+                textarea.style.height = 'auto';
+                textarea.dataset.expanded = 'false';
+
+                // Show down arrow
+                expandIcon.classList.remove('hidden');
+                collapseIcon.classList.add('hidden');
+            } else {
+                textarea.style.height = 'auto';
+                textarea.style.height = textarea.scrollHeight + 'px';
+                textarea.dataset.expanded = 'true';
+
+                // Show up arrow
+                expandIcon.classList.add('hidden');
+                collapseIcon.classList.remove('hidden');
+            }
+        }
+    </script>
+
+
 
 
 </x-layout>

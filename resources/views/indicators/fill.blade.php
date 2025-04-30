@@ -32,7 +32,7 @@
                         </p>
 
                         @if($indicator->i_locked)
-                            <p class="text-red-500 font-bold text-sm mb-2">🔒 Este indicador ha sido bloqueado. No puedes modificarlo.</p>
+                            <p class="text-red-500 font-bold text-sm mb-2">🔒 Este indicador ha sido cerrado. No puedes modificarlo.</p>
                         @endif
 
                         @if ($indicator->i_type === 'integer')
@@ -44,13 +44,37 @@
                                    class="w-full border px-4 py-2 rounded-lg focus:ring-indigo-500 focus:outline-none"
                                    @if($indicator->i_locked) disabled @endif>
                         @elseif ($indicator->i_type === 'string')
-                            <textarea name="indicators[{{ $indicator->i_id }}]"
-                                      id="indicator_{{ $indicator->i_id }}"
-                                      placeholder="Ingrese un texto"
-                                      rows="1"
-                                      oninput="autoGrow(this)"
-                                      class="w-full border px-4 py-2 rounded-lg focus:ring-indigo-500 focus:outline-none resize-none overflow-hidden"
-                                      @if($indicator->i_locked) disabled @endif>{{ old("indicators.{$indicator->i_id}", $indicator->user_value) }}</textarea>
+                            <div class="relative group">
+                                <textarea
+                                    name="indicators[{{ $indicator->i_id }}]"
+                                    id="indicator_{{ $indicator->i_id }}"
+                                    data-expanded="false"
+                                    placeholder="Ingrese un texto"
+                                    rows="1"
+                                    class="w-full border px-4 py-2 rounded-lg focus:ring-indigo-500 focus:outline-none resize-none overflow-hidden auto-grow"
+                                    @if($indicator->i_locked) disabled @endif
+                                >{{ old("indicators.{$indicator->i_id}", $indicator->user_value) }}</textarea>
+
+                                <button
+                                    type="button"
+                                    class="absolute right-2 top-2 text-gray-500 hover:text-gray-800 hidden group-hover:block z-10"
+                                    onclick="toggleExpandTextarea(this, 'indicator_{{ $indicator->i_id }}')"
+                                    title="Expandir texto"
+                                >
+                                    {{-- Down Arrow (show when collapsed) --}}
+                                    <svg class="w-8 h-8 expand-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                    </svg>
+
+                                    {{-- Up Arrow (show when expanded) --}}
+                                    <svg class="w-8 h-8 collapse-icon hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                                    </svg>
+                                </button>
+
+                            </div>
+
+
                         @elseif ($indicator->i_type === 'document')
                             @if ($indicator->user_value)
                                 <p class="text-sm text-blue-600 mb-2">Documento actual:
@@ -91,7 +115,7 @@
                     </div>
                 @else
                     <div class="text-center text-gray-500 italic mt-6">
-                        Todos los indicadores han sido bloqueados. No puedes guardar cambios.
+                        Todos los indicadores han sido cerrados. No puedes guardar cambios.
                     </div>
                 @endif
             </form>
@@ -163,6 +187,43 @@
         window.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('textarea').forEach(el => autoGrow(el));
         });
+
     </script>
+
+    <script>
+        function autoGrow(el) {
+            el.style.height = "auto";
+            el.style.height = el.scrollHeight + "px";
+        }
+
+        function toggleExpandTextarea(button, textareaId) {
+            const textarea = document.getElementById(textareaId);
+            const expandIcon = button.querySelector('.expand-icon');
+            const collapseIcon = button.querySelector('.collapse-icon');
+
+            if (!textarea) return;
+
+            const isExpanded = textarea.dataset.expanded === 'true';
+
+            if (isExpanded) {
+                textarea.dataset.expanded = 'false';
+                textarea.rows = 1;
+                textarea.style.height = ""; // remove inline height
+                expandIcon.classList.remove('hidden');
+                collapseIcon.classList.add('hidden');
+            } else {
+                textarea.dataset.expanded = 'true';
+                textarea.style.height = "auto";
+                textarea.style.height = textarea.scrollHeight + "px";
+                expandIcon.classList.add('hidden');
+                collapseIcon.classList.remove('hidden');
+            }
+        }
+    </script>
+
+
+
+
+
 </x-layout>
 
