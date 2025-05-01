@@ -12,7 +12,7 @@
             </button>
             <button @click="tab = 'logs'" class="px-4 py-2 font-medium border-b-2"
                     :class="tab === 'logs' ? 'border-blue-600 text-blue-600' : 'text-gray-500'">
-                Logs
+                Bitácora
             </button>
         </div>
 
@@ -20,11 +20,11 @@
         <div x-show="tab === 'roles'">
             {{-- Search --}}
             <form method="GET" action="{{ route('settings.index') }}" class="mb-4">
-                <input type="text" name="search" placeholder="Search by email..."
+                <input type="text" name="search" placeholder="Busca por email..."
                        value="{{ $search }}"
                        class="border rounded px-4 py-2 w-64">
                 <button type="submit" class="ml-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-                    Search
+                    Buscar
                 </button>
             </form>
 
@@ -36,7 +36,7 @@
                         <th class="px-4 py-3">Nombre</th>
                         <th class="px-4 py-3">Apellido</th>
                         <th class="px-4 py-3">Email</th>
-                        <th class="px-4 py-3">Role</th>
+                        <th class="px-4 py-3">Rol</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -93,7 +93,7 @@
                        value="{{ $logSearch }}"
                        class="border rounded px-2 py-1 w-64">
                 <button type="submit" class="ml-2 bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700">
-                    Search
+                    Buscar
                 </button>
             </form>
             {{-- Audit Logs --}}
@@ -104,7 +104,7 @@
                         <thead class="bg-gray-100 text-gray-700 uppercase tracking-wider">
                         <tr>
                             <th class="px-4 py-3">Usuario</th>
-                            <th class="px-4 py-3">Actión</th>
+                            <th class="px-4 py-3">Acción</th>
                             <th class="px-4 py-3">Parametro</th>
                             <th class="px-4 py-3">Creado</th>
                         </tr>
@@ -243,7 +243,7 @@
                 select.setAttribute('data-current-role', newRole);
                 currentRole = newRole;
 
-                // ✅ Show toast
+                // Show toast
                 showSuccessToast(`Rol de ${userName} cambiado a ${newRole}`);
             } else {
                 alert('Hubo un error al actualizar el rol.');
