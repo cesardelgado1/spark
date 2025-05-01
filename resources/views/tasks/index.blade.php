@@ -1,9 +1,14 @@
-@php use Illuminate\Support\Facades\Auth; use App\Models\IndicatorValues; @endphp
+@php
+    use Illuminate\Support\Facades\Auth;
+    use App\Models\IndicatorValues;
+@endphp
+
 <x-layout>
     <x-slot:heading>
         Mis Tareas Asignadas
     </x-slot:heading>
 
+    {{-- Display success message if present in session --}}
     @if(session('success'))
         <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4 shadow-md" role="alert">
             <strong class="font-bold">¡Éxito!</strong>
@@ -12,6 +17,8 @@
     @endif
 
     <div class="px-6 py-4 space-y-4">
+
+        {{-- Filter form to select Strategic Plan --}}
         <form method="GET" action="{{ route('tasks.index') }}" class="mb-4">
             <label for="sp_id">Filtrar por Plan Estratégico:</label>
             <select name="sp_id" id="sp_id" class="border rounded px-4 py-2">
@@ -25,6 +32,7 @@
             <button type="submit" class="ml-2 px-4 py-2 bg-blue-600 text-white rounded">Filtrar</button>
         </form>
 
+        {{-- Loop through each assigned objective --}}
         @forelse($assignedObjectives as $assignment)
             <div class="p-4 border border-gray-300 rounded-lg bg-white shadow">
                 @php
@@ -33,8 +41,10 @@
                     $month = date('n');
                     $fy = ($month >= 7) ? "$year-" . ($year + 1) : ($year - 1) . "-$year";
 
+                    // Filter indicators by fiscal year
                     $indicators = $assignment->objective->indicators->where('i_FY', $fy);
 
+                    // Check if all indicators have been filled by this user
                     $filled = $indicators->every(function($indicator) use ($userId) {
                         return IndicatorValues::where('iv_u_id', $userId)
                                 ->where('iv_ind_id', $indicator->i_id)
@@ -44,6 +54,7 @@
                     });
                 @endphp
 
+                {{-- Completion status indicator --}}
                 <div class="mt-2 text-sm font-semibold">
                     Estado:
                     <span class="{{ $filled ? 'text-green-600' : 'text-red-600' }}">
@@ -51,6 +62,7 @@
                     </span>
                 </div>
 
+                {{-- Objective information --}}
                 <h2 class="text-lg font-bold text-gray-800">
                     Objetivo #{{ $assignment->objective->o_num }}:
                 </h2>
@@ -58,6 +70,7 @@
                     {{ $assignment->objective->o_text }}
                 </p>
 
+                {{-- Additional metadata about the objective --}}
                 <div class="text-sm text-gray-600">
                     <p><strong>Meta:</strong> #{{ $assignment->objective->goal->g_num }}</p>
                     <p><strong>Asunto:</strong> #{{ $assignment->objective->goal->topic->t_num }}</p>
@@ -65,12 +78,15 @@
                     <p><strong>Asignado por:</strong> {{ $assignment->assignedBy->u_fname }} {{ $assignment->assignedBy->u_lname }}</p>
                     <p><strong>Fecha de asignación:</strong> {{ $assignment->created_at->format('d/m/Y') }}</p>
 
+                    {{-- Contributor role: link to assign page --}}
                     @role('Contributor')
                     <a href="{{ route('roles.assignView', $assignment->ao_ObjToFill) }}"
                        class="inline-block mt-2 text-lg text-purple-600 hover:underline">
                         Asignar
                     </a>
                     @endrole
+
+                    {{-- Assignee role: link to fill indicators --}}
                     @role('Assignee')
                     <a href="{{ route('indicators.fill', $assignment->ao_ObjToFill) }}"
                        class="inline-block mt-2 text-sm text-indigo-600 hover:underline">
@@ -79,6 +95,7 @@
                     @endrole
                 </div>
 
+                {{-- Contributor view: show completion status of each assignee --}}
                 @role('Contributor')
                 @if($assignment->objective->assignedUsers->count())
                     <div class="mt-4 text-sm text-gray-700">
@@ -110,10 +127,12 @@
 
             </div>
         @empty
+            {{-- No assigned objectives --}}
             <p class="text-gray-600">No tienes tareas asignadas por el momento.</p>
         @endforelse
     </div>
 
+    {{-- Auto-hide success message after 4 seconds --}}
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const successMessage = document.querySelector('[role="alert"]');

@@ -3,6 +3,7 @@
         Solicitudes de Acceso
     </x-slot:heading>
 
+    {{-- Role name translations for display --}}
     @php
         $roleTranslations = [
             'Admin' => 'Administrador',
@@ -13,6 +14,7 @@
         ];
     @endphp
 
+    {{-- Success message toast --}}
     @if(session('success'))
         <div id="success-message"
              class="fixed top-5 left-1/2 transform -translate-x-1/2 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded shadow-lg z-50">
@@ -21,10 +23,12 @@
     @endif
 
     <div class="px-6 py-4">
+        {{-- No pending requests --}}
         @if($requests->isEmpty())
             <p class="text-gray-600">No hay solicitudes pendientes en este momento.</p>
         @else
-            {{-- Table --}}
+
+            {{-- Bulk action buttons --}}
             <div class="flex justify-end mb-4 gap-3">
                 <button type="button"
                         onclick="showConfirmModal()"
@@ -38,6 +42,7 @@
                 </button>
             </div>
 
+            {{-- Requests Table --}}
             <div class="overflow-x-auto">
                 <table class="min-w-full bg-white border border-gray-300 rounded-lg shadow-md">
                     <thead class="bg-gray-100 text-gray-700 text-left">
@@ -55,6 +60,7 @@
                     <tbody>
                     @foreach($requests as $request)
                         <tr class="border-t">
+                            {{-- Checkbox with metadata for modals --}}
                             <td class="px-4 py-2">
                                 <input type="checkbox"
                                        name="selected_requests[]"
@@ -67,6 +73,8 @@
                             <td class="px-4 py-2">{{ $request->user->email }}</td>
                             <td class="px-4 py-2">{{ $request->department }}</td>
                             <td class="px-4 py-2">{{ $roleTranslations[$request->requested_role] ?? $request->requested_role }}</td>
+
+                            {{-- Individual Approve/Reject buttons --}}
                             <td class="px-4 py-2 flex gap-2">
                                 <form action="{{ route('roles.requests.approve', $request) }}" method="POST">
                                     @csrf
@@ -87,7 +95,7 @@
                 </table>
             </div>
 
-            {{-- Separated Forms --}}
+            {{-- Bulk Approve & Reject forms --}}
             <form id="bulk-approve-form" method="POST" action="{{ route('role-requests.approveBulk') }}">
                 @csrf
             </form>
@@ -98,7 +106,7 @@
         @endif
     </div>
 
-    {{-- Modals --}}
+    {{-- Confirm Approval Modal --}}
     <div id="confirm-modal"
          class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
         <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-xl">
@@ -116,6 +124,7 @@
         </div>
     </div>
 
+    {{-- Confirm Rejection Modal --}}
     <div id="reject-modal"
          class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
         <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-xl">
@@ -124,110 +133,4 @@
             <ul id="rejected-users" class="list-disc list-inside text-gray-600 mb-6"></ul>
             <div class="flex justify-end gap-3">
                 <button onclick="hideRejectModal()"
-                        class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition">Cancelar
-                </button>
-                <button onclick="submitBulkRejection()"
-                        class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition">Confirmar
-                </button>
-            </div>
-        </div>
-    </div>
-
-
-    {{-- Scripts --}}
-    <script>
-        const roleTranslations = {!! json_encode([
-        'Admin' => 'Administrador',
-        'Planner' => 'Planificador',
-        'Contributor' => 'Colaborador',
-        'Assignee' => 'Asignado',
-        'Viewer' => 'Visualizador',
-    ]) !!};
-    </script>
-
-
-    <script>
-        function toggleAll(masterCheckbox) {
-            const checkboxes = document.querySelectorAll('input[name="selected_requests[]"]');
-            checkboxes.forEach(cb => cb.checked = masterCheckbox.checked);
-        }
-
-        function showConfirmModal() {
-            const selected = document.querySelectorAll('input[name="selected_requests[]"]:checked');
-            const list = document.getElementById('selected-users');
-            list.innerHTML = '';
-
-            if (selected.length === 0) {
-                alert('Por favor selecciona al menos un usuario.');
-                return;
-            }
-
-            selected.forEach(cb => {
-                const name = cb.dataset.user;
-                const role = cb.dataset.role;
-                const translatedRole = roleTranslations[role] ?? role;
-                const li = document.createElement('li');
-                li.textContent = `${name} - ${translatedRole}`;
-                list.appendChild(li);
-            });
-
-            document.getElementById('confirm-modal').classList.remove('hidden');
-        }
-
-
-        function hideConfirmModal() {
-            document.getElementById('confirm-modal').classList.add('hidden');
-        }
-
-        function submitBulkApproval() {
-            document.getElementById('bulk-approve-form').submit();
-        }
-
-        function showRejectModal() {
-            const selected = document.querySelectorAll('input[name="selected_requests[]"]:checked');
-            const list = document.getElementById('rejected-users');
-            list.innerHTML = '';
-            document.getElementById('bulk-reject-form').innerHTML = `@csrf`;
-
-            if (selected.length === 0) {
-                alert('Por favor selecciona al menos un usuario.');
-                return;
-            }
-
-            selected.forEach(cb => {
-                const name = cb.dataset.user;
-                const role = cb.dataset.role;
-                const translatedRole = roleTranslations[role] ?? role;
-                const li = document.createElement('li');
-                li.textContent = `${name} - ${translatedRole}`;
-                list.appendChild(li);
-
-                const input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = 'selected_requests[]';
-                input.value = cb.value;
-                document.getElementById('bulk-reject-form').appendChild(input);
-            });
-
-            document.getElementById('reject-modal').classList.remove('hidden');
-        }
-
-
-        function hideRejectModal() {
-            document.getElementById('reject-modal').classList.add('hidden');
-        }
-
-        function submitBulkRejection() {
-            document.getElementById('bulk-reject-form').submit();
-        }
-
-        document.addEventListener('DOMContentLoaded', function () {
-            const msg = document.getElementById('success-message');
-            if (msg) {
-                setTimeout(() => {
-                    msg.style.display = 'none';
-                }, 4000);
-            }
-        });
-    </script>
-</x-layout>
+                        class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition">

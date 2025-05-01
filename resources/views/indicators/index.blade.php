@@ -492,8 +492,4 @@
             }
         }
     </script>
-
-
-
-
 </x-layout>

@@ -3,8 +3,9 @@
         Reportes
     </x-slot:heading>
 
-    <!-- Dropdowns Section -->
+    <!-- Dropdown Filters Section -->
     <div class="p-4">
+        <!-- Strategic Plan Dropdown -->
         <div class="mb-4">
             <label for="strategic-plan" class="block text-sm font-medium text-gray-700">Plan Estratégico para exportar</label>
             <select id="strategic-plan" name="strategic_plan" class="mt-1 block w-full p-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
@@ -14,11 +15,14 @@
                 @endforeach
             </select>
         </div>
+
+        <!-- Department Dropdown -->
         <div class="mb-4">
             <label for="department" class="block text-sm font-medium text-gray-700 mb-2">Decanato</label>
             <select name="department" id="department" class="mt-1 block w-full p-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
                 <option value="">-- Seleccionar Decanato--</option>
                 <option>Todos</option>
+                <!-- More department options -->
                 <option>Decanato de Administración</option>
                 <option>Decanato de Asuntos Académicos</option>
                 <option>Decanato de Estudiantes</option>
@@ -29,6 +33,8 @@
                 <option>Ingeniería</option>
             </select>
         </div>
+
+        <!-- Fiscal Year Dropdown (populated dynamically) -->
         <div class="mb-4">
             <label for="FY" class="block text-sm font-medium text-gray-700">Año Fiscal</label>
             <select id="fiscal-year" name="i_FY" class="mt-1 block w-full p-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
@@ -37,14 +43,18 @@
         </div>
     </div>
 
+    <!-- Export Form -->
     <form id="export-form" action="{{ url('/export') }}" method="POST" class="p-4">
         @csrf
+        <!-- Hidden inputs to sync with dropdown values -->
         <input type="hidden" name="sp_id" id="form-sp-id">
         <input type="hidden" name="i_FY" id="form-fy">
         <input type="hidden" name="department" id="form-department">
 
+        <!-- Filtering Section: Topics, Goals, Objectives -->
         <div class="flex space-x-4">
-            <!-- Asuntos Section -->
+
+            <!-- Topics (Asuntos) -->
             <div class="flex-1 bg-gray-100 p-4 rounded-lg shadow">
                 <label class="flex items-center space-x-2 mb-2">
                     <input type="checkbox" class="form-checkbox h-5 w-5 text-blue-600" id="toggle-asuntos" name="include_asuntos">
@@ -58,7 +68,7 @@
                 </div>
             </div>
 
-            <!-- Metas Section -->
+            <!-- Goals (Metas) -->
             <div class="flex-1 bg-gray-100 p-4 rounded-lg shadow">
                 <label class="flex items-center space-x-2 mb-2">
                     <input type="checkbox" class="form-checkbox h-5 w-5 text-blue-600" id="toggle-metas" name="include_metas">
@@ -72,7 +82,7 @@
                 </div>
             </div>
 
-            <!-- Objetivos Section -->
+            <!-- Objectives (Objetivos) -->
             <div class="flex-1 bg-gray-100 p-4 rounded-lg shadow">
                 <label class="flex items-center space-x-2 mb-2">
                     <input type="checkbox" class="form-checkbox h-5 w-5 text-blue-600" id="toggle-objetivos" name="include_objetivos">
@@ -87,6 +97,7 @@
             </div>
         </div>
 
+        <!-- Submit Button -->
         <div class="mt-6">
             <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                 Generar Reporte
@@ -94,12 +105,13 @@
         </div>
     </form>
 
+    <!-- JavaScript Logic -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            // Cache all dropdowns and containers
             const dropdownSP = document.getElementById('strategic-plan');
             const dropdownFY = document.getElementById('fiscal-year');
             const dropdownDep = document.getElementById('department');
-
             const topicsList = document.getElementById('topics-list');
             const goalsList = document.getElementById('goals-list');
             const objectivesList = document.getElementById('objectives-list');
@@ -111,21 +123,22 @@
             const toggleMetas = document.getElementById('toggle-metas');
             const toggleObjetivos = document.getElementById('toggle-objetivos');
 
+            // Helper to get checked values from a container
             function getSelected(container) {
-
                 return new Set([...container.querySelectorAll('input[type="checkbox"]:checked')].map(cb => cb.value));
             }
-            function syncParentCheckbox(parentCheckbox, container) {
 
+            // Sync parent checkbox to match child states
+            function syncParentCheckbox(parentCheckbox, container) {
                 const checkboxes = container.querySelectorAll('input[type="checkbox"]');
                 const checked = container.querySelectorAll('input[type="checkbox"]:checked').length;
                 const total = checkboxes.length;
                 parentCheckbox.checked = checked === total && total > 0;
-
                 parentCheckbox.indeterminate = checked > 0 && checked < total;
             }
-            function bindCheckboxes(container, onChangeCallback, parentToggle) {
 
+            // Attach listeners to all child checkboxes
+            function bindCheckboxes(container, onChangeCallback, parentToggle) {
                 container.querySelectorAll('input[type="checkbox"]').forEach(cb => {
                     cb.addEventListener('change', () => {
                         onChangeCallback();
@@ -133,8 +146,9 @@
                     });
                 });
             }
-            function toggleVisibility(buttonId, containerId, labelText) {
 
+            // Toggle visibility for nested list sections
+            function toggleVisibility(buttonId, containerId, labelText) {
                 const button = document.getElementById(buttonId);
                 const container = document.getElementById(containerId);
                 button.addEventListener('click', () => {
@@ -142,13 +156,14 @@
                     container.classList.toggle('hidden');
                     button.textContent = isHidden ? `Ocultar ${labelText}` : `Ver el listado de ${labelText}`;
                 });
-
             }
-            toggleVisibility('toggle-asuntos-list', 'topics-list-container', 'Asuntos');
 
+            // Initialize toggle buttons for section lists
+            toggleVisibility('toggle-asuntos-list', 'topics-list-container', 'Asuntos');
             toggleVisibility('toggle-metas-list', 'goals-list-container', 'Metas');
             toggleVisibility('toggle-objetivos-list', 'objectives-list-container', 'Objetivos');
 
+            // Handle strategic plan change
             dropdownSP.addEventListener('change', function () {
                 const spId = this.value;
                 formSpId.value = spId;
@@ -169,15 +184,16 @@
                                 option.textContent = fy;
                                 dropdownFY.appendChild(option);
                             });
-                        })
-                        .catch(error => console.error('Error fetching FYs:', error));
+                        });
                 }
             });
 
+            // Handle department change
             dropdownDep.addEventListener('change', function () {
                 formDepartment.value = this.value;
             });
 
+            // Handle FY change and load topics
             dropdownFY.addEventListener('change', function () {
                 const fy = this.value;
                 const spId = dropdownSP.value;
@@ -218,6 +234,7 @@
                     });
             });
 
+            // Load goals from selected topics
             function loadGoalsFromSelectedTopics(fy) {
                 const selectedTopics = getSelected(topicsList);
                 goalsList.innerHTML = '';
@@ -265,6 +282,7 @@
                 });
             }
 
+            // Load objectives from selected goals
             function loadObjectivesFromSelectedGoals(fy) {
                 const selectedGoals = getSelected(goalsList);
                 objectivesList.innerHTML = '';
@@ -309,27 +327,24 @@
                 });
             }
 
+            // Parent checkboxes toggle all children
             toggleAsuntos.addEventListener('change', () => {
-                const checkboxes = topicsList.querySelectorAll('input[type="checkbox"]');
-                checkboxes.forEach(cb => cb.checked = toggleAsuntos.checked);
+                topicsList.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = toggleAsuntos.checked);
                 syncParentCheckbox(toggleAsuntos, topicsList);
                 loadGoalsFromSelectedTopics(dropdownFY.value);
             });
 
             toggleMetas.addEventListener('change', () => {
-                const checkboxes = goalsList.querySelectorAll('input[type="checkbox"]');
-                checkboxes.forEach(cb => cb.checked = toggleMetas.checked);
+                goalsList.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = toggleMetas.checked);
                 syncParentCheckbox(toggleMetas, goalsList);
                 loadObjectivesFromSelectedGoals(dropdownFY.value);
             });
 
             toggleObjetivos.addEventListener('change', () => {
-                const checkboxes = objectivesList.querySelectorAll('input[type="checkbox"]');
-                checkboxes.forEach(cb => cb.checked = toggleObjetivos.checked);
+                objectivesList.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = toggleObjetivos.checked);
                 syncParentCheckbox(toggleObjetivos, objectivesList);
             });
 
         });
-
     </script>
 </x-layout>
