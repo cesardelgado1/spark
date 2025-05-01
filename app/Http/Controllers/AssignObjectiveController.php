@@ -10,6 +10,12 @@ use Illuminate\Support\Facades\Auth;
 
 class AssignObjectiveController extends Controller
 {
+    /**
+     * Handles assignment of an objective to one or more users.
+     *
+     * Validates the request and creates assignment records for each selected user.
+     * Existing assignments will not be duplicated.
+     */
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -33,6 +39,12 @@ class AssignObjectiveController extends Controller
         return redirect()->back()->with('success', 'Objetivo asignado correctamente.')->with('selected_objective', $objectiveId);
     }
 
+    /**
+     * Removes a specific objective assignment.
+     *
+     * Deletes the assignment record and returns a JSON response
+     * including the user ID that was unassigned.
+     */
     public function destroy(AssignObjectives $assignment)
     {
         $userId = $assignment->ao_assigned_to; // capture BEFORE delete
@@ -40,6 +52,13 @@ class AssignObjectiveController extends Controller
 
         return response()->json(['success' => true, 'user_id' => $userId]);
     }
+
+    /**
+     * Displays the form for assigning an objective to users.
+     *
+     * Loads available assignees and their current assignment status
+     * for a given objective, then passes the data to the view.
+     */
     public function showAssigneeForm(Objective $objective)
     {
         $assignees = User::where('u_type', 'Assignee')->get();
@@ -60,6 +79,12 @@ class AssignObjectiveController extends Controller
         return view('indicators.assign', compact('objective', 'assignees', 'assignedMap'));
     }
 
+    /**
+     * Creates or updates assignments of a specific objective to selected users.
+     *
+     * Ensures the objective is assigned to all specified users, updating the
+     * 'assigned by' value if the assignment already exists.
+     */
     public function assignToAssignee(Request $request, Objective $objective)
     {
         $request->validate([
@@ -77,6 +102,5 @@ class AssignObjectiveController extends Controller
         }
 
         return redirect()->back()->with('success', 'Objetivo asignado correctamente.')->with('selected_objective', $objective->o_id);
-
     }
 }

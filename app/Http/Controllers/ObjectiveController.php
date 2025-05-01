@@ -11,6 +11,9 @@ use Illuminate\Validation\Rule;
 
 class ObjectiveController extends Controller
 {
+    /**
+     * Displays a list of objectives for a specific goal, ordered by number.
+     */
     public function index(Goal $goal)
     {
         $objectives = Objective::where('g_id', $goal->g_id)
@@ -20,11 +23,19 @@ class ObjectiveController extends Controller
         return view('objectives.index', compact('objectives', 'goal'));
     }
 
+    /**
+     * Shows the form to create a new objective under a given goal.
+     */
     public function create(Goal $goal)
     {
         return view('objectives.create', compact('goal'));
     }
 
+    /**
+     * Stores a newly created objective in the database after validation.
+     *
+     * Ensures the number is unique within the goal before saving.
+     */
     public function store(Request $request, Goal $goal)
     {
         $validated = $request->validate([
@@ -52,20 +63,28 @@ class ObjectiveController extends Controller
             ->with('success', 'Objetivo creado correctamente.');
     }
 
+    /**
+     * Displays the details of a specific objective.
+     */
     public function show(Objective $objective)
     {
         return view('objectives.show', compact('objective'));
     }
 
+    /**
+     * Shows the form to edit a specific objective.
+     */
     public function edit($id)
     {
         $objective = Objective::findOrFail($id);
-
         $goal = Goal::findOrFail($objective->g_id);
 
         return view('objectives.edit', compact('objective', 'goal'));
     }
 
+    /**
+     * Updates an existing objective after validating uniqueness and input.
+     */
     public function update(Request $request, Objective $objective)
     {
         $validated = $request->validate([
@@ -88,12 +107,18 @@ class ObjectiveController extends Controller
             ->with('success', 'Objetivo actualizado correctamente.');
     }
 
+    /**
+     * Deletes an objective from the database.
+     */
     public function destroy(Objective $objective)
     {
         $objective->delete();
         return redirect()->route('objectives.index');
     }
 
+    /**
+     * Displays all objectives associated with a given goal.
+     */
     public function showObjectives(Goal $goal)
     {
         $objectives = $goal->objectives()->get();
@@ -101,6 +126,9 @@ class ObjectiveController extends Controller
         return view('objectives.index', compact('objectives', 'goal'));
     }
 
+    /**
+     * Deletes multiple selected objectives in a single request.
+     */
     public function bulkDelete(Request $request)
     {
         $objectiveIds = $request->input('objectives', []);
@@ -112,20 +140,20 @@ class ObjectiveController extends Controller
             return redirect()->back()->with('error', 'No se seleccionaron objetivos para eliminar.');
         }
     }
+
+    /**
+     * Displays the assignment interface to assign objectives to contributors.
+     *
+     * Loads all contributors and currently assigned users per objective.
+     */
     public function showAssignForm(Goal $goal)
     {
         $objectives = $goal->objectives;
-
-        // Get ALL contributors
         $contributors = User::where('u_type', 'Contributor')->get();
 
-        // Get the objectives' IDs under this Goal
         $objectiveIds = $objectives->pluck('o_id');
-
-        // Get all roles for these objectives
         $assignments = AssignObjectives::whereIn('ao_ObjToFill', $objectiveIds)->get();
 
-        // Build a map: objective_id => array of assigned user IDs
         $assignedMap = [];
 
         foreach ($assignments as $assignment) {
@@ -137,16 +165,15 @@ class ObjectiveController extends Controller
 
         return view('objectives.assign', compact('goal', 'objectives', 'contributors', 'assignedMap'));
     }
+
+    /**
+     * Returns all users assigned to a specific objective as JSON.
+     */
     public function getAssignedContributors($objectiveId)
     {
         $assignedRecords = AssignObjectives::where('ao_ObjToFill', $objectiveId)
-            ->get(['ao_id', 'ao_assigned_to']); // Important: get ao_id and user_id
+            ->get(['ao_id', 'ao_assigned_to']);
 
         return response()->json($assignedRecords);
     }
-
-
-
-
-
 }

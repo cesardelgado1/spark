@@ -10,27 +10,31 @@ use Illuminate\Validation\Rule;
 
 class TopicController extends Controller
 {
+    /**
+     * Displays a list of topics for a given strategic plan.
+     *
+     * Topics are ordered by number within the plan.
+     */
     public function index(StrategicPlan $strategicplan)
     {
-
         $topics = Topic::where('sp_id', $strategicplan->sp_id)
             ->orderBy('t_num', 'asc')
             ->get();
 
-        // Para hacer lo de mostrar mas resultados
-//        $topics = Topic::where('sp_id', $strategicplan->sp_id)
-//            ->orderBy('t_num', 'asc')
-//            ->paginate(4); // Cambiamos get() por paginate(4)
-
         return view('topics.index', compact('topics', 'strategicplan'));
     }
 
+    /**
+     * Shows the form to create a new topic under the given strategic plan.
+     */
     public function create(StrategicPlan $strategicplan)
     {
         return view('topics.create', compact('strategicplan'));
     }
 
-
+    /**
+     * Stores a new topic with validation to ensure uniqueness within its plan.
+     */
     public function store(Request $request, StrategicPlan $strategicplan)
     {
         $validated = $request->validate([
@@ -60,13 +64,17 @@ class TopicController extends Controller
             ->with('success', 'Asunto creado correctamente.');
     }
 
-
-
+    /**
+     * Displays the details of a single topic.
+     */
     public function show(Topic $topic)
     {
         return view('topics.show', compact('topic'));
     }
 
+    /**
+     * Shows the form to edit a topic.
+     */
     public function edit($id)
     {
         $topic = Topic::findOrFail($id);
@@ -75,6 +83,9 @@ class TopicController extends Controller
         return view('topics.edit', compact('topic', 'strategicplan'));
     }
 
+    /**
+     * Updates a topic after validating uniqueness within the same strategic plan.
+     */
     public function update(Request $request, Topic $topic)
     {
         $validated = $request->validate([
@@ -100,21 +111,29 @@ class TopicController extends Controller
             ->with('success', 'Asunto actualizado correctamente.');
     }
 
-
-
-    // Este sirve para borrar solamente 1, si quiero que sea mas de 1, cree el de abajo, que coje muchos id de muchos topics :)
+    /**
+     * Deletes a single topic from the system.
+     */
     public function destroy(Topic $topic)
     {
         $topic->delete();
         return redirect()->route('strategicplans.topics', ['strategicplan' => $topic->sp_id])
             ->with('success', 'Asunto eliminado correctamente.');
     }
+
+    /**
+     * Displays all topics tied to a given strategic plan.
+     */
     public function showTopics(StrategicPlan $strategicplan)
     {
         $topics = $strategicplan->topics()->get();
 
         return view('topics.index', compact('topics', 'strategicplan'));
     }
+
+    /**
+     * Deletes multiple topics in one request and logs the action.
+     */
     public function bulkDelete(Request $request)
     {
         $topicIds = $request->input('topics');
@@ -122,8 +141,10 @@ class TopicController extends Controller
         if (!$topicIds || count($topicIds) === 0) {
             return redirect()->back()->with('error', 'No seleccionaste ningún asunto para eliminar.');
         }
-        AuditLogs::log('Deleted Topics: ' , implode(',', $topicIds));
+
+        AuditLogs::log('Deleted Topics: ', implode(',', $topicIds));
         Topic::whereIn('t_id', $topicIds)->delete();
+
         return redirect()->back()->with('success', 'Asuntos eliminados correctamente.');
     }
 }

@@ -11,9 +11,13 @@ use Illuminate\Validation\Rule;
 
 class IndicatorController extends Controller
 {
+    /**
+     * Shows all indicators for an objective, grouped by fiscal year.
+     *
+     * Used to display indicators in a tabbed layout by year.
+     */
     public function index(Objective $objective)
     {
-        // GROUP indicators by Fiscal Year for tab system
         $fiscalYears = Indicator::where('o_id', $objective->o_id)
             ->select('i_FY')
             ->distinct()
@@ -28,11 +32,20 @@ class IndicatorController extends Controller
         return view('indicators.index', compact('fiscalYears', 'indicators', 'objective'));
     }
 
+    /**
+     * Shows the form to create a new indicator under an objective.
+     */
     public function create(Objective $objective)
     {
         return view('indicators.create', compact('objective'));
     }
 
+    /**
+     * Stores a new indicator with validation and fiscal year constraints.
+     *
+     * Includes logic to verify valid fiscal year ranges, uniqueness,
+     * and compliance with the parent strategic plan.
+     */
     public function store(Request $request, Objective $objective)
     {
         $validated = $request->validate([
@@ -70,14 +83,11 @@ class IndicatorController extends Controller
                 $validFiscalYears[] = "$year-" . ($year + 1);
             }
 
-            $fy_range = $request->fy_start . '-' . $request->fy_end;
-
             if (!in_array($fy_range, $validFiscalYears)) {
                 return back()->withErrors(['fy_start' => "En UPRM, el año fiscal debe estar dentro del rango del plan estratégico ($strategicPlan->sp_years)."])
                     ->withInput();
             }
         }
-
 
         Indicator::create([
             'i_num' => $validated['i_num'],
@@ -91,11 +101,17 @@ class IndicatorController extends Controller
             ->with('success', 'Indicador creado correctamente.');
     }
 
+    /**
+     * Displays the detail view of a specific indicator.
+     */
     public function show(Indicator $indicator)
     {
         return view('indicators.show', compact('indicator'));
     }
 
+    /**
+     * Shows the form to edit an indicator.
+     */
     public function edit($id)
     {
         $indicator = Indicator::findOrFail($id);
@@ -104,6 +120,9 @@ class IndicatorController extends Controller
         return view('indicators.edit', compact('indicator', 'objective'));
     }
 
+    /**
+     * Updates an existing indicator, validating fiscal year and uniqueness constraints.
+     */
     public function update(Request $request, Indicator $indicator)
     {
         $validated = $request->validate([
@@ -141,8 +160,6 @@ class IndicatorController extends Controller
                 $validFiscalYears[] = "$year-" . ($year + 1);
             }
 
-            $fy_range = $request->fy_start . '-' . $request->fy_end;
-
             if (!in_array($fy_range, $validFiscalYears)) {
                 return back()->withErrors(['fy_start' => "En UPRM, el año fiscal debe estar dentro del rango del plan estratégico ($strategicPlan->sp_years)."])
                     ->withInput();
@@ -161,6 +178,9 @@ class IndicatorController extends Controller
             ->with('active_fy', $indicator->i_FY);
     }
 
+    /**
+     * Updates the value of an indicator, including document uploads.
+     */
     public function updateValue(Request $request, Indicator $indicator)
     {
         if ($indicator->i_type === 'document') {
@@ -192,19 +212,29 @@ class IndicatorController extends Controller
             ->with('active_fy', $indicator->i_FY);
     }
 
+    /**
+     * Deletes an indicator from the database.
+     */
     public function destroy(Indicator $indicator)
     {
         $indicator->delete();
         return redirect()->route('objectives.indicators', ['objective' => $indicator->o_id])
-            ->with('success', 'Indicador eliminado correctamente.')->with('active_fy', $indicator->i_FY);
+            ->with('success', 'Indicador eliminado correctamente.')
+            ->with('active_fy', $indicator->i_FY);
     }
 
+    /**
+     * Displays a basic list of indicators tied to a specific objective.
+     */
     public function showIndicators(Objective $objective)
     {
         $indicators = $objective->indicators;
         return view('indicators.index', compact('indicators', 'objective'));
     }
 
+    /**
+     * Deletes multiple indicators in a batch and logs the action.
+     */
     public function bulkDelete(Request $request)
     {
         $indicatorIds = $request->input('indicators');
@@ -218,6 +248,9 @@ class IndicatorController extends Controller
         return redirect()->back()->with('success', 'Indicadores eliminados correctamente.');
     }
 
+    /**
+     * Removes a specific document from an indicator's value field.
+     */
     public function removeDocument(Request $request)
     {
         $request->validate([
@@ -238,7 +271,11 @@ class IndicatorController extends Controller
         return redirect()->back()->with('success', 'Documento eliminado correctamente.');
     }
 
-    //Deep Copy Fiscal Year Method
+    /**
+     * Duplicates all indicators from one fiscal year to the next for a given objective.
+     *
+     * Prevents copying if indicators already exist for the target year.
+     */
     public function copyFiscalYear(Request $request, Objective $objective)
     {
         $request->validate([
@@ -248,7 +285,6 @@ class IndicatorController extends Controller
         $currentFiscalYear = $request->input('current_fy');
         $nextFiscalYear = $this->generateNextFiscalYear($currentFiscalYear);
 
-        //Prevent copying if indicators already exist for next FY
         $exists = Indicator::where('o_id', $objective->o_id)
             ->where('i_FY', $nextFiscalYear)
             ->exists();
@@ -277,8 +313,9 @@ class IndicatorController extends Controller
             ->with('success', "Indicadores copiados para el año fiscal $nextFiscalYear.");
     }
 
-
-    // NEW: Helper
+    /**
+     * Generates the next fiscal year string based on the current one.
+     */
     private function generateNextFiscalYear($currentFiscalYear)
     {
         [$start, $end] = explode('-', $currentFiscalYear);
@@ -287,6 +324,9 @@ class IndicatorController extends Controller
         return "$newStart-$newEnd";
     }
 
+    /**
+     * Toggles the locked/unlocked state of an indicator.
+     */
     public function toggleLock(Indicator $indicator)
     {
         $indicator->i_locked = !$indicator->i_locked;
@@ -294,5 +334,4 @@ class IndicatorController extends Controller
 
         return back()->with('success', 'El estado de edición del indicador ha sido actualizado.');
     }
-
 }

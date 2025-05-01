@@ -12,16 +12,24 @@ use Illuminate\Support\Facades\Auth;
 
 class TaskController extends Controller
 {
+    /**
+     * Displays the Tareas (Tasks) view for the current user.
+     *
+     * Loads assigned objectives, optionally filtered by strategic plan.
+     * Also calculates indicator completion status for each assignee tied to an objective.
+     */
     public function index(Request $request)
     {
         $userId = Auth::id();
 
+        // Get all strategic plans that the user has assignments under
         $strategicPlans = StrategicPlan::whereHas('topics.goals.objectives.assignments', function ($q) use ($userId) {
             $q->where('ao_assigned_to', $userId);
         })->get();
 
         $planId = $request->input('sp_id');
 
+        // Load objectives assigned to the current user
         $assignedObjectivesQuery = AssignObjectives::with([
             'objective.indicators',
             'objective.goal.topic.strategicplan',
@@ -29,6 +37,7 @@ class TaskController extends Controller
             'assignedBy'
         ])->where('ao_assigned_to', $userId);
 
+        // If a plan is selected, filter objectives by that plan
         if ($planId) {
             $assignedObjectivesQuery->whereHas('objective.goal.topic', function ($q) use ($planId) {
                 $q->where('sp_id', $planId);
@@ -37,8 +46,9 @@ class TaskController extends Controller
 
         $assignedObjectives = $assignedObjectivesQuery->get()->unique('ao_ObjToFill')->values();
 
-        // Build assignee completion map for contributors
+        // Track which assignees have completed their indicator entries
         $assigneeCompletion = [];
+
         foreach ($assignedObjectives as $assignment) {
             $objective = $assignment->objective;
             $indicators = $objective->indicators;
@@ -65,5 +75,4 @@ class TaskController extends Controller
 
         return view('tasks.index', compact('assignedObjectives', 'strategicPlans', 'planId', 'assigneeCompletion'));
     }
-
 }

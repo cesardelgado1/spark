@@ -7,29 +7,43 @@ use Illuminate\Http\Request;
 
 class StrategicPlanController extends Controller
 {
+    /**
+     * Displays a paginated list of strategic plans.
+     *
+     * Can be filtered by institution via a query parameter.
+     */
     public function index(Request $request)
     {
         $query = StrategicPlan::query();
         $institution = null;
-        // Check if the request has a filter for institution
+
         if ($request->has('institution')) {
             $query->where('sp_institution', $request->input('institution'));
             $institution = $request->input('institution');
         }
 
-        // Paginate the filtered (or unfiltered) list
         $strategicplans = $query->latest()->simplePaginate(10);
 
-        return view('strategicplans.index', compact('strategicplans','institution'));
+        return view('strategicplans.index', compact('strategicplans', 'institution'));
     }
+
+    /**
+     * Shows the form to create a new strategic plan.
+     *
+     * Pre-fills the institution field if it's passed via URL query.
+     */
     public function create(Request $request)
     {
-        $institution = $request->query('institution'); // Capture it from URL query
+        $institution = $request->query('institution');
 
         return view('strategicplans.create', compact('institution'));
     }
 
-
+    /**
+     * Validates and stores a new strategic plan.
+     *
+     * Ensures there are no duplicates for the same institution and year range.
+     */
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -61,19 +75,27 @@ class StrategicPlanController extends Controller
             ->with('success', 'Plan Estratégico creado correctamente.');
     }
 
-
-
-
+    /**
+     * Displays details of a specific strategic plan.
+     */
     public function show(StrategicPlan $strategicplan)
     {
         return view('strategicplans.show', compact('strategicplan'));
     }
 
+    /**
+     * Shows the form to edit an existing strategic plan.
+     */
     public function edit(StrategicPlan $strategicplan)
     {
         return view('strategicplans.edit', compact('strategicplan'));
     }
 
+    /**
+     * Updates an existing strategic plan with validated input.
+     *
+     * Catches potential database errors during the update process.
+     */
     public function update(Request $request, StrategicPlan $strategicplan)
     {
         $validated = $request->validate([
@@ -92,25 +114,32 @@ class StrategicPlanController extends Controller
         }
     }
 
-
-
+    /**
+     * Deletes a specific strategic plan from the system.
+     */
     public function destroy(StrategicPlan $strategicplan)
     {
         $strategicplan->delete();
         return redirect()->route('strategicplans.index');
     }
 
+    /**
+     * Deletes multiple strategic plans at once.
+     *
+     * Redirects back with a success or error message depending on input.
+     */
     public function bulkDelete(Request $request)
     {
         $ids = $request->input('strategicplans');
         $institution = $request->query('institution');
+
         if (!$ids || !is_array($ids)) {
             return redirect()->route('strategicplans.index')->with('error', 'No se seleccionó ningún plan para eliminar.');
         }
 
         StrategicPlan::whereIn('sp_id', $ids)->delete();
 
-        return redirect()->route('strategicplans.index',['institution' => $institution])->with('success', 'Planes estratégicos eliminados correctamente.');
+        return redirect()->route('strategicplans.index', ['institution' => $institution])
+            ->with('success', 'Planes estratégicos eliminados correctamente.');
     }
-
 }

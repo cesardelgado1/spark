@@ -9,10 +9,17 @@ use Illuminate\Support\Facades\DB;
 
 class SettingsController extends Controller
 {
+    /**
+     * Displays the Settings page with role management and activity logs.
+     *
+     * Handles user search, audit log filtering, session listing,
+     * and tab memory across the "Roles" and "Logs" views.
+     */
     public function index(Request $request)
     {
         //Tab memory
         $activeTab = $request->tab ?? 'roles';
+
         // Search for users
         $query = User::query();
 
@@ -59,9 +66,13 @@ class SettingsController extends Controller
         ]);
     }
 
+    /**
+     * Updates a user's role and logs the action.
+     *
+     * The update is triggered via AJAX from the dropdown on the Settings page.
+     */
     public function updateRole(Request $request, User $user)
     {
-
         $validated = $request->validate([
             'u_type' => 'required|in:Admin,Planner,Contributor,Assignee,Viewer',
         ]);

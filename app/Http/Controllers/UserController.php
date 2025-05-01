@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
+    // Not used mostly, here for future expansion!
     public function index()
     {
         $users = User::latest()->simplePaginate(5);

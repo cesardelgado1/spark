@@ -12,52 +12,12 @@ use Illuminate\Support\Facades\Storage;
 
 class IndicatorEntryController extends Controller
 {
-
-//    CESAR'S VERSION>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-//    public function showForEntry(Objective $objective)
-//    {
-//        $userId = Auth::id();
-//
-//        $isAssigned = AssignObjectives::where('ao_ObjToFill', $objective->o_id)
-//            ->where('ao_assigned_to', $userId)
-//            ->exists();
-//
-//        if (! $isAssigned) {
-//            abort(403, 'No estás asignado a este objetivo.');
-//        }
-//
-//        $indicators = $objective->indicators;
-//
-//        return view('indicators.fill', compact('objective', 'indicators'));
-//    }
-//public function updateValues(Request $request)
-//{
-//    foreach ($request->indicators as $id => $value) {
-//        $indicator = Indicator::findOrFail($id);
-//
-//        if ($indicator->i_type === 'document') {
-//            if (is_object($value) && $value->isValid()) {
-//                // Delete the old document if it exists
-//                if ($indicator->i_value && Storage::disk('public')->exists($indicator->i_value)) {
-//                    Storage::disk('public')->delete($indicator->i_value);
-//                }
-//
-//                // Store the new document
-//                $path = $value->store('indicators/documents', 'public');
-//                $indicator->i_value = $path;
-//            }
-//        } else {
-//            $indicator->i_value = $value;
-//        }
-//
-//        $indicator->save();
-//    }
-//
-//    return redirect()->route('tasks.index')->with('success', 'Indicadores actualizados correctamente.');
-//}
-
-//    MARI'S VERSION>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
+    /**
+     * Displays the indicator entry form for the current user on a given objective.
+     *
+     * Ensures the user is assigned to the objective and only shows indicators
+     * for the current fiscal year. Also loads any previously entered values.
+     */
     public function showForEntry(Objective $objective)
     {
         $userId = Auth::id();
@@ -102,58 +62,12 @@ class IndicatorEntryController extends Controller
         return view('indicators.fill', compact('objective', 'indicators'));
     }
 
-
-//    public function updateValues(Request $request)
-//    {
-//        $userId = Auth::id();
-//
-//        foreach ($request->indicators as $id => $value) {
-//            $indicator = Indicator::findOrFail($id);
-//
-//            if ($indicator->i_type === 'document') {
-//                if (is_object($value) && $value->isValid()) {
-//                    // Get the original file name
-//                    $originalName = $value->getClientOriginalName();
-//                    // Save the file with the original name
-//                    $path = $value->storeAs('documents', $originalName, 'public');
-//                    $iv_value = $originalName; // Store only the original name in DB
-//                } else {
-//                    continue;
-//                }
-//            } else {
-//                $iv_value = $value;
-//            }
-//
-//            // Save the individual entry for the user
-//            IndicatorValues::updateOrCreate(
-//                ['iv_u_id' => $userId, 'iv_ind_id' => $id],
-//                ['iv_value' => $iv_value]
-//            );
-//        }
-//
-//        // Determine action (sum or concatenate) based on i_type:
-//        $indicatorIds = array_keys($request->indicators);
-//
-//        foreach ($indicatorIds as $indicatorId) {
-//            $indicator = Indicator::findOrFail($indicatorId);
-//
-//            if ($indicator->i_type === 'integer') {
-//                $result = IndicatorValues::where('iv_ind_id', $indicatorId)->sum('iv_value');
-//            } elseif ($indicator->i_type === 'string' || $indicator->i_type === 'document') {
-//                $result = IndicatorValues::where('iv_ind_id', $indicatorId)
-//                    ->pluck('iv_value')
-//                    ->filter()                      // Remove null/empty values if needed
-//                    ->implode(', ');                // Join values with comma and space
-//            } else {
-//                $result = null; // Optional: handle unexpected types here
-//            }
-//
-//            // Update the result back into the indicators table
-//            Indicator::where('i_id', $indicatorId)->update(['i_value' => $result]);
-//        }
-//
-//        return redirect()->route('tasks.index')->with('success', 'Indicadores actualizados correctamente.');
-//    }
+    /**
+     * Updates the user's values for one or more indicators.
+     *
+     * Saves each entry per user and recalculates the final `i_value` for each indicator
+     * (sum for integers, concatenation for strings/documents), unless the indicator is locked.
+     */
     public function updateValues(Request $request)
     {
         $userId = Auth::id();
@@ -161,18 +75,16 @@ class IndicatorEntryController extends Controller
         foreach ($request->indicators as $id => $value) {
             $indicator = Indicator::findOrFail($id);
 
-            // ✅ NEW: If indicator is locked, skip
+            // Skip if the indicator is locked
             if ($indicator->i_locked) {
                 continue;
             }
 
             if ($indicator->i_type === 'document') {
                 if (is_object($value) && $value->isValid()) {
-                    // Get the original file name
                     $originalName = $value->getClientOriginalName();
-                    // Save the file with the original name
                     $path = $value->storeAs('documents', $originalName, 'public');
-                    $iv_value = $originalName; // Store only the original name in DB
+                    $iv_value = $originalName;
                 } else {
                     continue;
                 }
@@ -180,20 +92,18 @@ class IndicatorEntryController extends Controller
                 $iv_value = $value;
             }
 
-            // Save the individual entry for the user
             IndicatorValues::updateOrCreate(
                 ['iv_u_id' => $userId, 'iv_ind_id' => $id],
                 ['iv_value' => $iv_value]
             );
         }
 
-        // Determine action (sum or concatenate) based on i_type:
+        // Recalculate overall indicator value per type
         $indicatorIds = array_keys($request->indicators);
 
         foreach ($indicatorIds as $indicatorId) {
             $indicator = Indicator::findOrFail($indicatorId);
 
-            // ✅ NEW: Don't recalculate locked indicators
             if ($indicator->i_locked) {
                 continue;
             }
@@ -209,13 +119,9 @@ class IndicatorEntryController extends Controller
                 $result = null;
             }
 
-            // Update the result back into the indicators table
             Indicator::where('i_id', $indicatorId)->update(['i_value' => $result]);
         }
 
         return redirect()->route('tasks.index')->with('success', 'Indicadores actualizados correctamente.');
     }
-
-
-
 }
