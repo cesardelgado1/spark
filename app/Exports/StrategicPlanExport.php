@@ -14,6 +14,14 @@ use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use Maatwebsite\Excel\Concerns\WithTitle;
 
+
+/**
+ * Class StrategicPlanExport
+ *
+ * This class handles the generation of an Excel export for indicators within a strategic plan.
+ * It supports optional filtering by department, topic, goal, and objective. The output format
+ * includes structured data (Asuntos, Metas, Objetivos, Indicadores) and indicator values.
+ */
 class StrategicPlanExport implements FromCollection, WithHeadings, WithStyles, WithEvents, WithTitle
 {
     protected $sp_id;
@@ -23,6 +31,16 @@ class StrategicPlanExport implements FromCollection, WithHeadings, WithStyles, W
     protected $goals;
     protected $objectives;
 
+    /**
+     * StrategicPlanExport constructor.
+     *
+     * @param int $sp_id Strategic Plan ID
+     * @param string $fy Fiscal Year
+     * @param string $department Department name (or "Todos")
+     * @param array $topics Optional topic IDs to filter
+     * @param array $goals Optional goal IDs to filter
+     * @param array $objectives Optional objective IDs to filter
+     */
     public function __construct($sp_id, $fy, $department, $topics = [], $goals = [], $objectives = [])
     {
         $this->sp_id = $sp_id;
@@ -33,6 +51,11 @@ class StrategicPlanExport implements FromCollection, WithHeadings, WithStyles, W
         $this->objectives = $objectives;
     }
 
+    /**
+     * Returns the collection of rows to be exported.
+     *
+     * @return \Illuminate\Support\Collection
+     */
     public function collection()
     {
         if ($this->department === "Todos") {
@@ -92,6 +115,7 @@ class StrategicPlanExport implements FromCollection, WithHeadings, WithStyles, W
 
         $data = $query->get();
 
+        // Format each item into structured display strings
         foreach ($data as $item) {
             $item->asuntos = 'Asunto ' . $item->t_num . ': ' . $item->t_text;
             $item->metas = 'Meta ' . $item->g_num . ': ' . $item->g_text;
@@ -102,11 +126,23 @@ class StrategicPlanExport implements FromCollection, WithHeadings, WithStyles, W
         return $this->pivotData($data);
     }
 
+    /**
+     * Defines the column headers in the Excel file.
+     *
+     * @return array
+     */
+
     public function headings(): array
     {
         return ['Asuntos', 'Metas', 'Objetivos', 'Indicadores', 'Valor de Indicador', 'FY'];
     }
 
+    /**
+     * Transforms grouped raw data into a flat, printable structure (a pivot table) for the spreadsheet.
+     *
+     * @param Collection $data
+     * @return Collection
+     */
     private function pivotData(Collection $data)
     {
         $grouped = $data->groupBy('asuntos');
@@ -129,16 +165,23 @@ class StrategicPlanExport implements FromCollection, WithHeadings, WithStyles, W
         return collect($pivotTable);
     }
 
+    /**
+     * Applies styling to the Excel spreadsheet (header, alignment, column width).
+     *
+     * @param \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $sheet
+     * @return mixed
+     */
     public function styles($sheet)
     {
-        // Elimino la columna de FY?
+        // Elimino la columna de FY ?
 
-        // Headers
+        // Style headers
         $sheet->getStyle('A1:F1')->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
         $sheet->getStyle('A1:F1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
         $sheet->getStyle('A1:F1')->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
         $sheet->getStyle('A1:F1')->getFont()->setBold(true);
 
+        // Style cells
         // Wrap text, set column width, and align text to the left and center
         $lastRow = $sheet->getHighestRow();
         foreach (range('A', 'F') as $col) {
@@ -158,6 +201,11 @@ class StrategicPlanExport implements FromCollection, WithHeadings, WithStyles, W
         return $sheet;
     }
 
+    /**
+     * Registers Excel sheet-level events, including merging cells with same value.
+     *
+     * @return array
+     */
     public function registerEvents(): array
     {
         return [
@@ -166,6 +214,7 @@ class StrategicPlanExport implements FromCollection, WithHeadings, WithStyles, W
                 $rowCount = $sheet->getHighestRow();
                 $startRow = 2;
 
+                // Merge cells vertically when content is the same (Asuntos, Metas, Objetivos)
                 for ($col = 1; $col <= 3; $col++) {
                     $lastValue = null;
                     $startMergeRow = null;
@@ -194,6 +243,11 @@ class StrategicPlanExport implements FromCollection, WithHeadings, WithStyles, W
         ];
     }
 
+    /**
+     * Returns the name of the Excel sheet based on department and fiscal year.
+     *
+     * @return string
+     */
     public function title(): string
     {
         if ($this->department === "Todos"){
