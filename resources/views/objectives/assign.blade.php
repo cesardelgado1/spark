@@ -1,25 +1,22 @@
 <x-layout>
-    {{-- Page heading with goal number --}}
     <x-slot:heading>
         Asignar Objetivos a Contribuidores - Meta #{{ $goal->g_num }}
     </x-slot:heading>
 
-    {{-- Flash message on successful assignment --}}
+    {{-- Success Message --}}
     @if(session('success'))
         <div id="success-message" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
             {{ session('success') }}
         </div>
     @endif
 
-    {{-- Assignment Form --}}
     <div class="bg-white border border-gray-300 rounded-lg shadow-md px-6 py-4">
         <form id="assign-form" action="{{ route('assignobjectives.store') }}" method="POST">
             @csrf
 
-            {{-- Dropdown to select an objective --}}
+            {{-- Select Objective --}}
             <div class="mb-6">
-                <label for="objective_id" class="block text-sm font-medium text-gray-700 mb-2">Seleccionar Objetivo</label>
-                <select name="objective_id" id="objective_id" class="w-full border border-gray-300 rounded px-4 py-2">
+                <label for="objective_id" class="block text-sm font-medium text-gray-700 mb-2">Seleccionar Objetivo</label><select name="objective_id" id="objective_id" class="w-full border border-gray-300 rounded px-4 py-2">
                     @foreach ($objectives as $objective)
                         <option value="{{ $objective->o_id }}"
                             {{ (old('objective_id', session('selected_objective', $objectives->first()->o_id)) == $objective->o_id) ? 'selected' : '' }}>
@@ -29,13 +26,15 @@
                 </select>
             </div>
 
-            {{-- Display currently assigned contributors --}}
+            {{-- Assigned Contributors --}}
             <div id="assigned-contributors" class="hidden mb-6">
                 <h3 class="text-md font-semibold text-gray-800 mb-3">Contribuidores Asignados:</h3>
-                <div id="assigned-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+                <div id="assigned-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- Assigned Contributors will be dynamically inserted here -->
+                </div>
             </div>
 
-            {{-- Checkbox list of contributors to assign --}}
+            {{-- Select Contributors --}}
             <div class="mb-6">
                 <label class="block text-sm font-medium text-gray-700 mb-2">Seleccionar Contribuidores Nuevos</label>
                 <div id="contributors-checkboxes" class="space-y-2 max-h-64 overflow-y-auto border p-3 rounded">
@@ -49,7 +48,7 @@
                 </div>
             </div>
 
-            {{-- Action buttons --}}
+            {{-- Submit --}}
             <div class="flex justify-end gap-3">
                 <a href="{{ route('goals.objectives', ['goal' => $goal->g_id]) }}"
                    class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition">
@@ -62,7 +61,7 @@
         </form>
     </div>
 
-    {{-- Modal: Confirm Unassign --}}
+    {{-- Unassign Modal --}}
     <div id="unassign-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 hidden">
         <div class="bg-white w-1/3 rounded-lg shadow-lg p-6">
             <h2 class="text-lg font-bold mb-4 text-red-600">¿Estás seguro de desasignar este usuario?</h2>
@@ -77,7 +76,6 @@
         </div>
     </div>
 
-    {{-- Modal: No contributors selected warning --}}
     <div id="assign-warning-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 hidden">
         <div class="bg-white w-1/3 rounded-lg shadow-lg p-6">
             <h2 class="text-lg font-bold text-red-600 mb-4">¡Atención!</h2>
@@ -89,11 +87,11 @@
             </div>
         </div>
     </div>
+
 </x-layout>
 
-{{-- JavaScript Section --}}
+{{-- Scripts --}}
 <script>
-    // Data from controller
     const assignedMap = @json($assignedMap);
     const contributors = @json($contributors->keyBy('id'));
 
@@ -105,7 +103,6 @@
     let pendingUnassignId = null;
     let pendingUserId = null;
 
-    // Populate list of assigned users
     function updateAssignedContributors(objectiveId) {
         assignedList.innerHTML = '';
 
@@ -129,8 +126,8 @@
                             onclick="unassignUser(${aoId}, ${entry.user_id})"
                             class="absolute top-2 right-2 text-red-500 hover:text-red-700 text-sm"
                             title="Desasignar">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" ...>
-                                <path ... />
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                             </svg>
                         </button>
                     `;
@@ -142,31 +139,30 @@
         }
     }
 
-    // Hide checkboxes for already assigned contributors
     function updateContributorCheckboxes(objectiveId) {
         const assignedEntries = assignedMap[objectiveId] || [];
         const assignedUserIds = assignedEntries.map(entry => entry.user_id);
 
-        contributorCheckboxes.forEach(label => {
-            const userId = parseInt(label.dataset.userId);
-            const input = label.querySelector('input[type="checkbox"]');
+        contributorCheckboxes.forEach(checkboxLabel => {
+            const userId = parseInt(checkboxLabel.dataset.userId);
+            const input = checkboxLabel.querySelector('input[type="checkbox"]');
 
             if (assignedUserIds.includes(userId)) {
-                label.classList.add('hidden');
+                checkboxLabel.classList.add('hidden');
                 input.checked = false;
             } else {
-                label.classList.remove('hidden');
+                checkboxLabel.classList.remove('hidden');
             }
         });
     }
 
-    // When a different objective is selected
     objectiveSelect.addEventListener('change', function () {
-        updateAssignedContributors(this.value);
-        updateContributorCheckboxes(this.value);
+        const selectedObjectiveId = this.value;
+        updateAssignedContributors(selectedObjectiveId);
+        updateContributorCheckboxes(selectedObjectiveId);
     });
 
-    // On load: initialize contributor and assignment lists
+    // Initialize
     document.addEventListener('DOMContentLoaded', function () {
         updateAssignedContributors({{ $objectives->first()->o_id }});
         updateContributorCheckboxes({{ $objectives->first()->o_id }});
@@ -179,21 +175,18 @@
         }
     });
 
-    // Trigger unassign confirmation modal
     function unassignUser(aoId, userId) {
         pendingUnassignId = aoId;
         pendingUserId = userId;
         document.getElementById('unassign-modal').classList.remove('hidden');
     }
 
-    // Close unassign modal
     function closeUnassignModal() {
         pendingUnassignId = null;
         pendingUserId = null;
         document.getElementById('unassign-modal').classList.add('hidden');
     }
 
-    // Confirm and process unassignment via AJAX
     function confirmUnassign() {
         if (!pendingUnassignId) return;
 
@@ -207,18 +200,20 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Remove card from DOM
                     const card = document.getElementById(`assignment-card-${pendingUnassignId}`);
-                    if (card) card.remove();
+                    if (card) {
+                        card.remove();
+                    }
 
-                    // Update map and checkboxes
-                    assignedMap[objectiveSelect.value] = assignedMap[objectiveSelect.value].filter(e => e.user_id !== pendingUserId);
+                    assignedMap[objectiveSelect.value] = assignedMap[objectiveSelect.value].filter(entry => entry.user_id !== pendingUserId);
+
                     updateContributorCheckboxes(objectiveSelect.value);
 
-                    // Hide container if empty
                     if (assignedList.children.length === 0) {
                         assignedContributorsDiv.classList.add('hidden');
                     }
+
+                    console.log('Usuario desasignado exitosamente.');
                 } else {
                     alert('Error al desasignar. Inténtalo de nuevo.');
                 }
@@ -230,17 +225,28 @@
                 closeUnassignModal();
             });
     }
-
-    // Warn if no contributor is selected when submitting the form
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const successMessage = document.getElementById('success-message');
+        if (successMessage) {
+            setTimeout(() => {
+                successMessage.style.display = 'none';
+            }, 3000); // 4 seconds (adjust as you wish)
+        }
+    });
+</script>
+<script>
+    // Intercept form submit
     document.getElementById('assign-form').addEventListener('submit', function (event) {
         const selectedCheckboxes = document.querySelectorAll('input[name="user_ids[]"]:checked');
+
         if (selectedCheckboxes.length === 0) {
-            event.preventDefault();
-            document.getElementById('assign-warning-modal').classList.remove('hidden');
+            event.preventDefault(); // Stop form submission
+            document.getElementById('assign-warning-modal').classList.remove('hidden'); // Show modal
         }
     });
 
-    // Close warning modal
     function closeAssignWarningModal() {
         document.getElementById('assign-warning-modal').classList.add('hidden');
     }

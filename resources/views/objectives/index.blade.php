@@ -24,7 +24,7 @@
             </svg>
         </button>
         <a href="{{route('objective.assign.view', $goal->g_id)}}" class="inline-flex items-center justify-center w-8 h-8 bg-purple-500 text-white rounded-full shadow hover:bg-purple-700 transition"
-                title="Asignar Objetivos">
+           title="Asignar Objetivos">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-5 w-5 text-white">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                 <circle cx="8.5" cy="7" r="4"></circle>

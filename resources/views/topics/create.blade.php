@@ -4,9 +4,9 @@
     </x-slot:heading>
 
     {{-- Debug sp_id hasta donde llega (NO LLEGA AQUI), nada relacionado el sp no llega--}}
-{{--    @php--}}
-{{--        dd($strategicplan->sp_id);--}}
-{{--    @endphp--}}
+    {{--    @php--}}
+    {{--        dd($strategicplan->sp_id);--}}
+    {{--    @endphp--}}
 
     <div class="px-6 py-4">
         <form action="{{ route('topics.store', $strategicplan) }}" method="POST">
