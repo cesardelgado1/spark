@@ -35,14 +35,32 @@
 
                     $indicators = $assignment->objective->indicators->where('i_FY', $fy);
 
-                    $filled = $indicators->every(function($indicator) use ($userId) {
-                        return IndicatorValues::where('iv_u_id', $userId)
+                    if (Auth::user()->u_type === 'Contributor') {
+                        $assignees = $assignment->objective->assignedUsers
+                            ->filter(fn($user) => $user->u_type === 'Assignee')
+                            ->unique('id');
+
+                        $filled = $assignees->every(function($assignee) use ($indicators) {
+                            return $indicators->every(function($indicator) use ($assignee) {
+                                return IndicatorValues::where('iv_u_id', $assignee->id)
+                                    ->where('iv_ind_id', $indicator->i_id)
+                                    ->whereNotNull('iv_value')
+                                    ->where('iv_value', '!=', '')
+                                    ->exists();
+                            });
+                        });
+                    } else {
+                        // para Assignee
+                        $filled = $indicators->every(function($indicator) use ($userId) {
+                            return IndicatorValues::where('iv_u_id', $userId)
                                 ->where('iv_ind_id', $indicator->i_id)
                                 ->whereNotNull('iv_value')
                                 ->where('iv_value', '!=', '')
                                 ->exists();
-                    });
+                        });
+                    }
                 @endphp
+
 
                 <div class="mt-2 text-sm font-semibold">
                     Estado:
