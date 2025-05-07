@@ -23,6 +23,7 @@ Route::match(['get','post'],'/auth/callback', function () {
     ]);
 
     Auth::login($user);
+    session(['was_authenticated' => true]);
 
     return redirect()->intended('/');
 })->withoutMiddleware([VerifyCsrfToken::class])->name('saml.callback');

@@ -49,6 +49,16 @@
         </div>
     </div>
 
+    <!-- Session Expired Modal -->
+    <div id="session-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-white p-6 rounded shadow-lg text-center max-w-sm">
+            <h2 class="text-xl font-bold mb-2">Sesión Finalizada</h2>
+            <p class="mb-4">Tu sesión ha expirado. Por favor, inicia sesión nuevamente.</p>
+            <a href="{{ route('login') }}" class="bg-blue-600 text-white px-4 py-2 rounded">Iniciar Sesión</a>
+        </div>
+    </div>
+
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         const ctx = document.getElementById('circularProgress').getContext('2d');
@@ -74,4 +84,13 @@
             }
         });
     </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('session') === 'expired') {
+                document.getElementById('session-modal').classList.remove('hidden');
+            }
+        });
+    </script>
+
 </x-layout>

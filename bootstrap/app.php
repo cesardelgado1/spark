@@ -7,9 +7,13 @@ use App\Http\Middleware\IsAdmin;
 use App\Http\Middleware\IsAssignee;
 use App\Http\Middleware\IsContributor;
 use App\Http\Middleware\IsPlanner;
+use App\Http\Middleware\SessionTimeout;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Support\Facades\Log;
+use Symfony\Component\Routing\Exception\RouteNotFoundException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -18,6 +22,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        $middleware->append([
+            SessionTimeout::class,
+        ]);
+
+        // Route middleware aliases (still correct)
         $middleware->alias([
             'isAdmin' => IsAdmin::class,
             'isPlanner' => IsPlanner::class,
@@ -26,8 +35,22 @@ return Application::configure(basePath: dirname(__DIR__))
             'adminOrPlanner' => AdminOrPlanner::class,
             'PlannerOrContributor' => PlannerOrContributor::class,
             'ContributorOrAssignee' => ContributorOrAssignee::class,
+            'SessionTimeout' => SessionTimeout::class,
+        ]);
+    })
 
-        ]);    })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        $exceptions->renderable(function (Throwable $e, $request) {
+            if ($e instanceof \Illuminate\Auth\AuthenticationException &&
+                str_contains($request->header('Accept'), 'text/html')) {
+                return redirect('/?session=expired');
+            }
+
+            if ($e instanceof \Symfony\Component\Routing\Exception\RouteNotFoundException &&
+                str_contains($request->header('Accept'), 'text/html')) {
+                return redirect('/?session=expired');
+            }
+
+            return response()->view('errors.500', [], 500);
+        });
     })->create();

@@ -22,20 +22,27 @@ use App\Http\Controllers\ExportController;
 use App\Http\Controllers\IndicatorEntryController;
 
 
+//
+Route::get('/login', function () {
+    return redirect()->route('saml.login'); // or just '/auth/saml/login'
+})->name('login');
+
+
 Route::post('/logout', function () {
     Auth::logout();
     Session::flush(); // optional: kills everything
     return redirect('/');
 })->name('logout');
-
 Route::get('/', [HomeController::class, 'index'])->name('home');
-Route::view('/planes-estrategicos', 'strategicplans/select_index');
-Route::view('/reportes', 'reportes/index');
-Route::view('/topics', 'topics.index');
+//Route::view('/planes-estrategicos', 'strategicplans/select_index');
+//Route::view('/reportes', 'reportes/index');
+//Route::view('/topics', 'topics.index');
 
 
 //Planner routes
 Route::middleware(['auth', 'isPlanner'])->group(function () {
+    Route::resource('strategicplans', StrategicPlanController::class);
+    Route::view('/planes-estrategicos', 'strategicplans/select_index');
     Route::get('/strategicplans/{strategicplan}/topics', [TopicController::class, 'showTopics'])->name('strategicplans.topics');
     Route::get('/topics/{topic}/goals', [GoalController::class, 'showGoals'])->name('topics.goals');
     Route::get('/goals/{goal}/objectives', [ObjectiveController::class, 'showObjectives'])->name('goals.objectives');
@@ -46,6 +53,7 @@ Route::middleware(['auth', 'isPlanner'])->group(function () {
 
 // TOPICS
 Route::middleware(['auth', 'isPlanner'])->group(function () {
+    Route::view('/topics', 'topics.index');
     Route::get('/strategicplans/{strategicplan}/topics/create', [TopicController::class, 'create'])->name('topics.create');
     Route::post('/strategicplans/{strategicplan}/topics', [TopicController::class, 'store'])->name('topics.store');
     Route::delete('/topics/bulk-delete', [TopicController::class, 'bulkDelete'])->name('topics.bulkDelete');
@@ -128,6 +136,7 @@ Route::middleware(['auth', 'isPlanner'])->group(function () {
 });
 //Shared with contributor and planner routes:
 Route::middleware(['auth', 'PlannerOrContributor'])->group(function () {
+    Route::view('/reportes', 'reportes/index');
     Route::get('/tareas', [TaskController::class, 'index'])->name('tasks.index');
     Route::delete('/assignments/{assignment}', [AssignObjectiveController::class, 'destroy'])->name('roles.destroy');
     Route::post('/export', [ExportController::class, 'export'])->name('export');
@@ -166,7 +175,7 @@ Route::middleware(['auth', 'ContributorOrAssignee'])->group(function () {
 #Route::delete('/assignments/{assignment}', [AssignObjectiveController::class, 'destroy'])->name('roles.destroy');
 
 # CAUTION THESE WILL PROBABLY GENEATE SOME CONFLICTS WILL REMOVE SOON!!!
-Route::resource('strategicplans', StrategicPlanController::class);
+//Route::resource('strategicplans', StrategicPlanController::class);
 Route::resource('users', UserController::class);
 #Route::resource('topics', TopicController::class);
 #Route::resource('goals', GoalController::class);
