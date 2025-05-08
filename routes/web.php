@@ -37,6 +37,9 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 //Route::view('/planes-estrategicos', 'strategicplans/select_index');
 //Route::view('/reportes', 'reportes/index');
 //Route::view('/topics', 'topics.index');
+Route::get('/debug-test', function () {
+    throw new \Exception('Debug test exception!');
+});
 
 
 //Planner routes

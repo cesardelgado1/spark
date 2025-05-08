@@ -12,6 +12,7 @@ use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
 
@@ -40,17 +41,5 @@ return Application::configure(basePath: dirname(__DIR__))
     })
 
     ->withExceptions(function (Exceptions $exceptions) {
-        $exceptions->renderable(function (Throwable $e, $request) {
-            if ($e instanceof \Illuminate\Auth\AuthenticationException &&
-                str_contains($request->header('Accept'), 'text/html')) {
-                return redirect('/?session=expired');
-            }
-
-            if ($e instanceof \Symfony\Component\Routing\Exception\RouteNotFoundException &&
-                str_contains($request->header('Accept'), 'text/html')) {
-                return redirect('/?session=expired');
-            }
-
-            return response()->view('errors.500', [], 500);
-        });
+        //
     })->create();

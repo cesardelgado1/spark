@@ -6,8 +6,8 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="icon" type="image/svg+xml" href="{{ asset('paw.png') }}">
 
-    <title>{{ $heading ?? 'SPARK' }}
-    </title>
+    <title>{{ strip_tags($heading ?? 'SPARK') }}</title>
+
 
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
