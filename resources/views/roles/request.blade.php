@@ -174,6 +174,36 @@
         </div>
     </div>
 
+    <div id="role-updated-toast" class="fixed bottom-6 right-6 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 hidden transition-opacity duration-500">
+        Tu solicitud ha sido aprobada. Serás redirigido en unos segundos...
+    </div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.body.addEventListener('click', function () {
+                fetch('/check-role')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.role !== 'Viewer') {
+                            const toast = document.getElementById('role-updated-toast');
+                            toast.classList.remove('hidden');
+                            toast.classList.add('opacity-100');
+
+                            setTimeout(() => {
+                                window.location.href = '/';
+                            }, 3000); // Redirect after 3 seconds
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error checking role:', error);
+                    });
+            });
+        });
+    </script>
+
+
+
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {

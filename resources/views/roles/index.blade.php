@@ -68,19 +68,20 @@
                             <td class="px-4 py-2">{{ $request->department }}</td>
                             <td class="px-4 py-2">{{ $roleTranslations[$request->requested_role] ?? $request->requested_role }}</td>
                             <td class="px-4 py-2 flex gap-2">
-                                <form action="{{ route('roles.requests.approve', $request) }}" method="POST">
+                                <form method="POST" onsubmit="event.preventDefault(); confirmSingleApprove({{ $request->id }}, '{{ $request->user->u_fname }} {{ $request->user->u_lname }}', '{{ $request->requested_role }}');">
                                     @csrf
                                     <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded">
                                         Aprobar
                                     </button>
                                 </form>
-                                <form action="{{ route('roles.requests.reject', $request) }}" method="POST">
+                                <form method="POST" onsubmit="event.preventDefault(); confirmSingleReject({{ $request->id }}, '{{ $request->user->u_fname }} {{ $request->user->u_lname }}', '{{ $request->requested_role }}');">
                                     @csrf
                                     <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded">
                                         Rechazar
                                     </button>
                                 </form>
                             </td>
+
                         </tr>
                     @endforeach
                     </tbody>
@@ -132,6 +133,42 @@
             </div>
         </div>
     </div>
+    <!-- Single Approve Modal -->
+    <div id="single-approve-modal"
+         class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+            <h2 class="text-xl font-semibold mb-4 text-gray-800">Confirmar Aprobación</h2>
+            <p class="mb-4 text-gray-700" id="single-approve-text"></p>
+            <form id="single-approve-form" method="POST">
+                @csrf
+                <div class="flex justify-end gap-3">
+                    <button type="button" onclick="hideSingleApproveModal()"
+                            class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition">Cancelar</button>
+                    <button type="submit"
+                            class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">Confirmar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Single Reject Modal -->
+    <div id="single-reject-modal"
+         class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+            <h2 class="text-xl font-semibold mb-4 text-gray-800">Confirmar Rechazo</h2>
+            <p class="mb-4 text-gray-700" id="single-reject-text"></p>
+            <form id="single-reject-form" method="POST">
+                @csrf
+                <div class="flex justify-end gap-3">
+                    <button type="button" onclick="hideSingleRejectModal()"
+                            class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition">Cancelar</button>
+                    <button type="submit"
+                            class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition">Confirmar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
 
 
     {{-- Scripts --}}
@@ -230,4 +267,31 @@
             }
         });
     </script>
+
+    <script>
+        function confirmSingleApprove(id, name, role) {
+            const form = document.getElementById('single-approve-form');
+            form.action = `/roles/requests/${id}/approve`; // assumes RESTful URL pattern
+            document.getElementById('single-approve-text').innerHTML =
+                `Estás a punto de <strong>aprobar</strong> acceso para <strong>${name}</strong> como <strong>${roleTranslations[role] ?? role}</strong>.`;
+            document.getElementById('single-approve-modal').classList.remove('hidden');
+        }
+
+        function hideSingleApproveModal() {
+            document.getElementById('single-approve-modal').classList.add('hidden');
+        }
+
+        function confirmSingleReject(id, name, role) {
+            const form = document.getElementById('single-reject-form');
+            form.action = `/roles/requests/${id}/reject`;
+            document.getElementById('single-reject-text').innerHTML =
+                `Estás a punto de <strong>rechazar</strong> acceso para <strong>${name}</strong> como <strong>${roleTranslations[role] ?? role}</strong>.`;
+            document.getElementById('single-reject-modal').classList.remove('hidden');
+        }
+
+        function hideSingleRejectModal() {
+            document.getElementById('single-reject-modal').classList.add('hidden');
+        }
+    </script>
+
 </x-layout>

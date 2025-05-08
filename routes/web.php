@@ -27,6 +27,11 @@ Route::get('/login', function () {
     return redirect()->route('saml.login'); // or just '/auth/saml/login'
 })->name('login');
 
+Route::get('/check-role', function () {
+    return response()->json([
+        'role' => auth()->user()?->u_type ?? 'Viewer'
+    ]);
+})->middleware('auth');
 
 Route::post('/logout', function () {
     Auth::logout();
