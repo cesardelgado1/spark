@@ -109,7 +109,7 @@
                 <div class="bg-white w-1/3 rounded-lg shadow-lg p-6">
                     <h2 class="text-lg font-bold mb-4">¿Estás seguro de borrar esta(s) meta(s)?</h2>
                     <div class="flex justify-end gap-3">
-                        <button onclick="closeGoalConfirmModal()" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition">
+                        <button onclick="closeGoalWarningModal()" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition">
                             Cancelar
                         </button>
                         <button onclick="submitGoalDeleteForm()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition">
@@ -173,7 +173,7 @@
 
 
         function closeGoalWarningModal() {
-            document.getElementById('goal-warning-modal').classList.add('hidden');
+            document.getElementById('confirm-goal-modal').classList.add('hidden');
         }
 
         function submitGoalDeleteForm() {
