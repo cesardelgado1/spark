@@ -43,7 +43,7 @@
 
     <div id="indicator-edit-mode-banner" class="hidden bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded relative mb-2" role="alert">
         <strong class="font-bold">¡Modo Edición Activado!</strong>
-        <span class="inline-block sm:inline">Haz clic en un indicador para editarlo.</span>
+        <span class="inline-block sm:inline">Selecciona un indicador para editarlo.</span>
 
         <span onclick="cancelIndicatorEdit()" class="ml-2 cursor-pointer underline hover:text-red-700">
         Cancelar
@@ -265,7 +265,7 @@
                 Cancelar
             </button>
             <button type="button" onclick="showIndicatorConfirmModal()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition">
-                Confirmar Borrado
+                Borrar
             </button>
         </div>
     </form>

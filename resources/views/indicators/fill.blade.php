@@ -48,7 +48,8 @@
                                    id="indicator_{{ $indicator->i_id }}"
                                    value="{{ old("indicators.{$indicator->i_id}", $indicator->user_value) }}"
                                    placeholder="Ingrese un número entero"
-                                   class="w-full border px-4 py-2 rounded-lg focus:ring-indigo-500 focus:outline-none"
+                                   class="no-spinner w-full border px-4 py-2 rounded-lg focus:ring-indigo-500 focus:outline-none"
+                                   min="0"
                                    @if($indicator->i_locked) disabled @endif>
                         @elseif ($indicator->i_type === 'string')
                             <div class="relative group">
@@ -133,7 +134,9 @@
     <div id="error-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
         <div class="bg-white p-6 rounded-lg shadow-lg w-1/3">
             <h2 class="text-lg font-bold mb-4 text-red-600">Error de Validación</h2>
-            <p class="text-gray-700 mb-4">Por favor, verifica que los datos ingresados correspondan al tipo requerido.</p>
+            <p id="error-message-text" class="text-gray-700 mb-4">
+                <!-- Este texto será reemplazado dinámicamente -->
+            </p>
             <div class="flex justify-end">
                 <button onclick="closeModal()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition">
                     Cerrar
@@ -142,7 +145,26 @@
         </div>
     </div>
 
-{{--     Scripts--}}
+
+    {{--     Style for No Spinner--}}
+
+    <style>
+        /* Chrome, Safari, Edge, Opera */
+        .no-spinner::-webkit-inner-spin-button,
+        .no-spinner::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* Firefox */
+        .no-spinner {
+            -moz-appearance: textfield;
+        }
+    </style>
+
+
+
+    {{--     Scripts--}}
     <script>
         function closeModal() {
             document.getElementById('error-modal').classList.add('hidden');
@@ -161,9 +183,19 @@
             let input = document.getElementById('indicator_{{ $indicator->i_id }}');
 
             @if ($indicator->i_type === 'integer')
-            if (input && input.value && isNaN(input.value)) {
-                valid = false;
+            if (input && input.value) {
+                const num = parseFloat(input.value);
+                if (isNaN(num)) {
+                    valid = false;
+                    document.getElementById('error-message-text').innerText = 'Por favor, ingresa un número válido.';
+                }
+                if (num < 0) {
+                    valid = false;
+                    document.getElementById('error-message-text').innerText = 'No se permiten números negativos en los indicadores.';
+                }
             }
+
+
             @elseif ($indicator->i_type === 'document')
             if (input && input.files.length > 0) {
                 const allowedExtensions = ['pdf', 'doc', 'docx'];

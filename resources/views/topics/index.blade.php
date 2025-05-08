@@ -51,7 +51,7 @@
 
     <div id="edit-mode-banner" class="hidden bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded relative mb-4" role="alert">
         <strong class="font-bold">¡Modo Edición Activado!</strong>
-        <span class="block sm:inline">Haz clic en un asunto para editarlo.</span>
+        <span class="block sm:inline">Selecciona un asunto para editarlo.</span>
         <span onclick="cancelEdit()" class="ml-2 cursor-pointer underline hover:text-red-700">Cancelar</span>
     </div>
 
@@ -98,7 +98,7 @@
                     </button>
 
                     <button type="button" onclick="showConfirmModal()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition">
-                        Confirmar Borrado
+                        Borrar
                     </button>
                 </div>
 

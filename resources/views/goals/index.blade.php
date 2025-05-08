@@ -47,7 +47,7 @@
 
     <div id="goal-edit-mode-banner" class="hidden bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded relative mb-2" role="alert">
         <strong class="font-bold">¡Modo Edición Activado!</strong>
-        <span class="inline-block sm:inline">Haz clic en una meta para editarla.</span>
+        <span class="inline-block sm:inline">Selecciona una meta para editarlo.</span>
 
         <span onclick="cancelGoalEdit()" class="ml-2 cursor-pointer underline hover:text-red-700">
         Cancelar
@@ -89,7 +89,7 @@
                         Cancelar
                     </button>
                     <button type="button" onclick="showGoalConfirmModal()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition">
-                        Confirmar Borrado
+                        Borrar
                     </button>
                 </div>
 
@@ -113,7 +113,7 @@
                             Cancelar
                         </button>
                         <button onclick="submitGoalDeleteForm()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition">
-                            Sí, Borrar
+                            Si, Borrar
                         </button>
                     </div>
                 </div>

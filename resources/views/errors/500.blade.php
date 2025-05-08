@@ -1,4 +1,4 @@
-{{-- resources/views/errors/500.blade.php --}}
+ resources/views/errors/500.blade.php
 <x-layout>
     <div class="min-h-screen flex flex-col justify-center items-center bg-gray-100">
         <h1 class="text-5xl font-bold text-red-600">500</h1>

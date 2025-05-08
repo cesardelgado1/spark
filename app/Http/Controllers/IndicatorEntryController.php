@@ -89,6 +89,13 @@ class IndicatorEntryController extends Controller
                     continue;
                 }
             } else {
+                if ($indicator->i_type === 'integer') {
+                    if (!is_numeric($value) || $value < 0) {
+                        return back()->withErrors([
+                            "indicators.$id" => "El valor debe ser un número entero positivo."
+                        ])->withInput();
+                    }
+                }
                 $iv_value = $value;
             }
 

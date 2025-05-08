@@ -50,7 +50,7 @@
 
     <div id="edit-mode-banner" class="hidden bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded relative mb-4" role="alert">
         <strong class="font-bold">¡Modo Edición Activado!</strong>
-        <span class="block sm:inline">Haz clic en un plan para editarlo.</span>
+        <span class="block sm:inline">Selecciona un plan para editarlo.</span>
         <span onclick="cancelEdit()" class="ml-2 cursor-pointer underline hover:text-red-700">Cancelar</span>
     </div>
 
@@ -84,7 +84,7 @@
                 <div id="delete-button-container" class="mt-4 flex justify-end items-center gap-3 hidden">
                     <button type="button" onclick="cancelDelete()" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition">Cancelar</button>
                     <button type="button" onclick="showConfirmModal()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition">
-                        Confirmar Borrado
+                        Borrar
                     </button>
 
                 </div>
@@ -101,7 +101,7 @@
                         </button>
                         <!-- Botón para confirmar eliminación -->
                         <button onclick="submitDeleteForm()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition">
-                            Sí, Borrar
+                            Si, borrar
                         </button>
                     </div>
                 </div>
