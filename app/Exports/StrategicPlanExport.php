@@ -432,14 +432,50 @@ class StrategicPlanExport implements WithMultipleSheets
                 }
             }
 
+//            public function registerEvents(): array
+//            {
+//                return [
+//                    \Maatwebsite\Excel\Events\AfterSheet::class => function ($event) {
+//                        $sheet = $event->sheet;
+//                        $lastRow = $sheet->getHighestRow();
+//                        foreach (range('A', 'F') as $col) {
+//                            $sheet->getStyle("{$col}2:{$col}{$lastRow}")
+//                                ->getAlignment()->setWrapText(true)
+//                                ->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER)
+//                                ->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT);
+//                        }
+//                    }
+//                ];
+//            }
             public function registerEvents(): array
             {
                 return [
                     \Maatwebsite\Excel\Events\AfterSheet::class => function ($event) {
-                        $sheet = $event->sheet;
-                        $lastRow = $sheet->getHighestRow();
+                        $sheet = $event->sheet->getDelegate();
+                        $highestRow = $sheet->getHighestRow();
+
+                        foreach (range('A', 'C') as $col) { // A = Asuntos, B = Metas, C = Objetivos
+                            $mergeStart = 2; // Skip the heading (row 1)
+                            $previousValue = $sheet->getCell("$col$mergeStart")->getValue();
+
+                            for ($row = 3; $row <= $highestRow + 1; $row++) {
+                                $currentValue = $sheet->getCell("$col$row")->getValue();
+
+                                if ($currentValue !== $previousValue || $row === $highestRow + 1) {
+                                    $mergeEnd = $row - 1;
+                                    if ($mergeEnd > $mergeStart) {
+                                        $sheet->mergeCells("$col$mergeStart:$col$mergeEnd");
+                                        $sheet->getStyle("$col$mergeStart")->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+                                    }
+                                    $mergeStart = $row;
+                                    $previousValue = $currentValue;
+                                }
+                            }
+                        }
+
+                        // Additional styles for all columns
                         foreach (range('A', 'F') as $col) {
-                            $sheet->getStyle("{$col}2:{$col}{$lastRow}")
+                            $sheet->getStyle("{$col}2:{$col}{$highestRow}")
                                 ->getAlignment()->setWrapText(true)
                                 ->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER)
                                 ->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT);
@@ -448,6 +484,7 @@ class StrategicPlanExport implements WithMultipleSheets
                 ];
             }
         };
+
     }
 
     protected function documentsSheet()
