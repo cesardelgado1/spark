@@ -171,7 +171,7 @@
                                             'Admin' => 'Administrador',
                                             'Planner' => 'Planificador',
                                             'Contributor' => 'Contribuidor',
-                                            'Assignee' => 'Asignado',
+                                            'Assignee' => 'Auxiliar',
                                             'Viewer' => 'Visitante',
                                         ];
                                         $translatedRole = $roleTranslations[Auth::user()->u_type] ?? Auth::user()->u_type;

@@ -60,13 +60,25 @@
         </div>
 
         {{-- Copy Fiscal Year Button --}}
-        <form action="{{ route('indicators.copyFiscalYear', $objective->o_id) }}" method="POST" onsubmit="return confirmCopy()">
-            @csrf
-            <input type="hidden" name="current_fy" id="currentFiscalYear" value="">
-            <button type="submit" class="ml-6 mb-6 py-2 px-4 bg-gray-700 text-white border border-white rounded hover:bg-gray-600 focus:outline-none">
-                Copiar indicadores al próximo año fiscal
-            </button>
-        </form>
+        <div class="flex items-center ml-6 mb-6 space-x-3">
+            <form action="{{ route('indicators.copyFiscalYear', $objective->o_id) }}" method="POST" onsubmit="return confirmCopy()">
+                @csrf
+                <input type="hidden" name="current_fy" id="currentFiscalYear" value="">
+                <button type="submit" class="py-2 px-4 bg-gray-700 text-white border border-white rounded hover:bg-gray-600 focus:outline-none">
+                    Copiar indicadores al próximo año fiscal
+                </button>
+            </form>
+
+            <form method="POST" action="{{ route('indicators.massLock', ['objective' => $objective->o_id]) }}">
+                @csrf
+                <input type="hidden" name="fiscal_year" id="massLockFiscalYear" value="">
+                <button type="submit"
+                        class="py-2 px-4 bg-red-600 text-white rounded hover:bg-red-700 transition">
+                    Cerrar todos los indicadores
+                </button>
+            </form>
+        </div>
+
     @endif
     <!-- Delete Document Modal (Pop Up)-->
     <div id="deleteDocumentModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
@@ -299,7 +311,9 @@
 
         {{-- NEW: Minimal JavaScript --}}
     <script>
-        let currentFY = '';
+        function updateMassLockFiscalYear(fy) {
+            document.getElementById('massLockFiscalYear').value = fy;
+        }
 
         function showFiscalYear(fy) {
             document.querySelectorAll('.fiscalYearSection').forEach(section => {
@@ -322,10 +336,11 @@
                 activeTab.classList.add('bg-blue-500', 'text-white');
             }
 
+            // 🔄 Update both hidden inputs
             document.getElementById('currentFiscalYear').value = fy;
+            updateMassLockFiscalYear(fy);
             currentFY = fy;
         }
-
         function confirmCopy() {
             if (!currentFY) {
                 alert('Por favor selecciona un año fiscal primero.');

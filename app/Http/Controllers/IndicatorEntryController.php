@@ -18,7 +18,7 @@ class IndicatorEntryController extends Controller
      * Ensures the user is assigned to the objective and only shows indicators
      * for the current fiscal year. Also loads any previously entered values.
      */
-    public function showForEntry(Objective $objective)
+    public function showForEntry(Request $request, Objective $objective)
     {
         $userId = Auth::id();
 
@@ -30,37 +30,23 @@ class IndicatorEntryController extends Controller
             abort(403, 'No estás asignado a este objetivo.');
         }
 
-        // Calculate the current Fiscal Year
-        $year = date('Y');
-        $month = date('n');
+        $fiscalYear = $request->has('fy') ? $request->query('fy') : null;
 
-        if ($month >= 7) {
-            $fyStart = $year;
-            $fyEnd = $year + 1;
-        } else {
-            $fyStart = $year - 1;
-            $fyEnd = $year;
-        }
-
-        $currentFiscalYear = "$fyStart-$fyEnd";
-
-        // Get only indicators for the current Fiscal Year
         $indicators = $objective->indicators()
-            ->where('i_FY', $currentFiscalYear)
+            ->when($fiscalYear, fn($query) => $query->where('i_FY', $fiscalYear))
             ->get();
 
-        // Get the current user's values for those indicators
         $userIndicatorValues = IndicatorValues::where('iv_u_id', $userId)
             ->whereIn('iv_ind_id', $indicators->pluck('i_id'))
-            ->pluck('iv_value', 'iv_ind_id'); // Key: indicator ID, Value: user’s value
+            ->pluck('iv_value', 'iv_ind_id');
 
-        // Attach the user's value to each indicator object
         foreach ($indicators as $indicator) {
             $indicator->user_value = $userIndicatorValues[$indicator->i_id] ?? null;
         }
 
-        return view('indicators.fill', compact('objective', 'indicators'));
+        return view('indicators.fill', compact('objective', 'indicators', 'fiscalYear'));
     }
+
 
     /**
      * Updates the user's values for one or more indicators.
@@ -129,6 +115,20 @@ class IndicatorEntryController extends Controller
             Indicator::where('i_id', $indicatorId)->update(['i_value' => $result]);
         }
 
-        return redirect()->route('tasks.index')->with('success', 'Indicadores actualizados correctamente.');
+        $fiscalYear = $request->input('fiscal_year');
+        $planId = $request->input('sp_id');
+
+        $redirect = redirect()->route('tasks.index')->with('success', 'Indicadores actualizados correctamente.');
+
+        if ($request->has('fiscal_year') && $request->has('sp_id')) {
+            $params = [];
+            if ($fiscalYear) $params['fy'] = $fiscalYear;
+            if ($planId) $params['sp_id'] = $planId;
+
+            $redirect = redirect()->route('tasks.index', $params)->with('success', 'Indicadores actualizados correctamente.');
+        }
+
+        return $redirect;
+
     }
 }

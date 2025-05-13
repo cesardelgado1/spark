@@ -49,6 +49,7 @@ Route::get('/debug-test', function () {
 
 //Planner routes
 Route::middleware(['auth', 'isPlanner'])->group(function () {
+    Route::post('/objectives/{objective}/indicators/mass-lock', [IndicatorController::class, 'massLock'])->name('indicators.massLock');
     Route::resource('strategicplans', StrategicPlanController::class);
     Route::view('/planes-estrategicos', 'strategicplans/select_index');
     Route::get('/strategicplans/{strategicplan}/topics', [TopicController::class, 'showTopics'])->name('strategicplans.topics');

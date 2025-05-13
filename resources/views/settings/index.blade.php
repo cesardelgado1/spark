@@ -51,7 +51,7 @@
                                         'Admin' => 'Administrador',
                                         'Planner' => 'Planificador',
                                         'Contributor' => 'Colaborador',
-                                        'Assignee' => 'Asignado',
+                                        'Assignee' => 'Auxiliar',
                                         'Viewer' => 'Visitante',
                                     ];
                                 @endphp

@@ -17,10 +17,9 @@ class TaskController extends Controller
     public function index(Request $request)
     {
         $userId = Auth::id();
-
-        // Filtros opcionales
         $planId = $request->input('sp_id');
         $fy = $request->input('fy');
+
 
         // Planes estratégicos disponibles para el usuario
         $strategicPlans = StrategicPlan::whereHas('topics.goals.objectives.assignments', function ($q) use ($userId) {
@@ -48,10 +47,6 @@ class TaskController extends Controller
         // Obtener resultados y filtrar por FY si aplica
         $assignedObjectives = $assignedObjectivesQuery->get()
             ->unique('ao_ObjToFill')
-            ->filter(function ($assignment) use ($fy) {
-                if (!$fy) return true; // sin filtro: mostrar todo
-                return $assignment->objective->indicators->contains('i_FY', $fy);
-            })
             ->values();
 
         return view('tasks.index', compact(

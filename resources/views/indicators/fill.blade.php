@@ -15,6 +15,19 @@
                   class="bg-white border border-gray-300 rounded-lg shadow-md p-6 space-y-6 max-w-4xl mx-auto">
                 @csrf
 
+                @php
+                    $cameWithFy = request()->has('fy');
+                    $cameWithSp = request()->has('sp_id');
+                @endphp
+
+                @if($cameWithFy)
+                    <input type="hidden" name="fiscal_year" value="{{ request('fy') }}">
+                @endif
+
+                @if($cameWithSp)
+                    <input type="hidden" name="sp_id" value="{{ request('sp_id') }}">
+                @endif
+
                 <input type="hidden" name="objective_id" value="{{ $objective->o_id }}">
 
                 <h2 class="text-xl font-semibold text-gray-800 mb-6">
@@ -32,7 +45,6 @@
                         </p>
 
                         @if($indicator->i_locked)
-{{--                            <p class="text-red-500 font-bold text-sm mb-2">🔒 Este indicador ha sido cerrado. No puedes modificarlo.</p>--}}
                             <div class="flex items-center space-x-2 mb-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
@@ -69,20 +81,14 @@
                                     onclick="toggleExpandTextarea(this, 'indicator_{{ $indicator->i_id }}')"
                                     title="Expandir texto"
                                 >
-                                    {{-- Down Arrow (show when collapsed) --}}
                                     <svg class="w-8 h-8 expand-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                                     </svg>
-
-                                    {{-- Up Arrow (show when expanded) --}}
                                     <svg class="w-8 h-8 collapse-icon hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
                                     </svg>
                                 </button>
-
                             </div>
-
-
                         @elseif ($indicator->i_type === 'document')
                             @if ($indicator->user_value)
                                 <p class="text-sm text-blue-600 mb-2">Documento actual:

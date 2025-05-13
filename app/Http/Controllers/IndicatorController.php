@@ -334,4 +334,18 @@ class IndicatorController extends Controller
 
         return back()->with('success', 'El estado de edición del indicador ha sido actualizado.');
     }
+    public function massLock(Request $request, Objective $objective)
+    {
+        $fiscalYear = $request->input('fiscal_year');
+
+        if (!$fiscalYear) {
+            return back()->withErrors(['fiscal_year' => 'Año fiscal no especificado.']);
+        }
+
+        $lockedCount = Indicator::where('o_id', $objective->o_id)
+            ->where('i_FY', $fiscalYear)
+            ->update(['i_locked' => true]);
+
+        return back()->with('success', "$lockedCount indicador(es) fueron cerrados exitosamente para el año fiscal $fiscalYear.");
+    }
 }
